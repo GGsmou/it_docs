@@ -1,0 +1,27 @@
+---
+title: IT
+---
+*Note: relative links and images aren't working*
+## List of all topics
+- [FrontEnd](FrontEnd.md)
+- [BackEnd](BackEnd.md)
+- [Architecture](Architecture.md)
+- [React](React.md)
+- [CSS](CSS.md)
+- [Optimization](Optimization.md)
+- [Algorithms & Data Structures](Algorithms_&_Data_Structures.md)
+- [General](General.md)
+- [Testing](Testing.md)
+- [JS](JS.md)
+- [CLI](CLI.md)
+- [Security](Security.md)
+
+## Materials
+- [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist
+
+## Tools
+- [marmelab.com/react-admin](https://marmelab.com/react-admin/) - auto generation of CRUDs on MUI+React based on simple API endpoints
+- [regex101](https://regex101.com/) - regex cheatsheet
+- [amplitude analytics](https://amplitude.com/) - analytics tool
+- [google analytics](https://analytics.google.com/) - analytics tool
+- [excalidraw](https://excalidraw.com/) - online drawing tool

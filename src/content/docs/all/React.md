@@ -1,0 +1,237 @@
+---
+title: React
+---
+
+## React functional components (FC)
+It is good approach to look at FC as pure function that takes in some args and return picture(landing)
+
+## React hooks
+React Hooks - functions that interact with react under the hood(manage state, call rerender etc)
+
+They collected and processed in scope of component, so can't be called inside func or conditionaly(if/else)
+
+Custom hooks:
+- functions that starts with "use"
+- can interact with react hooks
+- should be treated as react hooks(non conditional call etc)
+
+#### useEffect vs useLayoutEffect
+Basically useEffect works before render and useLayoutEffect works after layout is rendered, so we can use it when working with useRef
+
+#### Hooks
+- use(*canary*)
+	- used to read async value: `use(resource: Promise<value> | context) => value` 
+	- can be called conditionally, in loops, BUT not in try/catch
+	- use === useContext, if called with context
+	- when called activates Suspense(waiting state) mode, if resolves correctly -> re-renders component with value, else fallbacks to nearest error boundarie
+		- can be wrapper with `<Suspense>` to show some placeholder while fetching
+- CONTEXT
+	- createContext
+		- used to create context: `createContext(defaultValue: any) => Context` 
+		- can be combined with state to updates + useMemo/useCallback for memoization
+	- useContext
+		- used to read value from context: `useContext(Context) => value` 
+		- subscribes component to context and it's updates
+		- context can be used as global store OR in situations where you need to create components, that can be put in different context and behave differently
+		- DON'T OVERUSE: try to parse props first, or extract components to top(by wrapping them into other components)
+			- use-cases: theming, current logged user, routing, global state
+	- Context.Provider
+		- used to provide value to context: `<Context.Provider value={value}>{children}</Context.Provider>` 
+			- if there is no `value` prop, useContext will return `undefined`
+		- if no provider is found, react will return a default value of Context
+		- can't be inside the same component/bellow, ONLY ABOVE
+- useDebugValue
+	- used to add label to custom hooks(inside react dev tools): `useDebugValue(valueToDisplay: any, format?: (value) => formattedValue)`
+	- don't add labels to any hook, better to do if it is a shared+complex hooks
+	- **LITTERALLY USELESS, EVERYONE HAS CONSOLE.LOG :)** 
+- useDeferValue
+	- used to defer updating a part of UI: `useDeferValue(value: primitive/ouside objects) => deferredValue` 
+	- first renders with initial value, other re-renders goes like this: try to re-render with old value, re-render with new value in background
+	- integrated with Suspense, so async data will render old value, until new appears
+	- can be used with lazy, Suspense, use
+	- MAIN REASON TO USE: to delay slow updates(make them lag behind)
+	- ARTICLE
+		- similar to useTransition, but for cases, where you re-renders happens from props/other, but not controllable state
+- useId
+	- used to generate uniq IDs, to use in accessibility attributes: `useId() => string` 
+		- generated IDs will be associated with particular call + component
+		- NO USSAGE IN KEYS
+	- client and server must have same trees, otherwise IDs won't match
+- useImperativeHandle
+	- used to customize handle, exposed as a ref: `useImperativeHandle(ref, createHandle: () => ref, [dep1, dep2]?)` 
+		- exposed refs are created with forwardRef((props, ref) => JSX) and allows to pass ref from parent into some element inside component
+	- USAGE
+		- not to expose full ref, but some values/custom methods that use values from it
+		- to write laconic interfaces to interact with refs
+	- good to imperative usages like scrollTo, zoomIn(online maps)
+- useInsertionEffect
+	- used to insert elements into DOM(mainly for CSS-in-JS): `useInsertionEffect(() => cleanUp()?, [dep1, dep2]?)` 
+	- cleanUp will be fired with old values, before next re-render
+	- can't update state + can't work with refs
+	- fires before useLayoutEffect(fires before each repaint), which is fires before useEffect(fires after render finishes)
+- useOptimistic(*canary*)
+	- used to optimistically update UI: `useOptimistic(state, (currentState, optimisticValue) => {}) => [optimisticState, addOptimistic]` 
+		- optimisticState is equal to state normally OR result of function while pending
+		- addOptimistic is used to path inside optimisticValue
+- useReducer
+	- used to add reducer to component: `useReducer(reducer: (state: any, action: string) => {}, initialValue: any, init?: (initialValue: any) => initedValue: any) => [state, dispatch]` 
+		- init - can transform initialValue before setting it
+		- dispatch - that can take any action, but by convention it takes object with `type: string` properti
+			- update value on next re-render
+		- reducer
+			- by convention handled with `switch` statement
+	- can be used to move handlers into separate files/functions
+	- can be used to group several state changes into one action
+- useSyncExternalStorage
+	- used to subscribe to external storage(some data that stored outside react, browser APIs): `useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot?) => snapshot` 
+		- subscribe - subscribe to store + return unsubscribe function
+			- calls on every store change
+		- getSnapshot - function that reads a snapshot
+			- if returned value is different - component will re-render
+		- getServerSnapshot - return initial snapshot data and used for SSR
+	- only for sync storages
+	- to make any class work with this, your class should have .clone() method, so it won't mutate, but change
+- useTransition
+	- used to update state without UI re-render: `useTransition() => [isPending: boolean, startStranstion: () => {... setState()}]` 
+		- isPending tells if there any pending transition
+		- startTransition marks a state update as transition
+	- if re-render is in process, transitioned state change will happen before it
+	- can make some slow calculations and only then render them
+	- transition is interruptible, so good to use while building a router
+	- can be wrapped in ErrorBoundarie(*canary*)
+	- ARTICLE
+		- state updates are sync and can bock UI interactions, so we have Concurrent Rendering to calculate changes in background
+			- means react can pause/stop calculations if main changes are happening
+			- JS is still single-threaded, so react will simply check if there is some actions in main queue from time to time
+		- this calculations is happening in two steps
+			- critical re-reder with old state + isPending -> true
+			- background re-render
+			- PROBLEM: now we have two re-renders, so we potentially doing heavy re-renders
+			- SOLUTIONS
+				- memoization + not passing isPending
+				- using only when transitioning from lightComponent to heavyComponent OR make conditional rendering inside heavy components to make them light
+		- won't work as debounce, because react is too fast
+
+## Components
+- Suspence
+	- used to display fallback, until it's children are fully loaded: `<Suspense fallback={<Loading />}>...</Suspence>` 
+		- if fallback suspends, it will be replaced with nearest Suspence fallback
+	- suspence state is activated by
+		- Suspence-enabled frameworks(Next.js)
+			- it is possible to interact via JS, but it is not documented/recommended
+		- lazy loading
+		- use hook
+	- not activated by useEffect
+	- you can nest suspences and partially show content with different fallbacks
+- Portal
+	- used to render children into different part of DOM: `createPortal(children, domNore, key?) => JSX` 
+	- key moment is: portal changes only position inside DOM, other things like scope, context etc is same as children will be placed inside parent element
+		- events are propagating according to ReactTree
+	- you can render react inside non-react parts of DOM
+	- use-cases: dropdown, modal
+
+## Reconciliation(согласування)
+Algorithm of how react mounts and unmounts components(algorithm behind VirtualDOM)
+
+reconciliation is separate from rendering itself
+
+interesting thing: if we have conditional rendering of input and some text component, on condition change components will be unmounted/mounted and loose inner state, BUT if we have conditional rendering of two inputs this won't happen and one input will just re-render data inside itself(placeholders etc)
+
+react stores everything in VirtualDOM because it is faster/cheaper to calculate changes in big object and that change real DOM
+- in Virtual DOM react represents nodes as objects with some properties
+- for first render react renders elements like this:
+	- if it is native HTML element, then it will be just rendered to DOM
+	- if it is function(other component), react will firstly call it and render all it's output
+- other re-renders will be triggered by state change and will be depend on reconciliation(on every update react goes through components and checks if type/props changed)
+	- if we change component's type it will be fully mounted/unmounted, otherwise only update is needed
+		- to hack this behavior we can change conditional render, so it will be like this: ![[it_1.png]]now we have null <-> Input compare and components are fully mounted/unmounted
+		- better way to fix this situation is to use key(react will compare elements not only by type, but also by key). More over it will not mount/unmount, but just swap order of elements
+			- there is interesting behavior with keys, where you can save state between different elements like this: ![[it_2.png]]
+			- keys are often needed for arrays only because react assumes that arrays will be dynamic, but if we have just two inputs in a row it is often not dynamic and no need to care about keys
+	- to fix problem where all elements after dynamic array are re-rendered if array itself is changed, react groups dynamic array elements into in-memory array like this: ![[it_3.png]]
+	- declaring component inside a component is anti-pattern, because react will always re-mount inner component, instead of re-render, because it will compare two different functions
+- ALGORITHM
+	- build tree that represents Current state of an App
+	- send tree to renderer
+	- onChange build work-in-progress tree
+	- diff trees
+		- using Heuristic method, that is O(n), but not precise
+		- new Type, change of order -> unmount
+		- key(1 depth) -> re-render
+	- send diffs to renderer
+	- NOTE: react breaks diff to small changes and prioritize them before sending to render
+		- it is Fiber stuff
+
+## Scheduling
+one render tick for react
+- go through tree recursively
+- call update for all tree
+
+react is using "pull" approach, where it can delay computation
+	other libs can use "push" - computation done on new data arrival
+this approach is taken, because react is UI renderer, so:
+- we can hold some changes
+- different changes have different priorities
+- framework can some decide when to update
+
+react is based on scheduling, but for now not uses it(fibers wants to change it)
+
+## Fiber
+reimplementation of core rendering react algorithm, that takes advantagies of scheduling
+
+key features
+- incremental rendering(ability to split rendering work into chunks and spread it out over multiple frames)
+- ability to pause, abort, reuse work
+- prioritize updates
+
+react treats UI components as a functions => work of that functions are based on Stack tech, but it prevents flexible features above, so we can re-implement stack :)
+	basically fiber is a unit of work(Virtual Stack Frame)
+
+#### Implementation
+fiber is an object, that contains data(input, output etc) about component(it corresponds to stack frame AND component)
+
+fields
+- type - function, class, string(for browser elements) + key // same usage as in reconciliation
+- child - value, returned by component
+- sibling(new) - other values, that are stored, when component returns multiple children
+- return - return address of previous frame
+- pendingProps + memoizedProps - props on start of execution and 
+	- if both sets are same => we can re-use output
+- pendingWorkPriority - sets priority of fiber(0 == no work, higher number == less priority)
+- output - value that returned to render function
+
+## State Management
+#### React Context
+- create context
+- wrap app with context provider
+- get value with use context
+
+to mimic Redux can be combined with useReducer
+
+#### React-Query
+server-client state management, that hides store and it's modification as implementation detail
+
+operation with data:
+- get data - useQuery
+- modify data - useMutate
+
+#### Redux
+- create global store, that handles all state
+	- read-only, single source of truth
+- specify reducer - function that take current state, action(type + other parameters) and return modified state, that replaces current state in store
+	- after replace, redux notifies subscribed listeners that data has changed
+	- history change can other CoL stuff are added on top
+- actions are dispatched to store
+
+#### MobX
+uses class approach:
+- store - class, where (methods - actions, fields - observable state OR computed state)
+	- to convert class to store, in constructor add makeObservable + specify type of fields(action, observable, computed)
+
+#### Effector
+- event - message that smth changed
+- store - object that handles data
+- effect - async effects, localStorage
+- connects entities as graphs
+
+base idea that we subscribe to some changes and handle them
