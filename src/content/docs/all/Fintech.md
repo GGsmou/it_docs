@@ -2,14 +2,14 @@
 title: Fintech
 ---
 
-## Stripe guide
+## Stripe [guide](https://stripe.com/guides/introduction-to-online-payments) 
 
 4 players involved in online trans
 - Cardholder: person who pays
 - Merchant: business owner(client of Solidgate)
 - Acquirer: bank who processes payment(Visa, MasterCard)
 - Issuing bank: bank of cardholder
-![[fintech_1.png]]
+- ![](../../../assets/fintech_1.png)
 
 Payment Methods
 - Credit Cards
@@ -51,7 +51,7 @@ Marketplace
 	- account debits: platform takes fees
 	- subscriptions
 
-**Transaction flow:**
+Transaction flow:
 - checkout completion -> fraud protection -> network acceptance
 Checkout Form
 - collects minimal data to make operation
@@ -64,7 +64,7 @@ Fraud
 	- rule-based
 		- block transactions from IP, Country, by Amount
 	- AI
-	- ![[fintech_3.png]]
+	- ![](../../../assets/fintech_3.png)
 Net acceptance
 - bank will check info and decide to accept/denay
 - this decision is made by amount of info and amount of prev operations
@@ -73,10 +73,10 @@ PCI standards - security guidelines
 - tokenization
 - 3D Secure
 
-![[fintech_2.png]]
+- ![](../../../assets/fintech_2.png)
 
 ## Anatomy of Swipe
-![[fintech_6.png]]
+- ![](../../../assets/fintech_6.png)
 
 Marqeta - company to create cards and payment рахунки
 Stripe - money gateway
@@ -292,7 +292,3 @@ Expense Reports Alternatives
 	- person gets virtual card with already set budget + card have one time spend limit
 	- alternatively person can pay with personal card and then have compensation with in app request
 	- EARNINGS // Interchange fees
-
-## MATERIALS
-- stripe [guide](https://stripe.com/guides/introduction-to-online-payments)
-- anatomy of swipe book

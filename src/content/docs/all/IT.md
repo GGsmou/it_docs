@@ -15,6 +15,7 @@ title: IT
 - [JS](JS.md)
 - [CLI](CLI.md)
 - [Security](Security.md)
+- [Fintech](Fintech.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist

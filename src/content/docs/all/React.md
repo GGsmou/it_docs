@@ -144,11 +144,15 @@ react stores everything in VirtualDOM because it is faster/cheaper to calculate 
 	- if it is function(other component), react will firstly call it and render all it's output
 - other re-renders will be triggered by state change and will be depend on reconciliation(on every update react goes through components and checks if type/props changed)
 	- if we change component's type it will be fully mounted/unmounted, otherwise only update is needed
-		- to hack this behavior we can change conditional render, so it will be like this: ![[it_1.png]]now we have null <-> Input compare and components are fully mounted/unmounted
+		- to hack this behavior we can change conditional render, so it will be like this
+			- ![](../../../assets/it_1.png)
+			- now we have null <-> Input compare and components are fully mounted/unmounted
 		- better way to fix this situation is to use key(react will compare elements not only by type, but also by key). More over it will not mount/unmount, but just swap order of elements
-			- there is interesting behavior with keys, where you can save state between different elements like this: ![[it_2.png]]
+			- there is interesting behavior with keys, where you can save state between different elements like this
+				- ![](../../../assets/it_2.png)
 			- keys are often needed for arrays only because react assumes that arrays will be dynamic, but if we have just two inputs in a row it is often not dynamic and no need to care about keys
-	- to fix problem where all elements after dynamic array are re-rendered if array itself is changed, react groups dynamic array elements into in-memory array like this: ![[it_3.png]]
+	- to fix problem where all elements after dynamic array are re-rendered if array itself is changed, react groups dynamic array elements into in-memory array like this
+		- ![](../../../assets/it_3.png)
 	- declaring component inside a component is anti-pattern, because react will always re-mount inner component, instead of re-render, because it will compare two different functions
 - ALGORITHM
 	- build tree that represents Current state of an App

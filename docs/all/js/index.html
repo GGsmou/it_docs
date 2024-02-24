@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-has-toc data-has-sidebar data-theme="dark" class="astro-bguv2lll"> <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>JS | IT Docs</title><link rel="canonical"/><link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v4.4.4"/><meta name="generator" content="Starlight v0.19.1"/><meta property="og:title" content="JS"/><meta property="og:type" content="article"/><meta property="og:url"/><meta property="og:locale" content="en"/><meta property="og:description"/><meta property="og:site_name" content="IT Docs"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="JS"/><meta name="twitter:description"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg> <svg aria-hidden="true" class="dark astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg> <svg aria-hidden="true" class="auto astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg> </template><link rel="stylesheet" href="/_astro/index.BsC2KTtW.css" /><script type="module" src="/_astro/hoisted.BgfNSAb0.js"></script>
+<script type="module" src="/_astro/page.CZ0TFQCk.js"></script></head> <body class="astro-bguv2lll"> <a href="#_top" class="astro-7q3lir66">Skip to content</a>  <div class="page sl-flex astro-vrdttmbt"> <header class="header astro-vrdttmbt"><div class="header sl-flex astro-kmkmnagf"> <div class="title-wrapper sl-flex astro-kmkmnagf"> <a href="/" class="site-title sl-flex astro-m46x6ez3">  <span class="astro-m46x6ez3"> IT Docs </span> </a>  </div> <div class="sl-flex astro-kmkmnagf"> <site-search data-translations="{&#34;placeholder&#34;:&#34;Search&#34;}" class="astro-v37mnknz"> <button data-open-modal disabled class="astro-v37mnknz">  <svg aria-label="Search" class="astro-v37mnknz astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>  <span class="sl-hidden md:sl-block astro-v37mnknz" aria-hidden="true">Search</span> <svg aria-label="(Press / to Search)" class="sl-hidden md:sl-block astro-v37mnknz astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 2H7a5 5 0 0 0-5 5v10a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5Zm3 15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10Z"/><path d="M15.293 6.707a1 1 0 1 1 1.414 1.414l-8.485 8.486a1 1 0 0 1-1.414-1.415l8.485-8.485Z"/></svg>  </button> <dialog style="padding:0" aria-label="Search" class="astro-v37mnknz"> <div class="dialog-frame sl-flex astro-v37mnknz">  <button data-close-modal class="sl-flex md:sl-hidden astro-v37mnknz"> Cancel </button> <div class="search-container astro-v37mnknz"> <div id="starlight__search" class="astro-v37mnknz"></div> </div> </div> </dialog> </site-search>    </div> <div class="sl-hidden md:sl-flex right-group astro-kmkmnagf"> <div class="sl-flex social-icons astro-kmkmnagf"> <a href="https://github.com/GGsmou" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <starlight-theme-select>  <label style="--sl-select-width: 6.25em" class="astro-4yphtoen"> <span class="sr-only astro-4yphtoen">Select theme</span> <svg aria-hidden="true" class="icon label-icon astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg>  <select value="auto" class="astro-4yphtoen"> <option value="dark" class="astro-4yphtoen">Dark</option><option value="light" class="astro-4yphtoen">Light</option><option value="auto" selected="true" class="astro-4yphtoen">Auto</option> </select> <svg aria-hidden="true" class="icon caret astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </label>  </starlight-theme-select>  <script>
+	StarlightThemeProvider.updatePickers();
+</script>   </div> </div> </header> <nav class="sidebar astro-vrdttmbt" aria-label="Main"> <starlight-menu-button class="astro-jif73yzw"> <button aria-expanded="false" aria-label="Menu" aria-controls="starlight__sidebar" class="sl-flex md:sl-hidden astro-jif73yzw"> <svg aria-hidden="true" class="astro-jif73yzw astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg>  </button> </starlight-menu-button>    <div id="starlight__sidebar" class="sidebar-pane astro-vrdttmbt"> <div class="sidebar-content sl-flex astro-vrdttmbt"> <ul class="top-level astro-3ii7xxms"> <li class="astro-3ii7xxms"> <details open class="astro-3ii7xxms"> <summary class="astro-3ii7xxms"> <div class="group-label astro-3ii7xxms"> <span class="large astro-3ii7xxms">Overview</span>  </div> <svg aria-hidden="true" class="caret astro-3ii7xxms astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </summary> <ul class="astro-3ii7xxms"> <li class="astro-3ii7xxms"> <a href="/all/algorithms__data_structures/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Algorithms and Data Structures</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/architecture/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Architecture</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/backend/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">BackEnd</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/cli/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">CLI</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/css/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">CSS</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/fintech/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Fintech</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/frontend/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">FrontEnd</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/general/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">General</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/it/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">IT</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/js/" aria-current="page" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">JS</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/optimization/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Optimization</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/react/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">React</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/security/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Security</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/all/testing/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Testing</span>  </a> </li> </ul>  </details> </li> </ul>  <div class="md:sl-hidden"> <div class="mobile-preferences sl-flex astro-wu23bvmt"> <div class="sl-flex social-icons astro-wu23bvmt"> <a href="https://github.com/GGsmou" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <starlight-theme-select>  <label style="--sl-select-width: 6.25em" class="astro-4yphtoen"> <span class="sr-only astro-4yphtoen">Select theme</span> <svg aria-hidden="true" class="icon label-icon astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg>  <select value="auto" class="astro-4yphtoen"> <option value="dark" class="astro-4yphtoen">Dark</option><option value="light" class="astro-4yphtoen">Light</option><option value="auto" selected="true" class="astro-4yphtoen">Auto</option> </select> <svg aria-hidden="true" class="icon caret astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </label>  </starlight-theme-select>  <script>
+	StarlightThemeProvider.updatePickers();
+</script>   </div>  </div> </div> </div> </nav> <div class="main-frame astro-vrdttmbt">  <div class="lg:sl-flex astro-67yu43on"> <aside class="right-sidebar-container astro-67yu43on"> <div class="right-sidebar astro-67yu43on"> <div class="lg:sl-hidden astro-pb3aqygn"><mobile-starlight-toc data-min-h="2" data-max-h="6" class="astro-doynk5tl"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-doynk5tl"><details id="starlight__mobile-toc" class="astro-doynk5tl"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-doynk5tl"><div class="toggle sl-flex astro-doynk5tl">On this page<svg aria-hidden="true" class="caret astro-doynk5tl astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg> </div><span class="display-current astro-doynk5tl"></span></summary><div class="dropdown astro-doynk5tl"><ul class="isMobile astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#other" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Other</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#node-shortcuts" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Node shortcuts</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#jsdoc" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">JSDoc</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#interesting" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Interesting</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#data-normalizing" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Data normalizing</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#v8" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">V8</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#regex-regular-expression" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Regex (Regular Expression)</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#service-worker" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Service Worker</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#use-cases" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Use Cases</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#life-cycle" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Life Cycle</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#other-1" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Other</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#lodash" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Lodash</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#requests" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Requests</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#ajax" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Ajax</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#xmlhttp" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">XMLHTTP</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#fetch" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Fetch</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#axios" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Axios</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#you-dont-know-js-book" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">You don’t know JS book</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#naming-and-spec" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Naming and Spec</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#updates" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Updates</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#interpretation" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Interpretation</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#webassemblywasm" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">WebAssembly(WASM)</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#strict" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Strict</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#files" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Files</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#values" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Values</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#var-let-const" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Var, let, const</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#functions" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Functions</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#comparisons" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Comparisons</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#clean-code-js" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Clean Code JS</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#variables" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Variables</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#functions-1" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Functions</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#objects-and-data-structures" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Objects and Data structures</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#solid" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Solid</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#testing" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Testing</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#error-handling" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Error handling</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#formatting" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Formatting</span> </a>  </li> </ul>  </li> </ul> </div></details></nav></mobile-starlight-toc></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-pb3aqygn"><div class="sl-container astro-pb3aqygn"><starlight-toc data-min-h="2" data-max-h="6"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#other" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Other</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#node-shortcuts" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Node shortcuts</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#jsdoc" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">JSDoc</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#interesting" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Interesting</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#data-normalizing" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Data normalizing</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#v8" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">V8</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#regex-regular-expression" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Regex (Regular Expression)</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#service-worker" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Service Worker</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#use-cases" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Use Cases</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#life-cycle" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Life Cycle</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#other-1" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Other</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#lodash" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Lodash</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#requests" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Requests</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#ajax" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Ajax</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#xmlhttp" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">XMLHTTP</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#fetch" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Fetch</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#axios" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Axios</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#you-dont-know-js-book" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">You don’t know JS book</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#naming-and-spec" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Naming and Spec</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#updates" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Updates</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#interpretation" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Interpretation</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#webassemblywasm" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">WebAssembly(WASM)</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#strict" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Strict</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#files" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Files</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#values" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Values</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#var-let-const" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Var, let, const</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#functions" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Functions</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#comparisons" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Comparisons</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#clean-code-js" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Clean Code JS</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#variables" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Variables</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#functions-1" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Functions</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#objects-and-data-structures" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Objects and Data structures</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#solid" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Solid</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#testing" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Testing</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#error-handling" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Error handling</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#formatting" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Formatting</span> </a>  </li> </ul>  </li> </ul> </nav></starlight-toc></div></div> </div> </aside> <div class="main-pane astro-67yu43on">  <main data-pagefind-body lang="en" dir="ltr" class="astro-bguv2lll">    <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <h1 id="_top" class="astro-j6tvhyss">JS</h1>  </div> </div>  <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <div class="sl-markdown-content"> <h2 id="other">Other</h2>
+<p>By using flag <code dir="auto">--require ./path/toFile.js</code> for <code dir="auto">node</code> we can add some file to be called with main file we call</p>
+<ul>
+<li>usage: add some global module that is not required in other files</li>
+</ul>
+<h4 id="node-shortcuts">Node shortcuts</h4>
+<p>npm run start -> npm start -> npm s?
+npm install -> npm i
+npm run test -> npm test -> npm t</p>
+<h4 id="jsdoc">JSDoc</h4>
+<p>add typing to functions with native JS</p>
+<p>to use, add comment before function in this format:</p>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.usa2f.css"><script type="module" src="/_astro/ec.sgewm.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#809191;--1:#616671">/**</span></div><div class="ec-line"><span style="--0:#809191;--1:#616671">* </span><span style="--0:#C792EA;--1:#8D46B4">@param</span><span style="--0:#809191;--1:#616671"> </span><span style="--0:#7690A6;--1:#4F687D">{number}</span><span style="--0:#809191;--1:#616671"> </span><span style="--0:#78CCF0;--1:#406C80">a</span></div><div class="ec-line"><span style="--0:#809191;--1:#616671">* </span><span style="--0:#C792EA;--1:#8D46B4">@param</span><span style="--0:#809191;--1:#616671"> </span><span style="--0:#7690A6;--1:#4F687D">{string}</span><span style="--0:#809191;--1:#616671"> </span><span style="--0:#78CCF0;--1:#406C80">b</span></div><div class="ec-line"><span style="--0:#809191;--1:#616671">*/</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="/*** @param {number} a* @param {string} b*/"><div></div></button></div></figure></div>
+<h4 id="interesting">Interesting</h4>
+<ul>
+<li>if you declare variable inside <code dir="auto">&#x3C;script></code> tag it will become global</li>
+</ul>
+<h2 id="data-normalizing">Data normalizing</h2>
+<p>Data normalizing - process of transforming arbitrary list of data to list where we have one entity at a time and in other places we have links to this entity</p>
+<h2 id="v8">V8</h2>
+<p>JS engine by google</p>
+<p>Compiles js into machine code with features like caching, optimizing, garbage collection etc
+Used in browsers and Node.js</p>
+<p>Code inside <code dir="auto">try {}</code> is not optimized and usually slower</p>
+<h2 id="regex-regular-expression">Regex (Regular Expression)</h2>
+<p>Regex is used to validate/filter some text data
+Works by comparing substr inside str</p>
+<p>Regex is heavy operation, so better use simple expressions for small data sets</p>
+<ul>
+<li>sometimes better use self written solution</li>
+</ul>
+<h2 id="service-worker">Service Worker</h2>
+<p>Service worker - browser api</p>
+<ul>
+<li>
+<p>for simplicity we can call it as hybrid of proxy and js(file) between client and browser</p>
+</li>
+<li>
+<p>have ability to cache, work with requests etc</p>
+</li>
+<li>
+<p>async</p>
+</li>
+<li>
+<p>can’t work with DOM directly</p>
+</li>
+<li>
+<p>is some file, that is scoped by page, globaly etc</p>
+<ul>
+<li>if we have global and scoped sw on page only scoped will work</li>
+</ul>
+</li>
+</ul>
+<h4 id="use-cases">Use Cases</h4>
+<ul>
+<li>usually used with listening fetch event</li>
+<li>caching (work with <code dir="auto">caches</code> obj)
+<ul>
+<li>can make website work offline</li>
+<li>usually better to init cache on install</li>
+</ul>
+</li>
+</ul>
+<h4 id="life-cycle">Life Cycle</h4>
+<ul>
+<li>Register. Triggers every time.
+<ul>
+<li>cases other steps</li>
+</ul>
+</li>
+<li>Download. Can be seen in network, on registration
+<ul>
+<li>if registered won’t be reregistered later</li>
+</ul>
+</li>
+<li>Install. Goes directly after download and linked to it
+<ul>
+<li>can be listened as event</li>
+</ul>
+</li>
+<li>Activation. Indicates that service worker is ready to work
+<ul>
+<li>can be listened as event</li>
+<li>not always instantly triggered after install, so we can <code dir="auto">self.skipWaiting()</code> on install stage</li>
+</ul>
+</li>
+<li>Update. Triggered after changes inside js file, after ~24hours of AFK
+<ul>
+<li>causes downloading, installing and activation again</li>
+</ul>
+</li>
+</ul>
+<h4 id="other-1">Other</h4>
+<ul>
+<li>if we change request we will see old request and changed response</li>
+<li>active not working for first time, can be fixed with <code dir="auto">event.waintUntil(clients.claim())</code> on activate</li>
+<li>can’t communicate directly, only with messages</li>
+<li>external lib: work box</li>
+</ul>
+<h2 id="lodash">Lodash</h2>
+<p>utility library to work with different data structures in compact and clean way</p>
+<p>it is good practice to check if some method is present before writing it</p>
+<p>popular methods are(by convention lodash is imported as <code dir="auto">_</code>):</p>
+<ul>
+<li><code dir="auto">.sumBy(arr, () => number)</code> // calculate sum from array</li>
+<li><code dir="auto">.get(obj, 'location.to[1].propertie', default)</code> // find some data from nested obj by path</li>
+<li><code dir="auto">.groupBy(arr, () => propertie)</code> // group list of data by some field</li>
+<li><code dir="auto">.deepClone(obj)</code> // return a deep cope of some obj</li>
+<li><code dir="auto">.uniqBy(arr, 'field')</code> // filters array of objects to be unique by some properte
+<ul>
+<li><code dir="auto">.sortBy</code>, <code dir="auto">.orderBy</code> // same, action is described in name</li>
+</ul>
+</li>
+<li><code dir="auto">.isEmpty(arr)</code> // checks if array is empty or even present
+<ul>
+<li>native clean way: <code dir="auto">arr?.length > 0</code></li>
+</ul>
+</li>
+<li><code dir="auto">.isEqual(obj1, obj2)</code> // check for deep equality</li>
+</ul>
+<h2 id="requests">Requests</h2>
+<h4 id="ajax">Ajax</h4>
+<p>Tool to reload-less client-server communication</p>
+<h4 id="xmlhttp">XMLHTTP</h4>
+<p>Old, native, everywhere supported method to request some data</p>
+<p>pros:</p>
+<ul>
+<li>you can track downloading progress, so it is great for file upload related stuff</li>
+</ul>
+<h4 id="fetch">Fetch</h4>
+<p>Modern, well supported, native way of doing HTTP requests</p>
+<h4 id="axios">Axios</h4>
+<p>Similar to Fetch, but it is a lib with some additional features, like middlewares</p>
+<h2 id="you-dont-know-js-book">You don’t know JS book</h2>
+<h4 id="naming-and-spec">Naming and Spec</h4>
+<p>JavaScript is named after Java as branding for “web Java” and name still owned by Oracle
+JavaScript/JS has official name ECMAScript(ES) and it is also a standard for how to implement JS(browser, Node.js erc)</p>
+<p>TC39 is tech committee that decides on new changes and later addresses them to ECMA</p>
+<ul>
+<li>TC39 is managing open source proposals too</li>
+<li>every proposal are gone gone through 0-4 stages</li>
+</ul>
+<p>JS engines (ideally) fully implement JS spec
+Spec has appendix B that includes some historical inconsistencies in browser JS spec
+Some methods like <code dir="auto">alert</code>, <code dir="auto">console.x</code>, <code dir="auto">fs.write</code> etc aren’t in spec, but universal-ish in JS environment</p>
+<p>JS is muliy-paradigm lang</p>
+<h4 id="updates">Updates</h4>
+<p>JS is backward compatible(new changes don’t break old code), but not forwardcompatiable(new changes can’t be run in old version)</p>
+<ul>
+<li>HTML/CSS are opposite</li>
+</ul>
+<p>To address forwardcompatiable problem transpiling(babel is most popular) invented</p>
+<ul>
+<li>transpiling - converting new syntax to old one, like <code dir="auto">let</code> -> <code dir="auto">var</code></li>
+</ul>
+<p>Transpiling won’t help in new-new-API case, so dev can write polyfill(wrapper for new API that implemented with old APIs)</p>
+<ul>
+<li>there are library of official polyfills</li>
+<li>often babel can add polyfills</li>
+</ul>
+<h4 id="interpretation">Interpretation</h4>
+<p>There two polar types of langs: interpreted and compiled, BUT it is not binary and rather a spectrum</p>
+<ul>
+<li>interpretation works by executing code line by line
+<ul>
+<li>any errors are throw in run time</li>
+</ul>
+</li>
+<li>compiling works by converting code to Abstract Syntax Tree (AST), analyzing for static(syntax, type etc) errors, then to binary code and then executed</li>
+</ul>
+<p>JS has a parsing step and kinda compiled, but not fully</p>
+<ul>
+<li>kinda, because after parsing it has conversion to optimized binary code(binary intermediate representation), that can be executed by virtual machine aka JS engine(similar to Java)
+JS also has Just-In-Time optimizations on BIR(post parsing)</li>
+</ul>
+<h4 id="webassemblywasm">WebAssembly(WASM)</h4>
+<p>In it’s core WASM is tool to convert some lang to binary representation of JS, that can be read by JS VM without need in additional optimizations</p>
+<p>It is also suitable like general purpose VM</p>
+<ul>
+<li>ironically it is hard to WASM to convert JS itself because of lack of type-safety :)</li>
+</ul>
+<h4 id="strict">Strict</h4>
+<p>Optional(highly enforced in new code bases) list of additional rules to make JS safer and cleaner</p>
+<ul>
+<li>best-practice is Strict + linter + prettier</li>
+<li>de facto is default but technically not for backwardcompatability</li>
+</ul>
+<p>some of strictness comes in form of new Static errors
+in strict <code dir="auto">this</code> defaults to <code dir="auto">undefined</code></p>
+<p>turned on with <code dir="auto">"use strict";</code> on first line per file</p>
+<ul>
+<li>can be not on first line if there are comments/blank space above</li>
+</ul>
+<p>ES6 modules enforces strict</p>
+<h4 id="files">Files</h4>
+<p>Each file is a program, but executions helps them to organically communicate, by mixing them in a runtime</p>
+<ul>
+<li>it is done, so if one file throws, other will still operate
+Seamless communication is achieved via global scope, BUT after ES6, we can make files to be scoped(modular)</li>
+</ul>
+<h4 id="values">Values</h4>
+<ul>
+<li>primitive
+<ul>
+<li>string - ordered collection of chars, can be defined with quotes(` ’ ”)
+<ul>
+<li>` - doing interpolation on string, aka resolving some value into string</li>
+</ul>
+</li>
+<li>boolean</li>
+<li>number</li>
+<li>bigint</li>
+<li>null</li>
+<li>undefined</li>
+<li>symbol - unguessable, uniq value, that can be used as object key
+<ul>
+<li>created by Symbol(“string”), BUT Symbol(“string”) !== Symbol(“string”)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>objects
+<ul>
+<li>array - special type of object for ordered, numerically indexed collection of items</li>
+<li>object - unordered, keyed collection of items with string keys</li>
+</ul>
+</li>
+</ul>
+<p>typeof tells type, BUT with some catch :)</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#F78C6C;--1:#AA0982">42</span><span style="--0:#D6DEEB;--1:#403F53">;                  </span><span style="--0:#809191;--1:#5E6578">// "number"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">abc</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53">;               </span><span style="--0:#809191;--1:#5E6578">// "string"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FF5874;--1:#A54A4A">true</span><span style="--0:#D6DEEB;--1:#403F53">;                </span><span style="--0:#809191;--1:#5E6578">// "boolean"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">undefined</span><span style="--0:#D6DEEB;--1:#403F53">;           </span><span style="--0:#809191;--1:#5E6578">// "undefined"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FF5874;--1:#A54A4A">null</span><span style="--0:#D6DEEB;--1:#403F53">;                </span><span style="--0:#809191;--1:#5E6578">// "object" -- oops, bug!</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> { </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">a</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53">: </span><span style="--0:#F78C6C;--1:#AA0982">1</span><span style="--0:#D6DEEB;--1:#403F53"> };          </span><span style="--0:#809191;--1:#5E6578">// "object"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> [</span><span style="--0:#F78C6C;--1:#AA0982">1</span><span style="--0:#D6DEEB;--1:#403F53">,</span><span style="--0:#F78C6C;--1:#AA0982">2</span><span style="--0:#D6DEEB;--1:#403F53">,</span><span style="--0:#F78C6C;--1:#AA0982">3</span><span style="--0:#D6DEEB;--1:#403F53">];             </span><span style="--0:#809191;--1:#5E6578">// "object"</span></div><div class="ec-line"><span style="--0:#7FDBCA;--1:#097174">typeof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C792EA;--1:#8D46B4">function</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">hello</span><span style="--0:#D9F5DD;--1:#111111">()</span><span style="--0:#D6DEEB;--1:#403F53">{};  </span><span style="--0:#809191;--1:#5E6578">// "function"</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="typeof 42;                  // &#x22;number&#x22;typeof &#x22;abc&#x22;;               // &#x22;string&#x22;typeof true;                // &#x22;boolean&#x22;typeof undefined;           // &#x22;undefined&#x22;typeof null;                // &#x22;object&#x22; -- oops, bug!typeof { &#x22;a&#x22;: 1 };          // &#x22;object&#x22;typeof [1,2,3];             // &#x22;object&#x22;typeof function hello(){};  // &#x22;function&#x22;"><div></div></button></div></figure></div>
+<p>coercion is converting between types</p>
+<p>value can be literal(declared in place) or stored in some var</p>
+<h4 id="var-let-const">Var, let, const</h4>
+<p><em>junior interview be like</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>var</th><th>let</th><th>const</th><th>function</th></tr></thead><tbody><tr><td>mutability</td><td>+</td><td>+</td><td>-*</td><td>-</td></tr><tr><td>block scoped</td><td>-</td><td>+</td><td>+</td><td>-</td></tr><tr><td>hoisting</td><td>+</td><td>-</td><td>-</td><td>+</td></tr><tr><td>* - if const is a pointer, it’s referenced value still can be changed, BUT it can be const via TS <code dir="auto">as const</code></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<h4 id="functions">Functions</h4>
+<p>We can call JS functions as procedure - collection of statements that can be invoked one or more times, that has output/input</p>
+<ul>
+<li><code dir="auto">function name(){}</code> - function declaration, with name to func mapping on compile state</li>
+<li><code dir="auto">const name = function(){}</code> - function expression(function is assigned to to var as expression), where function is associated with it’s name on runtime</li>
+</ul>
+<p>JS functions are treated as values(or special type of Object) and can be passed around as in Functional Language</p>
+<p>Func can receive 0-infinity parameter(local to function vars)</p>
+<p>Func can be set as Object param</p>
+<h4 id="comparisons">Comparisons</h4>
+<ul>
+<li>strict equality <code dir="auto">===</code> - compare two values, without possibility of converting types
+<ul>
+<li>type equality is always checked, but in === it is strictly must be the same</li>
+<li>NOTE
+<ul>
+<li>3 === 3.0 // true</li>
+<li>NaN === NaN // false
+<ul>
+<li>Number.isNan(NaN) // true</li>
+<li>Object.is(NaN, NaN) // true</li>
+</ul>
+</li>
+<li>0 === -0 // true
+<ul>
+<li>Object.is(0, -0) // false</li>
+</ul>
+</li>
+<li>{} === {} || [] === [] etc // false
+<ul>
+<li>because it is pointers comparison(opposite to structural equality, where we compare content)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>coercive comparisons OR loose equality <code dir="auto">==</code> - compare two values, with converting to same type if possible
+<ul>
+<li>agreed to be dangerous to use</li>
+<li><code dir="auto">==</code> and <code dir="auto">===</code> do same value comparison</li>
+<li>tend to do primitive numeric comparison</li>
+<li>can’t be avoided, because <code dir="auto">> &#x3C; >= &#x3C;=</code> are also coercive :)
+<ul>
+<li>two strings will resolve in dictionary-like comparison</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="clean-code-js">Clean Code JS</h2>
+<p>adaptation of Clean Code principles onto JS</p>
+<h4 id="variables">Variables</h4>
+<ul>
+<li>use meaningful and explanatory variable names</li>
+<li>create simular vocabulary(getClient, createClient, <del>updateUser</del>)</li>
+<li>don’t use magic numbers</li>
+<li>don’t repeat context in var names(<del>Car.carModel</del>)</li>
+<li>default values in func is better than <code dir="auto">name || "Joe"</code></li>
+<li>useful pattern to create objs with default value</li>
+</ul>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">const </span><span style="--0:#82AAFF;--1:#3C63B3">defaultObj</span><span style="--0:#C792EA;--1:#8D46B4"> = {</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">  name: </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">Joe</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#C792EA;--1:#8D46B4">,</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">  age: </span><span style="--0:#F78C6C;--1:#AA0982">18</span><span style="--0:#C792EA;--1:#8D46B4">,</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">}</span></div><div class="ec-line">
+</div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">const </span><span style="--0:#82AAFF;--1:#3C63B3">obj</span><span style="--0:#C792EA;--1:#8D46B4"> = {</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">  </span><span style="--0:#7FDBCA;--1:#097174">...</span><span style="--0:#D7DBE0;--1:#403F53">defaultObj</span><span style="--0:#C792EA;--1:#8D46B4">,</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">  name: </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">Mike</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D7DBE0;--1:#403F53">m</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">}</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="const defaultObj = {  name: &#x27;Joe&#x27;,  age: 18,}const obj = {  ...defaultObj,  name: &#x27;Mike&#x27;m}"><div></div></button></div></figure></div>
+<ul>
+<li>avoid negative conditions in vars(for example: isNotLoading)</li>
+</ul>
+<h4 id="functions-1">Functions</h4>
+<ul>
+<li>it is good to limit func args to 2-3. If more is needed it is better to use object arg with destruction
+<ul>
+<li>approves testability</li>
+<li>single responsibility</li>
+</ul>
+</li>
+<li><strong>one func - one task</strong>
+<ul>
+<li>avoid adding different functional based on args(for example: <code dir="auto">createUpdateUser(toUpdate: bool)</code>)</li>
+</ul>
+</li>
+<li>func name must describe func</li>
+<li>DRY by adding right abstractions to codebase</li>
+<li>avoid side effects(write files, modifying vars)
+<ul>
+<li>it is good practice to create one service that will handle mutations/side effects</li>
+<li>usually it is better to clone and return new obj then modify passed into func</li>
+</ul>
+</li>
+<li>don’t extend default functions/classes by adding property to prototype
+<ul>
+<li>better approach to create superClass that extends default</li>
+</ul>
+</li>
+</ul>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">class</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FFCB8B;--1:#111111">superArr</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C792EA;--1:#8D46B4">extends</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C5E478;--1:#3C63B3">Array</span><span style="--0:#D6DEEB;--1:#403F53"> {</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">  </span><span style="--0:#82AAFF;--1:#3C63B3">findSumm</span><span style="--0:#D9F5DD;--1:#111111">()</span><span style="--0:#D6DEEB;--1:#403F53"> {}</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">}</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="class superArr extends Array {  findSumm() {}}"><div></div></button></div></figure></div>
+<ul>
+<li>it is good practice to lean towards functional programing(for example: <code dir="auto">arr.map().reduce</code> instead of doing it line by line)</li>
+<li>encapsulate conditions</li>
+</ul>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">function</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">shouldShowSpinner</span><span style="--0:#D9F5DD;--1:#111111">(</span><span style="--1:#403F53"><span style="--0:#D7DBE0">fsm</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">listNode</span></span><span style="--0:#D9F5DD;--1:#111111">)</span><span style="--0:#D6DEEB;--1:#403F53"> {</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">  </span><span style="--0:#C792EA;--1:#8D46B4">return</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#097174">fsm</span><span style="--0:#C792EA;--1:#8D46B4">.</span><span style="--0:#7FDBCA;--1:#097174">state</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C792EA;--1:#8D46B4">===</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">fetching</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C792EA;--1:#8D46B4">&#x26;&#x26;</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">isEmpty</span><span style="--1:#403F53"><span style="--0:#D6DEEB">(</span><span style="--0:#D7DBE0">listNode</span><span style="--0:#D6DEEB">);</span></span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">}</span></div><div class="ec-line">
+</div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">if</span><span style="--0:#D6DEEB;--1:#403F53"> (</span><span style="--0:#82AAFF;--1:#3C63B3">shouldShowSpinner</span><span style="--1:#403F53"><span style="--0:#D6DEEB">(</span><span style="--0:#D7DBE0">fsmInstance</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">listNodeInstance</span><span style="--0:#D6DEEB">)) {</span></span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">  </span><span style="--0:#809191;--1:#5E6578">// ...</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">}</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="function shouldShowSpinner(fsm, listNode) {  return fsm.state === &#x22;fetching&#x22; &#x26;&#x26; isEmpty(listNode);}if (shouldShowSpinner(fsmInstance, listNodeInstance)) {  // ...}"><div></div></button></div></figure></div>
+<ul>
+<li>decrease if/else by polymorphism and single responsibility</li>
+<li>avoid typechecking by using TS + polymorphism</li>
+<li>don’t over optimize if it is already handled under hood</li>
+<li>remove dead code</li>
+</ul>
+<h4 id="objects-and-data-structures">Objects and Data structures</h4>
+<ul>
+<li>prefer get/set
+<ul>
+<li>adds possibility to process/validate data + possibility to error handling and logging</li>
+<li>encapsulation</li>
+</ul>
+</li>
+<li>it is good practice to add chaining to class</li>
+<li>composition better then inheritance
+<ul>
+<li>it is still good to use inheritance when:
+<ul>
+<li>object1 “is-a” object2 (Human is an Animal)</li>
+<li>object1 reuses code from object2 (Human moves like Animal)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="solid"><a href="Architecture.md#Solid">Solid</a></h4>
+<h4 id="testing">Testing</h4>
+<p>More important that shipping. Ideally cover 100% of codebase with tests</p>
+<ul>
+<li>one test - one task</li>
+<li>async/await >> Promise >> callback</li>
+</ul>
+<h4 id="error-handling">Error handling</h4>
+<ul>
+<li>throw - good</li>
+<li>it is bad to add catch but left error unhandled
+<ul>
+<li>console.log is better, but still not preferable</li>
+</ul>
+</li>
+</ul>
+<h4 id="formatting">Formatting</h4>
+<ul>
+<li>use auto-formatting tools</li>
+<li>good rule to name classes from capital and const capsed</li>
+<li>keep caller and callee close</li>
+<li>comments are good, but even better when code documents itself
+<ul>
+<li>remove commented code</li>
+</ul>
+</li>
+</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/all/it/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">IT</span> </span> </a> <a href="/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

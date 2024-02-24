@@ -3,7 +3,7 @@ title: FrontEnd
 ---
 
 ## Internet
-![[it_4.png]]
+- ![](../../../assets/it_4.png)
 
 #### Browser Process
 - Parsing
@@ -21,7 +21,7 @@ title: FrontEnd
 		- changes of css will case Reflow
 			- reflow can be done to part of tree OR all of it
 			- it is better to reduce unused css and deep of tree for optimize
-			- (partial list)![[it_5.png]] 
+			- (partial list)![](../../../assets/it_5.png) 
 			- `.getBoundingClientRect(), .clientLeft` and other JS operations can cause reflow
 			- Reflow is done inside main thread(Event Loop) so it can be blocked
 	- Paint/Repaint
@@ -108,9 +108,6 @@ message
 header(meta data)
 - key-value
 - host - required header
-- common headers
-	- ![[it_6.png]]
-	- ![[it_7.png]]
 
 body(optional)
 
