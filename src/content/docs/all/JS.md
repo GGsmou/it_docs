@@ -244,6 +244,22 @@ Func can be set as Object param
 		- can't be avoided, because `> < >= <=` are also coercive :)
 			- two strings will resolve in dictionary-like comparison 
 
+#### Code Organization
+- classes
+	- class defines a "type" of custom data structure that includes data and behavior
+	- class is not a value, but value can be got from class via `new` aka class is instantiated
+		- methods can be called only on instances
+	- inheritance is JS is done via `extends` + `super()`, so we can define common parent and extend it's functional
+	- JS classes also have polymorphism, because they allow children classes to override existing methods
+- modules
+	- have same goal as classes to combine data with behavior, with additional possibility of module interactions
+	- Classic Modules
+		- it is similar to classes, but we are creating a function, that incapsulates data and returns some object with methods to interact with data inside
+			- factory pattern
+	- ES Modules
+		- wrapping function is changed to wrapping file that incapsulates all data and `exports` all behaviors
+		- we can say ESM is a singleton, caze it's instance created on first `import` and after that other imports receive a reference
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
