@@ -260,6 +260,84 @@ Func can be set as Object param
 		- wrapping function is changed to wrapping file that incapsulates all data and `exports` all behaviors
 		- we can say ESM is a singleton, caze it's instance created on first `import` and after that other imports receive a reference
 
+#### Iteration
+It is important to have consistent method to work with large quantity of data, that's why we have iterator pattern, that can iterate through some set of data and stop iterating at some point
+
+there is `next()` method in JS, that returns object named iterator result, which consists of `done: bool` and `value: any`, where done indicates, that iteration of set is finished
+
+`for of` is a syntax to consume iterators
+`...` - spread and rest operator
+- SPREAD
+	- this form of operator is an iterator consumer
+	- we need some place to spread data into(array, function call)
+
+iterator was created as base for iterable values aka value that can be iterated
+- iterator instance created from iterable on demand
+- string, array, map, set etc - iterable, so we can do smth like this:
+```js
+const greeting = "Hello";
+const chars = [ ...greeting ];
+
+chars; // [ "H", "e", "l", "l", "o" ]
+```
+- map has iterator that returns tuple value in a form of `[key, value]` 
+	- `.keys()` gives us a list of keys
+	- `.values()` gives us a list of values
+	- `.entries()` gives us tuple, but for any iterable(for array it will be: `[index, value]`)
+
+#### Closures
+>Closure is when a function remembers and continues to access variables from outside its scope, even when the function is executed in a different scope.
+
+objects don't have closures, only functions
+
+common closure use-case - async functions, when we close some data inside function, that is executed after some time, but still remembers data
+
+#### This
+Function has two characteristics:
+- scope - attached to function via closure, represents a list of static rules, that controls resolution of references and values. It is attached, when function is defined
+	- hidden inside JS engine
+- context - similar to scope, but attached on call stage and can be accessed via `this`. Context is dynamic and can differ from call to call
+	- object, that has properties, that made available for function
+	- this aware function - function, that depends on it's context
+
+if this aware func is called without strict mode, it will look to it's context and then to global window object, in order to resolve value
+
+WAYS TO MAKE THIS AWARE FUNCTION:
+- call function as object method -> this === object
+- function.call(obj, arg1, arg2) -> this === obj
+- function.apply(obj, \[arg1, arg2]) -> this === obj
+- const f = function.bind(obj) -> this(inside f) === obj
+
+classes are heavily based on `this` 
+
+#### Prototype
+`this` is characteristics of a function and prototype is characteristics of an object that helps to resolve property access
+- basically prototype is hidden link between two objects
+- prototype chain - series of objects linked via prototype
+- prototype helps in delegation(inheritance) of methods
+	- by calling some method on current obj, JS will try to find it on this object first, than on it's prototype in chain and return first occurrence || undefined
+
+`const newObj = Object.create(obj)` - safe way to set newObj.prototype to obj
+- if obj is null, newObj will have no prototype(event Object.prototype)
+
+`this` highly benefits from prototypes. It is dynamic in JS and can resolve from different objects. Example:
+```js
+var homework = {
+    study() {
+        console.log(`Please study ${ this.topic }`);
+    }
+};
+
+var jsHomework = Object.create(homework);
+jsHomework.topic = "JS";
+jsHomework.study(); // Please study JS
+
+var mathHomework = Object.create(homework);
+mathHomework.topic = "Math";
+mathHomework.study(); // Please study Math
+```
+as we can see `this.study` resolves from homework, but `this.topic` still from object itself
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
