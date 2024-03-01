@@ -112,6 +112,8 @@ Modern, well supported, native way of doing HTTP requests
 Similar to Fetch, but it is a lib with some additional features, like middlewares
 
 ## You don't know JS book
+>I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
+
 #### Naming and Spec
 JavaScript is named after Java as branding for "web Java" and name still owned by Oracle
 JavaScript/JS has official name ECMAScript(ES) and it is also a standard for how to implement JS(browser, Node.js erc)
@@ -220,6 +222,7 @@ We can call JS functions as procedure - collection of statements that can be inv
 - `const name = function(){}` - function expression(function is assigned to to var as expression), where function is associated with it's name on runtime
 
 JS functions are treated as values(or special type of Object) and can be passed around as in Functional Language
+- function in JS is first-class value
 
 Func can receive 0-infinity parameter(local to function vars)
 
@@ -311,9 +314,12 @@ WAYS TO MAKE THIS AWARE FUNCTION:
 classes are heavily based on `this` 
 
 #### Prototype
+NOTE: JS is one of not many, who give access to direct object creating
+
 `this` is characteristics of a function and prototype is characteristics of an object that helps to resolve property access
 - basically prototype is hidden link between two objects
 - prototype chain - series of objects linked via prototype
+	- it is called "behavior delegation"
 - prototype helps in delegation(inheritance) of methods
 	- by calling some method on current obj, JS will try to find it on this object first, than on it's prototype in chain and return first occurrence || undefined
 
@@ -337,6 +343,26 @@ mathHomework.topic = "Math";
 mathHomework.study(); // Please study Math
 ```
 as we can see `this.study` resolves from homework, but `this.topic` still from object itself
+
+#### Scope
+Lexical scope model
+- scope is a block of code in which variable can be accessed
+	- can be nested
+	- variables from higher scope can be accessed, but not from lower
+	- how variables are placed determined at parsing/compiling stage
+
+JS is has lexical scope model, BUT with some differences:
+- hoisting - variable can be declared at any place of scope, but treated as it is declared at beginning of it
+- var-declared - by declaring variable with `var` inside the scope it is accessible outside a block
+- temporal dead zone(TDZ) - by declaring variable with `const/let` there is a part of program, where you can try to call in-scope variable, but it is not accessible yet, because it is not declared
+	- result in `ReferenceError` 
+```js
+let x = 10;
+if (true) {
+ console.log(x); // ReferenceError: Cannot access ‘x’ before 
+ let x = 20; // decalre
+}
+```
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
