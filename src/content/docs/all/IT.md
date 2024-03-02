@@ -1,7 +1,7 @@
 ---
 title: IT
 ---
-*Note: relative links aren't working*
+*Note: relative links aren't working, use side menu*
 ## List of all topics
 - [FrontEnd](FrontEnd.md)
 - [BackEnd](BackEnd.md)

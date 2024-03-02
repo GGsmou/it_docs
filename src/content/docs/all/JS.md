@@ -111,6 +111,81 @@ Modern, well supported, native way of doing HTTP requests
 #### Axios
 Similar to Fetch, but it is a lib with some additional features, like middlewares
 
+## EventLoop - Node.js
+#### Node.js
+Node.js - JS runtime build on top of V8 Chrome Engine, with event-driven, non blocking I/O model
+
+I/O - input / output and refers to communication with PC's CPU
+- libuv lib is handling multiplatform async work with I/O for Node.js
+- ![](../../../assets/it_6.png)
+
+Event-Driven model is based on Reactor pattern
+- make I/O request(fs.read) -> passed to EventLoop -> passed to Event Demultiplexer -> calls C++ function -> result goes back to Event Demultiplexer -> result is wrapped into event and added to Event Queue -> when call stack is empty our callback is executed with data from event
+
+Node.js components
+- V8 - engine for parsing and execution of JS
+- libuv - provider of EventLoop and I/O operations
+- core modules - non standard JS modules like http, fs etc
+- c++ bindings - wrapper to require custom compiled C++ modules
+	- can be generated with Node.js compiler and required like this: `require('./my-cpp-module.node');` 
+- deps - other small utility libs for low level operations
+
+#### EventQueue - MarkroTasks
+EventLoop - mechanism to semi-infinitelly process and handle events
+
+Events are queued into several queues with different priorities and executed after stack is empty
+
+| Queue Name   | Description                                                                | Priority | Is all events need to be executed |
+| ------------ | -------------------------------------------------------------------------- | -------- | --------------------------------- |
+| Timer        | queue for setTimeout, setInterval                                          | 1        | +                                 |
+| I/O          | most of async operations(network, system)                                  | 2        | +                                 |
+| Immediate    | queue for setImmediate(registered and executed as soon as JS picked it up) | 3        | +                                 |
+| Close events | queue for closing connection events(DB, TCP etc)                           | 4        | +                                 |
+Empty loop ~= few milliseconds
+
+EventLoop is tracking how many ongoing tasks and when they are done, their count is decreased
+- if equal to 0 loop is exited
+
+`setTimeout(..., 0)` !== `setImmediate`, because EvebtLoop CAN(not always) be so fast, that timeOut won't be registered at all for this cycle and will appear at next
+
+#### EventQueue - MicroTasks
+I/O Polling
+- I/O events are added to their queue not when they are ready(as other events), but after I/O polling
+
+Between each macrotasks we have JS execution period of time(same as before EventLoop), inside which we have micro tasks as process.nextTick(1 priority) Promise(2 priority), with their own dedicated queues
+- there also others microtasks as MutationObserver, queueMicrotask etc
+- microtasks are checked by V8, after all JS is executed
+
+process.nextTick have the highest priority among all of others, BUT can block EventLoop and kill performance
+
+microtask queues block EventLoop and must be cleared
+
+in Node version < 11 microtasks was executed between queues and not macrotasks, but for web compatibility it was changed
+
+#### EventLoop
+EventLoop is not fully part of V8, V8 is only parsing and executing JS + microtasks, but macrotasks are done by libuv
+- ![](../../../assets/it_7.png)
+
+#### EsModules
+EsModules are async by design, so when we init our program, inside first EventLoop promises will have highest priority
+
+#### libuv
+I/O operations can be:
+- blocking: file, dns etc
+	- require different thread
+- non-blocking: network
+	- several tasks can execute in simultaneously
+
+for blocking tasks libuv uses Thread Pool, so we can simultaneously execute this tasks on different threads(4 by default if any blocking operation is present in code)
+on top of that we have threads that occupied by default for garbage collection etc
+
+DNS lookup is blocking, but can by made it non-blocking with some effort
+
+#### Other
+Custom promises(Bluebird.js)
+- Can collet all promises into one macrotask to reduce blocking time
+- Can executer promises on some other phase
+
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
 

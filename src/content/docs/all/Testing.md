@@ -34,8 +34,16 @@ Check changes by human
 - check how components changed programmatically
 	- create json description of react component, compare json after changes
 
-## Load testing
+#### Load testing
 - check how app behaves on high load situations
+
+#### Functional
+- check if application is performed well based on customers requirements
+- black-box testing of how app is doing some functions and if it is implementing business needs
+
+#### Structural
+- verify implementation of code
+- white-testing of how software implemented and if is covering different edge cases relative to code itself
 
 ## Generally
 Ideal pattern for testing is a pyramid by count of tests(manual -> unit), but can be different depending on needs of app

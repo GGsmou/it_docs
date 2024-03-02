@@ -58,3 +58,23 @@ some other site can sent request to our back-end with cookies inside our browser
 to prevent this we can use csrf token
 - it is done by adding additional hidden field with csrf token as value
 - this token is stored as part of session data
+
+#### XSS Attack
+XSS - cross-site scripting
+
+happens if some external script was added to generated webpage
+- parsed from template
+- injected from user input
+
+can be in form of direct `script` tag or as attribute
+
+to prevent:
+- validate, escape and sanitize data
+- use frameworks that disallow direct HTML input like React
+
+## SQL injection
+happens when arguments to SQL command aren't sanitized and added to SQL request directly
+
+to prevent:
+- validate, escape and sanitize data
+- ORM and other frameworks has built-in solutions
