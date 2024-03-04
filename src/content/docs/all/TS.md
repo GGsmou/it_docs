@@ -1,0 +1,13 @@
+---
+title: TS
+---
+
+## THIS
+In TS we can explicitly set interface of `this` 
+
+Can be done:
+- automatically if function is an obj method
+- declaratively, by acknowledging fact that JS restricts parameter with name this, in such way:
+```ts
+filter: (this: User) => boolean
+```

@@ -1,7 +1,7 @@
 ---
 title: IT
 ---
-*Note: relative links aren't working, use side menu*
+*Note: relative links aren't working, use side menu instead :/*
 ## List of all topics
 - [FrontEnd](FrontEnd.md)
 - [BackEnd](BackEnd.md)
@@ -16,6 +16,7 @@ title: IT
 - [CLI](CLI.md)
 - [Security](Security.md)
 - [Fintech](Fintech.md)
+- [TS](TS.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist

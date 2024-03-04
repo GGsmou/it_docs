@@ -25,6 +25,18 @@ to use, add comment before function in this format:
 #### Interesting
 - if you declare variable inside `<script>` tag it will become global
 
+#### Stop Throwing Errors
+JS doesn't treat errors as values, so we can't be sure that function won't throw at runtime without knowing it's implementation
+- this leads to risk of missing try/catch
+
+we can fix it by using explicit return type like this:
+```ts
+type Return = {success: false; error: Error} | {success: true; data: SomeDataType}
+```
+now we can be sure that function might return error, as well as handle it without try/catch
+
+it is not always best solution, because sometimes it is good to throw error, so some middleware or other catcher will catch and handle it, but this strategy is useful
+
 ## Data normalizing
 Data normalizing - process of transforming arbitrary list of data to list where we have one entity at a time and in other places we have links to this entity
 
@@ -438,6 +450,64 @@ if (true) {
  let x = 20; // decalre
 }
 ```
+
+#### Why JS Uniq
+Prototype, Closure+Scope, Types+Type Equality
+
+#### Values and References
+In JS type determines if our variable will contain value or reference
+
+Primitives are always passed as copies
+
+Object values(like functions, arrays, objects) are stored as reference, so we can pass and copy the pointer, but not value itself
+
+#### Function forms
+We have function declaration and function expression(setting func to var)
+
+Function expression can be done with anonymous function, BUT it and some other functions will still have `.name` property, reflecting declared OR variable name
+- mainly used for stack trace
+- function expression's name will be `""` if it is passed as an argument
+- function is still anonymous because it can't refer to itself, `.name`  is just metadata
+
+We can also declare var with named function expression(name of var and func can be different, BUT `.name` will be from expression)
+
+Generator function can be declared like this:
+```js
+function *generator(){...}
+```
+
+Also there are arrow functions, Immediately Invoked Function Expression(IIFE), async variations, class/object methods(not different from function in JS terms)
+- arrow functions are anonymous by design
+- key difference is that arrow function is referring to `this` from place it was declared AND NOT from place it was called, so it kinda closer to scope and perfect for callbacks inside methods
+```js
+showSkills() {
+    this.skills.forEach(function (skill) {
+      console.log(`${this.name} is skilled in ${skill}`); // this.name === undefined
+    });
+  },
+```
+
+#### Coercive in conditionals
+if, while, for, `? :` have different from `===` or `==` comparison type, they are doing conversion to boolean each time, so:
+```js
+// if("hello") === if(Boolean("hello") == true)
+```
+So we still meat coercive comparison, BUT in a way of just type transformation to boolean
+
+#### Prototypal "Classes"
+*Aka classes before classes*
+
+It is old syntax, but classic for JS and it looks like this:
+```js
+function A() {}
+
+A.prototype.hi = () => console.log("hi");
+
+const a = new A();
+mathClass.hi(); // hi
+```
+
+It is possible, because all functions in JS refer to empty object as prototype, that will become prototype of objects, created from function via `new` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS

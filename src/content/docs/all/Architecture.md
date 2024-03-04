@@ -84,7 +84,8 @@ Gangs of Four - book about 23 design patterns
 ```js
 const pc = new PC.PcBuilder(data).enableWiFi().build();
 ```
-- Prototype - create obj instance from other instance
+- Prototype - create/copy obj instance from other instance
+	- usually done by adding `.clone()` method to class itself, so we can call this on instance and get new instance
 
 #### Structural(7)
 - Adapter - provides interface for different entities to communicate
