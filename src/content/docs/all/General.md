@@ -181,3 +181,26 @@ Each team should have this roles(one person can take both positions / one positi
 	- can work as AQA
 - QA - auto+manual checks of tasks
 	- can grow to BA or to auto testing
+
+## Stack & Heap
+Each program takes some space in memory in this way(memory layout):
+- TEXT - instructions of program
+- initialized data + uninitialized data + stack - all with fixed size, which is pre-allocated before program run
+	- stack is always limited
+	- stack data is stored as close as possible
+	- can't be used for large OR dynamically sized data
+- heap - some memory region that can be expanded in any time via system request
+	- systems requests are requests from our program to OS, which is passed to hardware
+		- it is slow, because we are including some overhead, like load/unload previous snapshot of CPU state, our current command load etc
+			- it is main reason why stack is much faster, because it is already pre-allocated
+		- also heap is slow, because we need to search for free memory space
+	- all heap data is still take some stack space in form of pointers
+	- heap suffers from fragmentation(when we have huge amount of small chunks of non-continuous space between other data)
+		- happens because data in heap can be added/removed in any order, unlike the stack
+	- dynamic data in heap is handled via data structures
+		- linked list, so we write data in place, where there is just enough space
+		- array list OR vector - basically array that can resize+realocate itself
+	- be careful with heap because of
+		- null pointer - pointer that points to nowhere
+		- memory leak
+		- dangling pointer - pointer to deallocated memory

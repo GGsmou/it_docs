@@ -198,6 +198,35 @@ Custom promises(Bluebird.js)
 - Can collet all promises into one macrotask to reduce blocking time
 - Can executer promises on some other phase
 
+## EventLoop - Browser
+Similar to Node.js EventLoop, BUT with addition to some DOM related tasks and with no strict order in macro/micro tasks queues
+
+Most of the time JS engine doing nothing and runs only when some event, script, handler activates
+
+Rendering happens between macrotasks and blocked by their execution
+- some very heavy tasks can block whole browser(not responsive to user events), so browser might suggest to kill this process with page
+
+Same as in Node microtasks queue empties in-between each macrotask
+- microtasks are mostly come from promises, but can be also manually queued by `queueMicrotask(func)` 
+
+macrotasks
+- setTimeout
+- setInterval
+- setImmediate
+- requestAnimationFrame
+- I/O
+- UI rendering
+microtasks
+- process.nextTick
+- Promises
+- queueMicrotask
+- MutationObserver
+
+Other
+- heavy tasks can be split into smaller once and wrapped into zero second setTimeout, that will not block DOM
+	- it is better to setTimeout earlier in code, because even zero second timeout has some delay in it
+	- you can show some loading via this split, because otherwise change in DOM will be shown after whole process is finished
+
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
 
@@ -508,6 +537,11 @@ mathClass.hi(); // hi
 ```
 
 It is possible, because all functions in JS refer to empty object as prototype, that will become prototype of objects, created from function via `new` 
+
+#### Practice 1
+- comparison
+	- `str.slice("")`  can be changed with `str.match(regex)` 
+	- `"07:15" < "07:30" // true` - example of valid string alphabetic comparison, that can be used to compare time, if time is in valid format
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
