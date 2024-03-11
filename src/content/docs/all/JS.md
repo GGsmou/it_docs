@@ -461,6 +461,8 @@ mathHomework.study(); // Please study Math
 as we can see `this.study` resolves from homework, but `this.topic` still from object itself
 
 #### Scope
+Scope is well defined list of behavioural rules about variable and how engine interacts with them
+
 Lexical scope model
 - scope is a block of code in which variable can be accessed
 	- can be nested
@@ -542,6 +544,52 @@ It is possible, because all functions in JS refer to empty object as prototype, 
 - comparison
 	- `str.slice("")`  can be changed with `str.match(regex)` 
 	- `"07:15" < "07:30" // true` - example of valid string alphabetic comparison, that can be used to compare time, if time is in valid format
+
+#### Code compiling
+We can break compiling into 3 main stages:
+- tokenizing/lexing - breaking up string of chars into meaningful chunks(tokens)
+	- lexing is figuring if symbol is token itself or part of other token
+- parsing - converting list of tokens into Abstract Syntax Tree(AST)
+- code generating - different for every platform/language. For JS it is converting AST to machine instructions, that will execute
+
+In-depth JS engine is deeper, because it has optimization(while compiling and on-fly), lazy comping etc
+- this is needed, because JS compilation needs to be seamless and fast, because we aren't fully compiling like in C++
+
+JS can be broken into compiling and execution, because of syntax errors, early errors and hoisting
+
+to handle variables compilers break them into two types:
+- target(variable is a target if value is assigned to it)
+	- examples:
+	- `const a = 53` 
+	- `for (const a of aa)` 
+	- `a(53)` - assign 53 to some argument
+	- `function a() {}` 
+- source(opposite to target)
+
+#### Modifying scope on-fly
+It is impossible to do this in strict mode and dangerous to say the least, but can be done with:
+- `eval(string)` - compiles and executes string inside as JS code at runtime, with modification to scope on-fly
+	- modifies scope, that eval was executed in
+	- BAD BECAUSE
+		- code injection, unexpected behaviour, performance degradation(re-compilation on every function call)
+- `with(obj)` - turns object into function like scope, with properties converted to scoped vars
+	- BAD BECAUSE
+		- readability, performance degradation(scope is dynamic, so dynamic re-compilation is present)
+```js
+const obj = { a: "A" };
+
+with (obj) {
+    console.log(a); // A
+}
+```
+
+#### Lexical scope
+lexical scope is determined by placement of functions, blocks and variable declaration in relation to each other
+- `var` is associated with nearest function, but `const/let` with nearest block(`{}`)
+
+variable must be available from current scope or lexically available/outside scope, otherwise usually error will occur
+
+compilation don't allocate memory or anything else with variable data, INSTEAD compilation create map of lexical scopes, so JS identify and not create a scope
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
