@@ -591,6 +591,31 @@ variable must be available from current scope or lexically available/outside sco
 
 compilation don't allocate memory or anything else with variable data, INSTEAD compilation create map of lexical scopes, so JS identify and not create a scope
 
+Details
+- variable is always connected to scope, that it was created in, not the scopes it can be accessed
+	- properties are not vars, so they aren't connected to scope
+- scope is fully contained in other scope, never split between two/more scopes
+- if we are referencing the value(not declaring it), JS performs a look up, trying to find our var in current/outer scope
+	- but it not performed at runtime, it mostly already known at that stage
+- var declaration like this `var arr = [];` can be seen as 2 step proses:
+	- Compiler sets declaration
+	- Engine looks up variable, initializes it and assigns variable
+- each scope will get new ScopeManager instance
+	- each scope has identifiers registered at the start of it(hoisting)
+	- each var in function scope will be associated with this function
+- `var` is always initialized at start of scope, but `let/const` - not
+
+#### Lookup failures
+Happens if no scope is left, but variable is still not found
+Different between strict/normal modes, as well as between role of var(source/target)
+
+unresolved source always trows `ReferenceError`, but target will throw only in strict mode
+- often `ReferenceError` looks like this: `Reference Error: XYZ is not defined.` and means that var has no declaration
+
+`undefined` often means that var was defined, but have no variable at the moment
+- NOTE: typeof empty declared and undeclared variable is always `"undefined"` 
+- in non strict mode, if variable is target(we try to set it to something), it will be declared and set to that data in global scope
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
