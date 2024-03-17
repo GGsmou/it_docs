@@ -17,6 +17,7 @@ title: IT
 - [Security](Security.md)
 - [Fintech](Fintech.md)
 - [TS](TS.md)
+- [Design](Design.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist
