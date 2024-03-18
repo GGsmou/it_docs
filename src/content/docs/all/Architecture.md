@@ -1,6 +1,7 @@
 ---
 title: Architecture
 ---
+>Architecture is way to separate and abstract direct integration with machine, like HTTP request, from business needs
 
 ## Base principles for good architecture
 - Have general naming, that can be understood not only by devs

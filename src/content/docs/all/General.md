@@ -204,3 +204,45 @@ Each program takes some space in memory in this way(memory layout):
 		- null pointer - pointer that points to nowhere
 		- memory leak
 		- dangling pointer - pointer to deallocated memory
+
+## RX
+RX - coding paradigm, that in its core has work with events(event emitter and event listeners)
+
+pros
+- functional
+- easy error handling
+- reduces concurrency problem
+- elegant
+cons
+- hard to enroll
+- big package(for RxJS)
+- slower then other alternatives
+
+#### RxJS
+Rx lib for JS
+
+MAIN PILARS
+- observable - invokable collection of future values or events
+	- observable emits some data to subscribers
+	- can be different types
+		- hot observable - always emit values
+		- cold observable - emit values only if someone is subscribed to it
+- observer - collection of callbacks that know how to listen for Observable values
+	- typical observer is obj with methods: `next`, `error`, `complete`, that are callbacks, that take value from observer and do something with them
+	- `observable.subscribe(observer)` 
+- subscription - execution of observable, used to cancel execution
+	- returned from `.subscribe()` and used to unsubscribe later
+- operators - pure functions to deal with collections(map, reduce, concat) and help easily compose some async logic
+	- can be used to
+		- pipe data through Observables
+		- create(be a factory) new Observables
+		- create higher order observables
+	- operators have cache, so something like `max` can compare previous values with current
+- subject - equivalent to an EventEmitter and special type of Observable, that allow multicasting a value/event to multiple Observers
+	- you can call any number of `.subscribe()` on single subject, when observable is unitask
+- schedulers - centralized dispatchers to control concurrency, so we can coordinate when computation will happen
+	- basically allows to control how, when and in what context our observable emits to observers
+		- for example, we can make all emmitements async, by piping through `observeOn(asyncScheduler)` 
+
+tools
+- visualization for RxJS - [https://rxmarbles.com/](https://rxmarbles.com/)
