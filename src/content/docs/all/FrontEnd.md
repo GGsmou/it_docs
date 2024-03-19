@@ -289,3 +289,36 @@ Can be used for cool 3d websites, casinos/other games, retail stuff(3d models of
 Tool to pass calculations to GPU
 
 Can be used for AI and stuff :)
+
+## Internationalization(i18n)
+i18n - short version of internationalization
+
+i18n is deep theme, that includes
+- translation
+- data-time
+- different variations of same language
+- design
+- *and many more* 
+
+#### Translation
+good process:
+- systematic
+- easy, fast, async
+- automatic
+- l10n with context(screenshots etc)
+- no monkey job
+
+Translation management system(TMS) - system for translator to work with translation, that integrated in development
+- manages translations similar to git(push source, pull translations)
+	- can be integrated with CI/CD
+- have translation memory(saves all previous translations, so you don't need re-translate prev knowledge)
+- tools: Crowdin
+
+one of the best localization frameworks: LinguiJS
+- easy work with plurals
+- eslint integration
+- universal
+- rich tooling
+- lightweight
+- compatible with international formats
+- tags(like links) can be part of translation
