@@ -616,6 +616,35 @@ unresolved source always trows `ReferenceError`, but target will throw only in s
 - NOTE: typeof empty declared and undeclared variable is always `"undefined"` 
 - in non strict mode, if variable is target(we try to set it to something), it will be declared and set to that data in global scope
 
+#### Scope Chain
+Connection between scopes, which determines lookup path
+
+Lookup process is kinda conceptual, because all metadata needed is determined during initial compilation
+- this information is immutable
+- this metadata stored in/near AST and used at runtime
+sometimes lookup is still needed, when scope can't be determined at compilation
+- it happens when variable is declared in other file, that yet not processed, so such variables stay undetermined, until deferred lookup
+	- lookup failure still will happen, if scope is undetermined and variable referenced in execution
+
+#### Shadowing
+Basically having two same named variables, but in different scopes
+(one variable shadows other)
+
+to consider, when shadowing, all inner scopes will loose access to shadowed variable to
+
+un-shadowing(not recommended)
+- only way is through global/window object
+	- possible, because `var`, `function` declaration on global scope will create getter+setter on global object, that works as mirror to our variable
+		- add property to `global` will also create variable in global scope
+
+note
+- `let` always shadows `var`, but `var` can only be shadowed if it is inside function NOT a block
+	- otherwise - syntax error, because of hoisting
+- named function declaration `const a = function b() {}` will create not hoisting variable `a` in outer scope and var `b` in function's inner scope
+	- `b` is always readOnly(in non strict mode, assignment will fail silently)
+- arrow function behaves similar to function expression scope-wise(even without `{..}`)
+	- but remember, that it is anonymous by design
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
