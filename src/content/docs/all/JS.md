@@ -645,6 +645,109 @@ note
 - arrow function behaves similar to function expression scope-wise(even without `{..}`)
 	- but remember, that it is anonymous by design
 
+#### Two files, one program
+Several files can be stitched together in this ways:
+- ES modules - each file loaded separately, all needed functions are imported as references to files
+	- no shared scope
+- Bundling - bundler concatenates all files into one
+	- usually each file is enclosed as one function, with exported methods as function methods, that can be accessed via shared scope(that also can contained in function, like "application" scope)
+- `<script>` - each JS file imported via script tag which is done with bundler or by hand
+	- files can be still concatenated, but without wrapper function, or they can be loaded in default way, where each file is independent, but they share global scope and communicate through it
+
+#### Global Scope
+Global scope is place to several modules to communicate
+
+Also this is a place, where JS exposes it's APIs, primitives, natives etc
+- also environment exposes it's APIs(console, DOM etc)
+	- note: node has global scope, but it's APIs technically not exposed there
+
+Global scope is glue for JS apps, but not a dumpster field
+
+Each JS environment handles global scope bit different
+- `window` 
+	- `function` and `var`, declared on top level of an app, will appear on window object
+	- top level variables shadows any global scope variables(properties of `window` object)
+	- any DOM node with `id` will create global scope variable with the same name, which contains reference to this node
+		- legacy behavior, not recommended to use
+	- `window` object has predefined `name` property, which is getter/setter and always a `string` 
+- web workers - browser API, that allows to run JS in separate from main JS thread
+	- limited in browser APIs and have restricted communication with main thread, to avoid race conditions
+	- instead of `window`, web workers have `self` 
+	- same `var` and `function` behavior
+- dev tools - process JS code in no-separate environment
+	- behaves differently and less strictly, in comparison to usual JS, to favor dev experience(DX)
+		- some errors are relaxed and not displayed
+		- behavior of global scope
+		- hoisting
+		- `let/const` in top level scope
+	- code is been executed in emulation of global scope
+	- not good enough to verify complex JS behavior
+- ES Modules(ESM)
+	- top level `function` and `var` won't create any global property
+		- we can imagine it in a way, that all our code is wrapped in a function, so we can access global global scope, but not in a classical JS way
+	- all communication with outer files are done via `import/export` 
+- Node
+	- Node treats all files as modules(ESM or CommonJS)
+		- top level of file is never affects a global scope
+		- all code is wrapped in function, that exposes some APIs to it(like parameters)
+		- to assign global property Node exposes `global` object, that is reference to real global scope
+
+global scope object can be get with
+```js
+const glob = (new Function("return this"))();
+```
+- function can be constructed from string and run in non-strict mode
+	- `this` of such function will be global object reference
+
+`globalThis` is introduced as standardized universal variable, that will always  reference environment's global scope object
+- not completely useful, because of old versions in-compatibility
+
+#### Hoisting
+function declaration and `var` variables can be accessed from beginning of function scope due to hoisting
+- note, function hoisting includes function initializing and setting a reference to a function, BUT `var` create an `undefined` placeholder and later fills it with data
+- to be specific, `let/const` also hoist to top of block scope, but they have TDZ of unusability
+
+hoisting happens at compile time, where functions are hoisted first and then variables
+
+#### Re-Declaration
+re-declaration of `var` variables will do nothing, if we aren't explicitly setting new value
+
+with `let/const` re-declaration is not allowed and will throw `SyntaxError` 
+- even if re-declaration uses `var` it will still throw
+- it has no technical reasons to be so, just stylistic
+
+note, re-declaration is not happening in loops, because:
+- each loop iteration creates a new, clean scope
+- var will hoist out of loop and be just re-assignment
+- it also true for `for` loops, we can conceptually say that `i` is declared per loop, but program keeps track of current `i` value via other scoped variable like this:
+	- note, it won't work with `const`, if you will re-assign `i` 
+```js
+{
+    let _i = 0;
+
+    for (; _i < 3; _i++) {
+        let i = $$i;
+        ...
+    }
+}
+```
+
+#### Const
+empty const declaration will throw `SyntaxError`, because re-assignment is impossible and will cause `TypeError` 
+- important that re-assignment will throw a run-time error
+
+#### TDZ
+Means that variable is exists, but not initialized, so we can't use it, event if we try to declare them like this:
+```js
+a = "a"
+
+let a;
+```
+happens, because compiler is instructed to initialize variable on line 3
+- if function referencing variable and called before it's initialization, `ReferenceError` will be thrown
+
+good practice to put `const/let` as high as possible in block to avoid TDZ
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 

@@ -239,3 +239,8 @@ uses class approach:
 - connects entities as graphs
 
 base idea that we subscribe to some changes and handle them
+
+## Other
+React(and other frameworks) give possibility to work with minimum amount of state(network, API, user input, browser) and generate interface from it, so it is important to minimize state and do not create duplicate states(that will depend on each other)
+- reduces complexity
+- ups maintainability
