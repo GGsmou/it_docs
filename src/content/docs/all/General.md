@@ -245,4 +245,29 @@ MAIN PILARS
 		- for example, we can make all emmitements async, by piping through `observeOn(asyncScheduler)` 
 
 tools
-- visualization for RxJS - [https://rxmarbles.com/](https://rxmarbles.com/)
+- visualization for RxJS - [https://rxmarbles.com/](https://rxmarbles.com/) 
+
+## Glob Patterns
+Used to search for some set of pathnames, that match glob pattern
+- originally introduces in Linux, now used in many languages as well as shell
+
+String can do wildcard match with one ore combination of:
+- `*` - used to match any number of chars
+	- `*` - match everything, except slashes
+	- `**` - match all dirs, that are inside current dir
+	- `*(patterns)` - match all patterns
+	- example: `**/*.md` - match all md files in nested dirs
+- `?` - used to match single chars
+	- example: `?at` - match all files, that have "at" in them, without case restrictions
+- `[]` - used to match ranges and character classes
+	- `[ABC]` - match all files, that has upper case "A", "B" or "C"
+		- note: not allowed to be empty
+	- `[a-z]` - match all files, that has any "a" to "z" letters, like in regex
+
+other
+- `!` is used to add "not" logic for pattern
+- `\` is used to escape chars in pattern
+
+can be similar, but NOT equal to regex
+
+mainly used in scripting, automation etc

@@ -748,6 +748,77 @@ happens, because compiler is instructed to initialize variable on line 3
 
 good practice to put `const/let` as high as possible in block to avoid TDZ
 
+#### Scope Exposure
+It is good practice to lower scope exposure and make program functions with least amount of open data to make it more secure
+
+It is bad idea to use global scope only because of:
+- name collisions
+- unexpected behavior(it is generally bad to expose private function, because it may be used unpredictable)
+- dependency problem(others may depend on your private API and any change may cause big refactor)
+
+#### Scoping with functions
+We can limit scope via IIFE(Immediately Invoked Function Expression), so it be block-like, but also working for `var/function` 
+- note: IIFE must always be surrounded with `()` 
+- `continue/break` won't work inside IIFE for outer loop
+- `this` is re-binded inside IIFE
+
+#### Scoping with blocks
+`{}` will create a block, but scope will be created only if some variable is declared inside
+- object literals aren't blocks
+- `class` declaration
+- `function` body is a statement with function scope
+- `switch` declaration
+
+`catch` is block+scope, with block scoped parameter, which is optional
+
+`function` declaration inside block is block scoped by TC39, BUT in browser environment it will be function scoped, with initialization on block execution(so `undefined` by default)
+- this leads to conditional function definition :)
+
+```js
+if (a) {
+    function b() {
+        console.log("a is true");
+    }
+}
+else {
+    function b() {
+        console.log("a is false");
+    }
+}
+```
+
+#### Closure
+- only relevant to functions/class methods
+- function must be invoked in different scope
+- based on lexical scope, but observable at a runtime
+
+we can say that closure is reference from inside of a function to variables, from different scope(basically function is enclosing that variables)
+
+- closures are also created for pointer functions
+- closure is not a snapshot, but editable
+
+interesting point, that by using `var` declaration for `i` we are getting shared enclosed `i`, so it will be equal in all closures, BUT with `let` we will have separate, re-declared variables
+
+common usages
+- async
+- callbacks
+- handlers
+- remember some information, by computing it once and enclosing
+- partial implementation
+- currying
+
+in theory we can say, that there is no need to enclose global scoped variables, unused variables etc as optimisation matter
+- but there is need to account for `eval()` etc
+
+alternatively view to closure is that our function is stays in place, and reference to it is passed, so enclosed variables are just simply accessed by function
+
+#### Closure lifetime
+It is important that closure can cause memory leeks, because garbage collector can't pick up variable, that been closed over
+
+good practices:
+- always unsubscribe event listeners/other cb based functions
+- manually unset variables(set to `null` to discard some large objects), that are not needed anymore(*not really practical, but can be useful in some optimizations*)
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
