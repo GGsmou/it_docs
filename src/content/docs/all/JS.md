@@ -819,6 +819,33 @@ good practices:
 - always unsubscribe event listeners/other cb based functions
 - manually unset variables(set to `null` to discard some large objects), that are not needed anymore(*not really practical, but can be useful in some optimizations*)
 
+#### Module pattern
+main way to organize code in JS is to break code into small, independent modules, that encapsulate some data/private methods and expose public
+
+basically module is just a collection of data, private/public functions
+
+types:
+- namespace - group some independent(by state and purpose) functions together, in common namespace, like "utils"
+- data structure - group data and functions together, without access control
+- modules - data + functions + access control, but it is a singleton by design
+- module factory - function, that creates modules
+- OTHER
+	- CommonJS - module, that created on per-file basic
+		- public API is added via assigning something to `module.exports` object
+		- module can be imported with `const obj = require("path")` 
+			- if `"path"` is not absolute, Node will try to look at `node_modules` folder and assume, that file has `js` type
+	- ESM - module, per-file basic. Similar to CommonJS, but always in `strict mode` 
+		- `import/export` keywords are used to import/export APIs
+			- `export` 
+				- must be on top level scope
+				- can be placed before variable declaration
+				- via `export default` we can make imports easier(no need to de-construct APIs from object)
+					- non-default exports are named as "named exports"
+			- `import` 
+				- only top level scope
+				- "named" export can be re-named with `as` 
+				- "namespace" import is done like this: `import * as A from ...` and allows to collect every named export into some object's properties
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
