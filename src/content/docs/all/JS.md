@@ -846,6 +846,31 @@ types:
 				- "named" export can be re-named with `as` 
 				- "namespace" import is done like this: `import * as A from ...` and allows to collect every named export into some object's properties
 
+#### Scope deep dive
+non obvious scopes:
+- function parameters scope
+	- simple parameters won't create their own scope, but: default values, rest parameters and destructed parameters - will, some examples and corner cases:
+		- `function k(a, b = a)` will cause TDZ error
+		- `function k(a, b = () => a)` will create parameter and function scope(for default value `a`)
+		- `var` will initialize to function parameter value and not `undefinde` 
+			- so it is not recommended to shadow parameters
+- function name scope
+	- if we declare function like this: `const a = function k()...`, function name `k` will create it's own scope, "between" `a` and `k`, so we can still shadow it
+
+#### Functions naming
+Naming functions is good for:
+- stack trace debugging
+- self referencing(recursion, un-subscribing from something)
+- easier to read
+but can make code uglier, because arrow function are always anonymous :(
+
+function is not named, when it is passed as value to some variable, or object method
+- to be sure, function won't have real name, rather it will take name of method/variable name, so it's name will be "inferred"
+	- this won't give function a name: `config.a = function(){}`
+
+hack to name IIFEs - name by purpose, that is usually to wrap some data, so: `StoreSomeData` 
+- main way to define IIFE is to: wrap it in `()`, use `+`, `!`, `~`(it will work as `()`, by making JS engine evaluate function), or use explicit `void` operator, that evaluates and returns `undefined` 
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
