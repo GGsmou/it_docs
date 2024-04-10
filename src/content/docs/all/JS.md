@@ -871,6 +871,38 @@ function is not named, when it is passed as value to some variable, or object me
 hack to name IIFEs - name by purpose, that is usually to wrap some data, so: `StoreSomeData` 
 - main way to define IIFE is to: wrap it in `()`, use `+`, `!`, `~`(it will work as `()`, by making JS engine evaluate function), or use explicit `void` operator, that evaluates and returns `undefined` 
 
+#### TDZ origin
+TDZ originates from `const`, because:
+- it is strange to first part of block be shadowed and other part not, so we need to hoist our `const` declaration to top
+- we can't auto-init `const` to `undefined`, because it won't be constant
+
+`let` got TDZ behavior to be similar to `const` 
+
+#### Callbacks
+- async - some function(part of code), that was suspended and will be invoked later
+- sync - some function, that passed as reference to be immediately invoked in other part of program
+	- base for
+		- Dependency Injection(DI) - passing some dependency(functionality) from one part of program to other, so it can perform some actions(example: `map` iterate, but it don't know what to do)
+		- Inversion of Control(IoC) - control from current part of program handed to other part(`map` controls invocation of some logic)
+			- *based on that, we can say that we invoke libraries functions and framework invokes our functions* 
+
+we can say, that any callback is an IIFE, because it is declared in place and invoked, there for there is no need to IIFE to have any closure(it will rely on lexical scope)
+- note: it is just one way to represent callbacks
+
+#### More about Modules
+Most classic modules just return object, that represents their public API, but it might be useful to declare some `publicApi` object, to save reference to public API inside module and only later return it
+- problem arrives, because we depend on hoisting here
+
+Asynchronous Module Definition(AMD) - variation to define classic module, presented in RequireJS(library for in-browser/Node module loading) and looks like this:
+```js
+define([ "./A" ],function Afactory(A){
+    return { ... };
+});
+```
+
+Universal Modules(UMD) - module, that uses collection of formats, so we can seamlessly load modules in browser, Node or via AMD
+- basically just an IIFE, but with additional if..else to detect format
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
