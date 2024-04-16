@@ -850,7 +850,7 @@ types:
 non obvious scopes:
 - function parameters scope
 	- simple parameters won't create their own scope, but: default values, rest parameters and destructed parameters - will, some examples and corner cases:
-		- `function k(a, b = a)` will cause TDZ error
+		- `function k(b = a, a)` will cause TDZ error
 		- `function k(a, b = () => a)` will create parameter and function scope(for default value `a`)
 		- `var` will initialize to function parameter value and not `undefinde` 
 			- so it is not recommended to shadow parameters
@@ -863,6 +863,8 @@ Naming functions is good for:
 - self referencing(recursion, un-subscribing from something)
 - easier to read
 but can make code uglier, because arrow function are always anonymous :(
+
+NOTE: don't make any scene if any additional code processing is used
 
 function is not named, when it is passed as value to some variable, or object method
 - to be sure, function won't have real name, rather it will take name of method/variable name, so it's name will be "inferred"
@@ -902,6 +904,92 @@ define([ "./A" ],function Afactory(A){
 
 Universal Modules(UMD) - module, that uses collection of formats, so we can seamlessly load modules in browser, Node or via AMD
 - basically just an IIFE, but with additional if..else to detect format
+
+#### Objects
+NOT Everything in JS is an object, but object is still a key part in JS, because it is based on prototypes, which, in combination with `this`, makes possible class pattern
+
+Object can be represented as key/value container(array is sub-type, with index keys)
+- "key" === "property name"
+- "key+value" === "property"
+
+note: `{}` are used for many ways:
+- define object
+- destruct object
+- string interpolation
+- define blocks
+- define function body
+
+all object values are immediately calculated, before assignment, there is no lazy values in JS
+
+object is similar to JSON(JavaScript Object Notation), but in JSON we must wrap keys in `""` and values are primitives/arrays, with no trailing comas, comments etc
+
+all object keys are converted to strings, except numbers, or "number"(example: `"37"`), which treated like indexes
+- if you need to use value as key as is, use `Map` 
+- key can be computed, by surrounding it with `[]` 
+- `Symbol` can be used as key - uniq(in program scope) value, that prevents monkey patching and collisions
+	- often used for some inner properties, that won't be exposed
+
+function can be added to property in this ways:
+```js
+const a = {
+	a: function(){},
+	b(){}
+	*c(){}
+	["oh my, " + "new way to sheetcode :)"](){}
+}
+```
+
+`...` - technically syntax, but acts like an operator and called `obect spread` 
+- it assigning key/value pares from one object to another, without deep copy
+	- only owned an enumerable properties
+- if object has property duplication, this property will be overwritten top->bottom, so only last value will stay
+- deep copy is tricky, because of: reference to function, reference to external object(DOM Element), nested objects, so main approaches are:
+	- use external lib, with predefined behavior
+	- use `JSON.parse(JSON.stringify(obj))`, but it won't work for: functions(un-serializable data), circular references
+	- `structuredClone(obj)`, provided by environment, can't handle DOM and function cases
+
+accessing properties is done via `obj.` or `obj[computed val, converted to str]`  
+
+object can be destructed(values from object are assigned to created variables in specified way(with renaming, default values))
+```js
+const { a: ab = "37" } = A;
+```
+but, we can destruct without declaration, like this:
+```js
+let a;
+({ a: a } = A);
+```
+
+after ES20 conditional property access was added via `?.` operator, which checks if left value is nullish or not(nullish -> return `undefined`, non-nullish -> return value of property)
+- it is appropriate to use, where you don't know if the value is exists, to avoid run-time errors
+- we can also conditionally get data from arrays like this: `matrix[37]?.[0]` 
+- function call can be conditional to, with: `a.func?.()`, BUT it won't check if `func` is real function, so exception may be thrown anyway
+
+non-object value's properties can be accessed, because JS performs "boxing" on it(temporary wraps value inside object, for example: `37.toString() -> Number(37).toString()`)
+- we can manually box `null`/`undefined`, with `Object(null)` 
+- JS can also unbox in cases like: `Number(37) + 40 -> 37 + 40` 
+
+assignment is done via `=`, but it can lead to some setter function under the hood
+
+`delete obj.a` will delete `a` property from `obj`, BUT not free memory
+- will throw in strict mode with non object property
+- not equal to assigning `undefinded` 
+
+we can use object as temporary containers, to pass many arguments to function, but never access created object, because we always destruct properties
+
+#### Object APIs
+- `Object.entries(obj) -> [[key, val], [key, val]]` - take entries from object
+	- only owned an enumerable properties
+	- similar to `Object.keys(obj) -> Array`, `Object.values(obj) -> Array` 
+- `Object.getOwnPropertyNames(obj) -> Array` - returns keys for enumerable and non-enumerable properties, BUT no Symbol properties
+	- to get Symbol properties, use `Object.getOwnPropertySymbols(obj) -> Array` 
+	- note: both getters will return owned properties, no prototype inherited
+- `Object.fromEntries([[key, val], [key, val]]) -> obj` - construct object from entries
+- `Object.assign(targetObj, obj1, obj2 ... objn)` - swallow copies properties from one object to other
+- `"property" in obj -> boolean` - checks if object or it's prototype chain have property
+	- NOTE: `for in` will also traverse through prototype chain, but skip Symbols
+- `obj.hasOwnProperty() -> boolean` - checks if object have property
+	- same, but less preferable variation of `Object.hasOwn(obj, property) -> boolean` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
