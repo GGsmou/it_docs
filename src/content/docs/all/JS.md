@@ -977,6 +977,8 @@ assignment is done via `=`, but it can lead to some setter function under the ho
 
 we can use object as temporary containers, to pass many arguments to function, but never access created object, because we always destruct properties
 
+all underlying behavior of object is described by metaobject protocol, that can help understand objects deeper and change it's behavior if needed
+
 #### Object APIs
 - `Object.entries(obj) -> [[key, val], [key, val]]` - take entries from object
 	- only owned an enumerable properties
@@ -990,6 +992,77 @@ we can use object as temporary containers, to pass many arguments to function, b
 	- NOTE: `for in` will also traverse through prototype chain, but skip Symbols
 - `obj.hasOwnProperty() -> boolean` - checks if object have property
 	- same, but less preferable variation of `Object.hasOwn(obj, property) -> boolean` 
+
+#### Property Descriptors
+each property has description, in a form of object
+
+can be get via `Object.getOwnPropertyDescriptor(obj, "a");` 
+can be set via `Object.defineProperty(obj, "a", {});` 
+- will also define a new property
+- we can batch definitions like this
+```js
+Object.defineProperty(obj, {
+	a: {},
+	b: {}
+});
+```
+
+contains:
+- value: any
+	- instead of value we can define `get()` and `set(val)` functions
+- enumerable: boolean (true by default) // marks if property should appear in `.entries()`, `for...in` etc
+- writable: boolean (true by default) // controls if value can be changed via `=`, but not via `.defineProperty()` 
+- configurable: boolean (true by default) // (dis)allows re-defining descriptor, but value can be still changed with `=` 
+
+any property duplication is just value duplication, not full descriptor
+
+#### Sub-types of Objects
+Sub-type of objects is and object, that extends basic behavior
+
+- Array - numerically indexed object
+	- note: we can still assign named properties to it, but we shouldn't
+	- `length` is always exposed, updated property on array-object
+		- it is not computed every time it's called, so we can safely call it any time we need, not worry about optimization
+		- it is also can be set
+	- if you skip values, when assigning to array, it won't create `undefined` values in between, which return `undefined`, but skipped over, when `.map` is called
+- Function - callable objects
+	- function has two exposed properties:
+		- `name` - used for stack tracing
+		- `length` - number of explicitly defined parameters, but not parameters, with default value
+
+#### Object characteristics
+- extensible - define if new properties can be added to object
+	- `true` by default, but can be set to `false` via `Object.preventExtensions(obj);` 
+	- will throw run time exception is `strict` 
+- sealed - change some parameters of object:
+	- remove possibility to add properties, remove properties, re-configure properties
+	- prototype can't be re-assigned
+	- values of properties can be set
+	- can be set by `Object.seal()` 
+- frozen - same as sealed, but without value changing too
+	- can be set by `Object.freeze()` 
+
+#### Prototype chaining
+All objects, from creation, has `[[Prototype]]` property, that points to other object
+- by default, all object are linked to `Object.prototype` 
+
+this technic delegates the access of some properties to linked object up to chain, until we reach to final object(`null`) or find property
+- this technic is called "prototype inheritance" or "prototype delegation" and properties are "inherited"
+
+to create object with different prototype we can use `const a = Object.create(obj);` 
+- it takes second argument, like `Object.defineProperties()`, but it's not commonly used
+- alternately we can use `__proto__` syntax, BUT it not in TC39 spec, but in Appendix B
+```js
+const a = {
+	__proto__: obj,
+	a: 37
+};
+```
+
+dictionary object - object with `null` prototype
+
+- `.prototype` - is property on all function-objects, that points to an object, that will be set to `[[Prototype]]` of a created object from this function
+	- don't forget, that function itself will have `[[Prototype]]`, inherited from `Function.prototype` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
