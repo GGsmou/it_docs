@@ -271,3 +271,57 @@ other
 can be similar, but NOT equal to regex
 
 mainly used in scripting, automation etc
+
+
+## RegEx
+Used to match substring in a string via pattern/rules
+- commonly global, but may have some differences(flavors) in different environments
+
+regex have:
+- match with characters
+	- literal match
+		- example: `\ggkek\g` 
+	- character set - match single character from group
+		- example: `\gg[smk]\g` 
+		- special cases
+			- range operator - removes the need to write some common ranges like: alphabets, number ranges etc
+				- `\[a-z]\g` - lowercase eng alphabet
+				- `\[A-Z]\g` - uppercase eng alphabet
+				- `\[0-9]\g` - 0..9 range
+		- note
+			- we can combine sets like this: `\[a-zA-Z0]\g` 
+			- `[^...]` - acts as NOT
+- special symbols
+	- quantifiers - used to find some amount of smth
+		- `*` - 0+
+		- `?` - 0 or 1
+		- `+` - 1+
+		- `{n}` - n-times
+		- `{n, }` - n-times+
+		- `{n, m}` - n-m range inclusive
+		- note
+			- quantifier is working with one symbol, but we can match group via capture groups
+	- `|` - logical OR
+		- example: `breaking|beaking` 
+	- `\` - escapes spesial symbol
+	- `()` - capture group - used to capture some group of some patterns
+		- example: `\I like (you|her)\g` 
+		- group can be referenced with index, like this: `\n` 
+			- example: `\(hi) Mike. \1 Peter\g` 
+- character classes - used to avoid some common character sets or patterns
+	- `.` - anything, except `\n\r` - `[^\n\r]` 
+		- similar to `*` in glob pattern
+	- `\w` - any eng word character - `[a-zA-Z0-9_]` 
+	- `\W` - opposite to `\w` 
+	- `\d` - digits - `[0-9]` 
+	- `\D` - opposite to `\d` 
+	- `\s` - space, tab, newlines etc - `[ \t\r\n\f]` 
+	- `\S` - opposite to `\s` 
+
+regex modifiers(can be combined)
+- `\g` - match all accuracies
+- `\m` - match between lines(ignoring line breaks)
+
+note
+- you must remember about case sensitivity
+- (non)strict matches: one or more spaces, what comes before/after etc
