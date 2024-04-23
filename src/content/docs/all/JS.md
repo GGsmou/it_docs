@@ -506,6 +506,22 @@ Generator function can be declared like this:
 ```js
 function *generator(){...}
 ```
+Generator function - function with between-call state, that can finish it's execution
+- main usage - write some iterable data structure
+example:
+```js
+function *gen(){
+	yield 1;
+	yield 2;
+}
+
+const g = gen()
+g.next() // {value: 1, done: false}
+g.next() // {value: 2, done: false}
+g.next() // {value: undefined, done: true}
+
+gen().next() // {value: 1, done: false}
+```
 
 Also there are arrow functions, Immediately Invoked Function Expression(IIFE), async variations, class/object methods(not different from function in JS terms)
 - arrow functions are anonymous by design
@@ -1041,6 +1057,7 @@ Sub-type of objects is and object, that extends basic behavior
 	- can be set by `Object.seal()` 
 - frozen - same as sealed, but without value changing too
 	- can be set by `Object.freeze()` 
+	- potentially slow
 
 #### Prototype chaining
 All objects, from creation, has `[[Prototype]]` property, that points to other object
@@ -1063,6 +1080,56 @@ dictionary object - object with `null` prototype
 
 - `.prototype` - is property on all function-objects, that points to an object, that will be set to `[[Prototype]]` of a created object from this function
 	- don't forget, that function itself will have `[[Prototype]]`, inherited from `Function.prototype` 
+
+#### OOP 101
+OOP is mainly about breaking program into meaningful entities that can inherit and interact with each other in some way
+- basically, if you program need some data+behavior object instances, class is a way to go
+	- note: if you are creating classes and don't initializing them(just inherit from), maybe you don't need this class
+
+Encapsulation helps to hide some details and expose useful abstractions
+
+Instead of inheritance, composition can be used to declare classes, based on other classes combination
+
+#### Class
+Prio to ES6 JS main class approach was prototypal classes. In ES6 classes was introduced as syntactic sugar and later evolved from it to separate thing, but it is still based on prototype chaining
+
+we can create class via declaration OR expression, like function
+- it can be anonymous too
+- all code inside class is in "strict" mode
+
+class can have:
+- methods
+	- special method is `constructor`, which can be empty(will be default `constructor`) or declared and called on every creation of class instance via `new` 
+- variables
+
+type of class is a function, but it can be only called with new(otherwise `TypeError`) and can be serialized to string
+- basically our class is a constructor function, that vires it's constructor to all it's instances
+- we can call all class methods like this `Class.prototype.method`, or declare them as `static` 
+
+`this` is used to reference current instance context for all methods inside context
+- often we use it to declare some data, BUT all values can be just placed inside of our class, like this:
+```js
+class A {
+	x = 10
+	y = this.x * 10
+}
+```
+- note: never declare methods like this: `a = () => {}`, because it will create new instance of a function for every object instance AND will break `this` bindings
+	- closure is more appropriate for such cases
+
+`extend` is  used to chain classes
+- in this situation `this` is shining, caze it will refer methods/variables in context it called and not created
+- we can override methods in extended classes, BUT it is still possible to access "parents" methods, by calling `super.` 
+	- this helps implementing "method polymorphism" pattern
+	- note: `super()` must be invoked in a `constructor` to invoke inherited constructor AND this must be done before any `this` reference, or runtime exception will be thrown
+		- BUT, default `constructor` invoking `super()` by itself
+		- any initialization of "public" variables are done after `super()` 
+	- there is `new.target` property, that is equal to class itself, if we are initing it via `new` 
+
+`instance` of helps find out if our instance created from some class, BUT it also will result in `true` for inherited classes, because it is performing prototype check and traverse
+- it can be also check like this: `A.prototype.isPrototypeOf(a) -> boolean` 
+- if direct check is needed, we can use: `a.constructor === A` 
+	- `.constructor` is located on `A` prototype
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
