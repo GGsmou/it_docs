@@ -1125,11 +1125,36 @@ class A {
 		- BUT, default `constructor` invoking `super()` by itself
 		- any initialization of "public" variables are done after `super()` 
 	- there is `new.target` property, that is equal to class itself, if we are initing it via `new` 
+		- with a help of this we can restrict use of `constructor` by explicitly throwing and there for making our class abstract
 
 `instance` of helps find out if our instance created from some class, BUT it also will result in `true` for inherited classes, because it is performing prototype check and traverse
 - it can be also check like this: `A.prototype.isPrototypeOf(a) -> boolean` 
 - if direct check is needed, we can use: `a.constructor === A` 
 	- `.constructor` is located on `A` prototype
+
+#### Static properties
+For better code organisation we can use "static" values/methods, that will be placed(there for associated) on class, but will be accessible via class itself and not it's instance
+- it means that in JS we can store methods in 3 places: constructor, instance, class function
+- we can create class instance and place it into static property
+- `this.` inside static equals to `Class.` 
+	- we can(but shouldn't) do this: `static a = new this()` 
+- we can use static blocks to define some temp values or do try/catch computations like this: `static {...}` 
+- static methods are inherited in same way as default methods, but as static
+	- note: it is still done via prototype linkage, but we are changing link from `Funtion.prototype` to `Class.prototype` 
+		- this isn't possible to do via pre-ES6 classes
+
+static initialization
+- happens immediately after class definition
+- happens in order, one-by-one
+
+#### Private properties
+JS has native private properties(don't mix-up with TS's `private`, `public`, `protected`), that is defined like this: `#a = ...`, and can be applied to all other types of properties. To access private properties use: `this.#a` 
+- main problem - we can't access private properties when extending class, so they are not fully useful
+	- but we still can access private properties via `super` 
+- we can add private fields only via class body, can re-assigne, but not `delete` them
+	- for whatever reason we still can access them as properties on instances, so it more syntax highlight of private, like: `_someName` and to avoid sharing properties between classes
+		- BUT, JS will throw, if we try to access non-declared private field
+			- we can use `try/catch` or check via `in` to avoid unhandled exception
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
