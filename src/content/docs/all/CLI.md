@@ -7,6 +7,9 @@ title: CLI
 - mkdir dir_name
 - vim fileName.txt // create file and open it
 - touch fileName.txt // create empty file
+- grep "regex_pattern" // search for some regex pattern in the file
+	- -R for recursive search
+- sed "regex_replace_pattern" fileName // replace content of file with regex
 
 ## Vim Motions
 #### command mode

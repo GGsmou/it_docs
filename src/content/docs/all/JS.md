@@ -1152,9 +1152,53 @@ JS has native private properties(don't mix-up with TS's `private`, `public`, `pr
 - main problem - we can't access private properties when extending class, so they are not fully useful
 	- but we still can access private properties via `super` 
 - we can add private fields only via class body, can re-assigne, but not `delete` them
-	- for whatever reason we still can access them as properties on instances, so it more syntax highlight of private, like: `_someName` and to avoid sharing properties between classes
-		- BUT, JS will throw, if we try to access non-declared private field
-			- we can use `try/catch` or check via `in` to avoid unhandled exception
+	- JS will throw, if we try to access private field
+		- we can use `try/catch` or check via `in` to avoid unhandled exception
+
+#### This
+key differences in JS:
+- `this` is runtime value(usually object), that can't be determined at compilation stage
+- `this` can be different, depending on how function is invoked
+- we can think about `this` in a way - this is some variable, that takes some value, when function is invoked
+	- basically `this` is some placeholder, that change behavior of function
+	- it's always important to remember, that `this` can be controlled from outside on function call, so we need to know context to fully understand how function behaves
+	- `this` acts like implicit parameter, meaning we aren't defining it and not declaring, that we will use it, and just use it
+		- often `this` is not properly validated too(thank god for TS :) )
+
+overall `this` acts like dynamic context for function, that was called inside of it
+
+ways to invoke this-aware function:
+- implicit context invocation - invoke function, that is object's method
+	- `this` === object
+	- example: `printerInstance.print()` 
+- default context invocation - invoke function, without any context
+	- `this` is depends on some other factors, but often it will be equal to globalThis, BUT in "strict" mode `this` === `undefined`, so we will get run-time error
+- explicit context invocation - invoke function, with passing context to it
+	- `this` === firstArgument
+	- examples:
+		- `a.apply(context, [val1, val2])` 
+		- `a.call(context, val1, val2)` 
+	- we can borrow methods from one objects and utilize them in other context like this: `obj1.a.call(obj2)` 
+		- we can share a function reference between multiple objects as alternative
+- new context invocation - invoke function with `new` keyword
+	- JS is doing some steps here:
+		-  create new object
+		- link `function.prototype` to object's `__prototype__` 
+		- invoke function with new context
+		- return(if not function explicitly return object) this object
+	- basically we can create object instances from "classes" this way
+note: JS is checking this rules on-by-one and first rule to hit will determine `this` value(ordered from last to first as written before)
+
+THIS ALL IMPLIES TO METHOD OR FUNCTION, BUT NOT FOR...
+
+#### This in arrow function
+Main problem with `this` comes in places, where we need to pass our function somewhere else, but we still rely on current context. We can't control context, so we either copy `this` and save via scope(our function is no longer `this`-aware) OR use arrow functions
+- arrow function presents a possibility to use "lexical this" pattern, so any `this` inside arrow function refers to context, function was created and NOT dynamic context
+- this means, that `this` in any arrow function is just a simple keyword, that is using possibilities of lexical scope
+
+notes:
+- we can still `call/apply` on arrow function, but it will have no effect
+- if arrow function have no `this` in it's/outer scope, `this` will result in `{}` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS

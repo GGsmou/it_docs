@@ -307,7 +307,11 @@ regex have:
 	- `()` - capture group - used to capture some group of some patterns
 		- example: `\I like (you|her)\g` 
 		- group can be referenced with index, like this: `\n` 
+			- we would reference previous mach exactly
 			- example: `\(hi) Mike. \1 Peter\g` 
+		- group can be named like this: `(?<name>...)` 
+			- we can reference by name: `\k<name>` and replace with `$<name>` 
+				- note: replace is language based feature
 - character classes - used to avoid some common character sets or patterns
 	- `.` - anything, except `\n\r` - `[^\n\r]` 
 		- similar to `*` in glob pattern
@@ -317,10 +321,23 @@ regex have:
 	- `\D` - opposite to `\d` 
 	- `\s` - space, tab, newlines etc - `[ \t\r\n\f]` 
 	- `\S` - opposite to `\s` 
+- lookarounds - adds a possibility to check if data satisfies our pattern, but without including it to actual match
+	- computationally expensive
+	- types:
+		- lookbehinds - (not)match pattern if lookbehind is came before it
+			- positive: `(?<=)` 
+			- negative: `(?<!)` 
+		- loohahheads - same as lookbehinds
+			- positive: `(?=)` 
+			- negative: `(?!)` 
+	- note: we can place lookbehinds and lookahheads in any place of the pattern and not strictly before/after something
 
 regex modifiers(can be combined)
 - `\g` - match all accuracies
+	- computationally expensive
 - `\m` - match between lines(ignoring line breaks)
+- `^` - assert position at the start of the line
+- `$` - assert position at the end of the line
 
 note
 - you must remember about case sensitivity
