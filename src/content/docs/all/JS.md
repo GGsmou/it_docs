@@ -1193,12 +1193,49 @@ THIS ALL IMPLIES TO METHOD OR FUNCTION, BUT NOT FOR...
 
 #### This in arrow function
 Main problem with `this` comes in places, where we need to pass our function somewhere else, but we still rely on current context. We can't control context, so we either copy `this` and save via scope(our function is no longer `this`-aware) OR use arrow functions
-- arrow function presents a possibility to use "lexical this" pattern, so any `this` inside arrow function refers to context, function was created and NOT dynamic context
+- arrow function presents a possibility to use "lexical this" pattern, so any `this` inside arrow function refers to context, function was created, and NOT dynamic context
 - this means, that `this` in any arrow function is just a simple keyword, that is using possibilities of lexical scope
+	- note: now it not matters how function was called, but where it was created(but we still care how surrounding function was called)
 
 notes:
 - we can still `call/apply` on arrow function, but it will have no effect
 - if arrow function have no `this` in it's/outer scope, `this` will result in `{}` 
+- `this` will take value of first occurrence, so even if function doesn't have any defined `this` it still has default context, so `this` in arrow function resolves to `globalThis` 
+- alternative to arrow function - `.bind(context)` function method, that defines new function, with fixed context
+	- we are doing "hard binding"
+	- bounded function can loose it's bind, when called with `new` 
+		- arrow function can't and will throw, if called with `new` 
+
+remember: binding or creating arrow function takes some memory(this memory can't be cleaned too, if we didn't unsubscribed), so it is important to be careful with this
+
+#### This corner cases
+Worse to mention, that `this` resolves to `globalThis`, when we invoking our function indirectly, for example:
+- `(1, a.do)(3, 7);` - evaluates expression and indirectly invokes function
+- `(() => a.do)()(3, 7);` 
+- any IIFE variation
+exception:
+- `(a.do)(3, 7)`, because it resolves into `a.do(3, 7)` 
+
+this corner cases suffer from "strict" mode, caze `globalThis` in default context is `undefined`, BUT creating function with `new Function(string)` will create non "strict" functions, that ALWAYS resolve `this` to `globalThis`, so we can get reliable polyfill: `const t = new Function("return this")();` 
+- but, often such hack is broken by browser's Content-Security-Policy (CSP), that prevent dynamic code evaluation
+	- but, we still can get `globalThis`, because spec guarantees, that in both modes `this` resolves in `globalThis` for getters, defined on properties of global objects
+
+other case, we can call template tag function(function is been called with such syntax:
+```js
+function someFunction(){}
+
+someFunction`string`;
+```
+this will have same evaluation as for default functions, but without `new`, `call/apply`, because it is not possible to call function in this way
+
+via this functions we can work with and parse in specific way templated strings, consider this example:
+```js
+function a(...args) { console.log(...args); }
+const b = 123;
+
+a`hello ${1} world ${b}`;
+// clg: [ 'hello ', ' world ', '' ] 1 123
+```
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
