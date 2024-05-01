@@ -18,6 +18,7 @@ title: IT
 - [Fintech](Fintech.md)
 - [TS](TS.md)
 - [Design](Design.md)
+- [Code_Snippets](Code_Snippets.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist
