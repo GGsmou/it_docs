@@ -520,6 +520,7 @@ cons</li>
 <li><code dir="auto">\D</code> - opposite to <code dir="auto">\d</code></li>
 <li><code dir="auto">\s</code> - space, tab, newlines etc - <code dir="auto">[ \t\r\n\f]</code></li>
 <li><code dir="auto">\S</code> - opposite to <code dir="auto">\s</code></li>
+<li><code dir="auto">\b</code> - find match at start/end of the word</li>
 </ul>
 </li>
 <li>lookarounds - adds a possibility to check if data satisfies our pattern, but without including it to actual match
@@ -554,7 +555,11 @@ cons</li>
 </li>
 <li><code dir="auto">\m</code> - match between lines(ignoring line breaks)</li>
 <li><code dir="auto">^</code> - assert position at the start of the line</li>
-<li><code dir="auto">$</code> - assert position at the end of the line</li>
+<li><code dir="auto">$</code> - assert position at the end of the line
+<ul>
+<li>combination of <code dir="auto">^</code> and <code dir="auto">$</code> enforces to match whole word</li>
+</ul>
+</li>
 </ul>
 <p>note</p>
 <ul>

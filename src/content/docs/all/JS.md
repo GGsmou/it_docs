@@ -227,6 +227,23 @@ Other
 	- it is better to setTimeout earlier in code, because even zero second timeout has some delay in it
 	- you can show some loading via this split, because otherwise change in DOM will be shown after whole process is finished
 
+## Regex In JS
+To create a regex in JS we can use `new Regxp("pattern", "flags")` or with `/pattern/flags`. This will resolve in Regex object
+
+Methods on Regex object:
+- `.test(string) -> boolean` check if string has a match
+- `.exec(string) -> array | null` executes regex and returns array of matching groups
+	- `array` will include:
+		- "0" - matched string
+		- "groups"
+		- "index" - matched string index
+		- "input" - original string
+	- it acts as an iterator and, when there is no left matches it return `null` 
+
+ regex flags(5 in-total, most important bellow):
+- `g` - search for all matches
+- `i` - case insensitive search
+
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
 

@@ -321,6 +321,7 @@ regex have:
 	- `\D` - opposite to `\d` 
 	- `\s` - space, tab, newlines etc - `[ \t\r\n\f]` 
 	- `\S` - opposite to `\s` 
+	- `\b` - find match at start/end of the word
 - lookarounds - adds a possibility to check if data satisfies our pattern, but without including it to actual match
 	- computationally expensive
 	- types:
@@ -338,6 +339,7 @@ regex modifiers(can be combined)
 - `\m` - match between lines(ignoring line breaks)
 - `^` - assert position at the start of the line
 - `$` - assert position at the end of the line
+	- combination of `^` and `$` enforces to match whole word
 
 note
 - you must remember about case sensitivity
