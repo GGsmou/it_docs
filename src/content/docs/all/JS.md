@@ -1254,6 +1254,24 @@ a`hello ${1} world ${b}`;
 // clg: [ 'hello ', ' world ', '' ] 1 123
 ```
 
+#### Delegation in JS
+>All we have are objects, linked to and cooperating with other objects.
+
+Delegation is about multiple things working together to complete some task
+It is not mainstream pattern in JS and lies somewhere in between OOP's class inheritance and object modules
+- in classes we have some parent that represents behavior(class) and children that inherits from it
+- in delegation we have equal peers, that cooperate with each other
+	- via delegation we can achieve virtual composition by calling some predefined functions with any context and there for composing behavior of some object at a run-time and not composing a class, that will give it's behavior to instance
+	- we can achieve flexibility by calling methods with `this`, but not declaring this on current object(so we can delegate execution to other context)
+		- *fils a bit stinky to me :)* 
+	- we can use `this` context or pass context directly to achieve delegation
+
+- `constructor` is an initializator for our instance, but it's creation is happening via `new` 
+	- we can re-implement class with constructor as function factory, that do same things(create object, link prototype, init and return)
+		- note: it is bad to call factory with `new` caze we basically create and throw away on object under the hood
+		- we can delegate initialization from our factory to object `init` method(or smth like this) and there for need in factory is vanished(case create, link and init can be done with `Object.create(baseProptotype)` + `obj.init()`)
+		- in this way we can move from vertical class based inheritance to other ideas as mixins etc
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
