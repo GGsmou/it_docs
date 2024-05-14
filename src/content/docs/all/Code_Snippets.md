@@ -31,3 +31,9 @@ const underscoreSanitizer = new SanitizerBuilder((string) => `_${string}_`);
 console.log(underscoreSanitizer.sanitize`Hello, ${'world'}!`); // Hello, _world_!
 ```
 
+String functions, based on template literals
+```js
+const main = `${(function () {
+	console.log("I am inside a string!");
+})()}`;
+```

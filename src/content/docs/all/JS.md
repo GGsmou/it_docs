@@ -1272,6 +1272,100 @@ It is not mainstream pattern in JS and lies somewhere in between OOP's class inh
 		- we can delegate initialization from our factory to object `init` method(or smth like this) and there for need in factory is vanished(case create, link and init can be done with `Object.create(baseProptotype)` + `obj.init()`)
 		- in this way we can move from vertical class based inheritance to other ideas as mixins etc
 
+#### Primitives
+Again, not everything in JS is an object, some of them are primitive values
+Note: value has type, rather than variable
+
+all primitives:
+- undefined
+	- acts as an empty value and placeholder for empty places
+- null
+	- `typeof` results in an `object` for legacy reasons
+- boolean
+- number
+- bigint
+- symbol
+- string
+this is a string values, that `typeof` will return for different primitives(when called on value or variable)
+- `typeof` will also return `undefined` for non-existing variables without throwing
+
+key difference is that primitives don't have properties
+- all properties like `.toString()` or `.length` come from auto-boxing
+
+#### Null'ish
+generally an empty values, like `null` or `undefined` 
+- logically `null` and `undefined` mean the same, so it is kinda matter of preference in choosing one/another
+	- but it is important to be careful, case JS can behave differently, for example:
+		- `function a(a = "a") return a; a(null) => null` 
+- in coercive comparison `null` equals to `undefined`, BUT not to other falsy values
+	- as well we have `??` nullish-coalescing operator, that similar to `||`, but will choose first value even if it is falsy, but not null'ish
+
+#### Boolean
+representing two values: `true | false`, or more properly `1 | 0` 
+
+used for most logic handling
+
+can be flipped via `!` 
+
+#### String
+String is a collection of one or more characters, that enclosed in \` or ' or " from both sides
+
+All strings have "property" `length` that represents number of actual character(**unicode warning**) in it
+
+unicode 101
+- unicode represent all characters that can be represent with number from `0` to `10FFFF`, usually in `U+(4-6 hex numbers)` notation
+- there are different types of unicode(8, 16, 32)
+- first 65.535 characters are stored as 2-byte UTF-16 character, for other characters more space is needed, so they stored as surrogate pairs(basically two 2-byte characters)
+	- this pairs are meaningful only in pair an rear alone
+- there are graphemes - unicode characters that looks like one symbol, but may be combined from many code-points(👩‍👩‍👦‍👦 === 7 adjacent code-points)
+	- underlying code-points are meaningful code-points
+
+escaping strings
+- ' and " quotes represent string as-is, except for special \\ escaped symbols:
+	- full list: `b`, `f`, `n`, `r`, `t`, `v`, `0`, `'`, `"` 
+		- in other cases \\ is just dropped
+	- additionally we have multi character escapes
+	- `\u(4 hex digits)` - represent Unicode BMP characters
+		- additionally unicode can be represented like two pairs or like this: `\u{...}` 
+			- note: `\u{...}` is same as unicode pair and both cases have `length` of 2
+		- also some BMP characters can be represented as pair of basic and symbol character
+			- example: `é` 
+			- such symbol is named combining part an makes sense in pair with letter
+			- note: if we are using BMP notation length will be 1 and for surrogate pair it will be 2 + we will have false comparison
+				- it cases some corner cases like this to: `"é" === "é"; // false` 
+		- JS has `str.normalize(method)` to normalize unicode to some state
+			- `"NFC"` - combines several code-points into composed one
+			- `"NFD"` - opposite one
+			- also there is cases for letters with several special symbols, that will resolve in 3->1 code-points change
+			- normalization won't proper work for graphemes, caze they are combination of valid code-points
+	- `\x(2 hex digits)` - represent ASCII character
+		- `"a" === "\x61"; // true` 
+	- we can also break strings into separate lines in code, but not in string like this:
+		- such syntax is often called as multi-line, but, to be fair, it is just syntax and not real multi-line
+```js
+const a = "Hello \
+World!";
+
+console.log(a); // Hello World!
+```
+- \` strings(template literals / interpolate strings) work the same as default string, but with some additions:
+	- parsing of `${}` values, with evaluation and interpolation of value inside of it to string
+		- we can put some value or even complex JS code, including other template literals....so presenting advanced JS code, never seen before:
+```js
+const main = `${(function () {
+	console.log("I am inside a string!");
+})()}`;
+```
+-  
+	- multi-line strings - template literals indeed can be multiline, but new lines are part of string(they still can be escaped as for default strings)
+	- template literals can be tagged(passed to function as shown before)
+		- this means that tagged template literal can resolve in any value(untagged only in string)
+	- we can't use such strings for:
+		- "use strict"
+		- property names
+		- destruction patterns
+		- import..from
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
