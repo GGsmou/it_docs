@@ -1366,6 +1366,142 @@ const main = `${(function () {
 		- destruction patterns
 		- import..from
 
+#### Number
+JS numbers are 64-bit floating point signed numbers
+
+int string -> int conversion JS differs methods to parsing and coercion types:
+- parsing:
+	- extract number from string, even if there is some non numeric characters
+		- note: parsing is done only on string values, so other values will be converted to string, there for `parseInt(float)` is worse than just `Math.floor` 
+		- both parsers try to find numeric characters in string and stop, when they find non-number
+			- if first character is non-numeric, we will get `NaN` 
+			- `.` is non-number for `parseInt` 
+	- examples:
+		- `parseInt(string, radix) -> number` 
+			- `radix` is number(2-36) that represents base to parse number from
+				- incorrect `radix` results in `NaN` 
+				- omitting `radix` makes JS try to guess base of a number by first digit(s)
+				- `str.toString(radix?)` can work with radix to convert number to some base
+		- `parseFloat(string) -> number` 
+			- `radix` is always 10
+			- can parse scientific notation, but `parseInt` can't
+- coercion:
+	- try fully extract number from string or fail with `NaN` 
+	- done with: `Number` or `+` 
+
+all numbers in JS are in base-10(under the hood to), but there are other notations(case insensitive):
+- binary: `0b111`  
+- octal: `0o37` 
+- hexadecimal: `0x2a` 
+- scientific: `3.7e1` or `3.7e+1` or `3.7e-1` 
+	- + and - are different and makes floating point go right or left
+	- basically it is specifying some number in power of 10
+	- very large/small(21 digit of persision) number are converted to string as scientific notations
+		- 123 ** 11 -> "9.748913698143826e+22"
+		- 123 ** -11 -> "1.0257553107587752e-23"
+	- scientific notation strings can be got via `number.toExponential(precision) -> string`, where precision - number of decimal digits
+
+JS allows to notate numbers with `_`, for readability reasons, like this: `12_345`, which equals to `12345` 
+
+JS has a max number, that exposed via `Number.MAX_VALUE // 1.7976931348623157e+308`, which is an integer and is around `(2^1024)-1`
+- we can't have values higher then this, except of `Infinity` 
+	- note: we can't get `Infinity` by adding to this number some small number, but it is possible to overflow and get `Infinity` with some arithmetic
+		- it is one way rule and `Infinity` can resolve in some number
+- there is another variant of max number, `Number.MAX_SAFE_INTEGER // 9007199254740991 == (2 ^ 53) - 1`, that is much smaller that original max value
+	- over this number arithmetics falls down and become unpredictable
+- `Number.MIN_SAFE_INTEGER` is negative of max safe
+	- or `0` :)
+
+JS has a min number(not negative, but closest to zero), that is exposed via `Number.MIN_VALUE` and can be different by JS spec
+
+there is `-0` in JS, that is `===` to `0`, but not `Object.is` 
+- it comes from IEEE-754 and kinda hidden in JS
+- could be useful to track 2D velocity+direction
+- it is not a thing for `bigint` 
+
+APIs:
+- `Number.isInteger(number) -> boolean` 
+- `Number.isFinite(number) -> boolean` 
+- `Number.isSafeInteger(number) -> boolean` 
+
+#### IEEE-754 101
+It is a standard for representing numbers in binary
+JS uses double-precision variation of it(64-bit)
+- 52 bits for number - mantissa
+	- this value is multiplied to (2 ^ exponent) for final result
+- 11 bits for exponenta(2 ^ exponent)
+	- we always extract 1023 from mantissa, caze it is shifted
+- 1 bit - sign
+	- 1 for negative
+so we have `2^64 - 2^53 + 3` signed numbers
+
+bits are placed like this: "SEE...EMMM....M"
+
+floating point comes from the fact, that decimal points "float" along the bits, so close values can have very different notation
+
+this standard is also reserves values for:
+- `+-Infinity` 
+- `-0` 
+- `NaN` // thats why JS treats `NaN` as `number`
+
+#### NaN
+Not a Number - result of failed conversion or math operation(number divide by string)
+- `+undefined -> NaN` 
+
+note:
+- `NaN === NaN // false` 
+- `Number.isNaN(NaN) // true` 
+	- it is superior to global `isNaN` caze global one converts non-numeric values to number first, so string will become `NaN`, there for check will be successful
+- `Object.is(NaN, NaN) // true` 
+- `[NaN].includes(NaN) // true` 
+
+#### BigInt
+Allows to store big values(commonly 64-bit IDs) with no theoretical limit(depends on implementation and computation resources)
+
+bigints in JS have `n` postfix like this: `37n` 
+- this postfix is purely syntactic
+- we can perform same arithmetic operations on them, but it is restricted to number-number or bigint-bigint, no mixing
+- can be converted from number/string(coercive) via `BigInt(number|string)` 
+	- `n` is note allowed to be in string
+
+#### Symbol
+Symbol is a special value, that can be created via `Symbol(string) -> symbol` 
+- any value passed in constructor is for debugging purposes only
+- it is impossible to inspect underlines of the symbol
+	- engine will never expose it, but it is known that some engines might just use incrementing number strategy(like numeric IDs in DB)
+- characteristics
+	- unguessable
+	- won't repeat in scope of program
+
+use-cases
+- check if variable renamed unchanged
+- set "private" object methods
+	- they are still visible, but kinda set apart + non-enumerable
+	- we can compare symbols with "mark as private" notation of `_` 
+
+well known symbols - some symbols that represent some meta-properties and left public(as property on `Symbol`) to some manipulation:
+```js
+String(obj); // [object Object]
+
+obj[Symbol.toStringTag] = "123";
+
+String(obj); // [object 123]
+```
+
+JS has built in global symbols management system, so we won't need to cary them around. API:
+
+```js
+const symb = Symbol.for("37"); // retrieve OR create new
+
+const symbKey = Symbol.keyFor(symb); // "37"
+
+const symb2 = Symbol.for(symbKey);
+
+symb === symb2 // true
+```
+
+we treat symbols as primitives, BUT worse mentioning that they have specified prototype(by spec) and kinda unuq as object reference
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 

@@ -169,10 +169,22 @@ Useful for testing, because we can flush all state easily
 ## Monads
 Monad is a function that adds layer of abstraction into functional programing, so we can work with well known pure functions, but with hidden logic
 
-#### Useful monads:
+Extends Functor:
+- function with data inside(context)
+- map - receive function, apply to data, return context with new data
+- get - return data
+- \--- extensions
+- of  - receive data, return data in context
+- flatMap/chain - receive function, apply to data, return context with new data avoiding any nesting of contexts
+
+Useful monads:
 - Promise / Future - to work with some time delays
+	- not 100% sure that it is a true monad
 - Maybe - returns smth or nothing(never for TS)
-- Either - returns smth or smth
+- Either - returns smth or smth(often left - error and right - value)
+
+it makes sense to incorporate such abstractions to avoid dirty code and make it composable
+- so it is note useful to pack and 3 lines later unpack a monad
 
 ## Signals
 Based on observer pattern. Subject don't know about observer. Observer knows only that subject can change

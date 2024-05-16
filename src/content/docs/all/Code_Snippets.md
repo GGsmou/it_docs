@@ -37,3 +37,19 @@ const main = `${(function () {
 	console.log("I am inside a string!");
 })()}`;
 ```
+
+`.toString()` that we all deserve
+```js
+const obj = {
+  a: 1,
+  b: 2,
+  c: {
+    d: 3,
+  },
+};
+
+obj[Symbol.toStringTag] = JSON.stringify(obj);
+
+console.log(obj.toString()); // [object {"a":1,"b":2,"c":{"d":3}}]
+
+```
