@@ -1487,6 +1487,8 @@ obj[Symbol.toStringTag] = "123";
 
 String(obj); // [object 123]
 ```
+other WKS:
+- `.iterator` - symbol that stores iterator implementation
 
 JS has built in global symbols management system, so we won't need to cary them around. API:
 
@@ -1501,6 +1503,71 @@ symb === symb2 // true
 ```
 
 we treat symbols as primitives, BUT worse mentioning that they have specified prototype(by spec) and kinda unuq as object reference
+
+#### Dive into primitives
+All JS primitives are immutable(you can change value of variable, create new values, BUT not mutate value itself)
+- note: strings are read-only, so even if look like `char[]`, they are not. Operations like this(assigning to read-only property) `"123"[0] = 9` will silently fail/throw
+- const is never affects value mutability
+	- `writable: false` on property has same effect
+
+primitives allow property access(except `null`, `undefined`). Also we can write properties, but with now change(silent failure)
+- note: everything bellow is facilitated by auto-boxing
+- some properties are exposed by default, like `.length` for strings. It is read-only and show number of code-points in a string
+- also primitives have standard or special for some type exposed properties/methods, like:
+	- `.toString() -> string` 
+	- `.valueOf() -> any` 
+
+primitive assignment and passing is always by copy
+
+##### Strings
+strings are not arrays, but they: 
+- allow access to chars via `[index]`, where index is coerced to a number(or `NaN` thus resulting in `undefined`)
+- allow array like iteration
+
+length computation:
+- each code-unit in JS is 16bit value
+- it is better to use `"NFC"` normalization to make result closer to visual length of string
+- to deal with surrogate pairs we can use `[...string].length` hack, that will break string not by surrogate, but by pair
+	- won't work for combined code-points
+
+i18n and i10n
+- JS has ability to detect context in which it is running and adjust its behavior with string, dates, numbers etc
+	- character itself can have some special behavior to it
+	- to force some behavior we have `Intl` API
+		- `.Colorator("lang code", options)` - create instance of helper, that force language behavior and have methods like `.compare` 
+		- `.Segmentor("lang code", options)` - creates instance of helper, that takes a string and return an iterator over some part of string(words etc, with respect to language)
+	- examples:
+		- changing direction of chars in string (on rendering stage)
+
+equality
+- any equality check is case sensitive(if it makes sense for such char)
+	- normalization can be done via `.toUpperCase()` or `.toLowerCase()` 
+- types:
+	- string equality - check if two strings are exactly equal
+		- `==` or `===` or `Object.is` 
+	- relational comparison - compare if one string "larger"/"smaller" than other
+		- `>` or `<` or `>=` or `<=` 
+			- interestingly JS doesn't specify `>` and `>=` it just uses revers variation of `<=` and `<` respectively
+		- it is done by performing lexicographical comparison(like in a dictionary, by alphabet)
+			- locale based
+				- to enforce some locale we can use `str.localeCompare(str, lang, options) -> 0|1|-1` 
+					- `Intl.Colorator` is more efficient for same task
+			- always coercive
+			- this results in such cases: `"11" > "100" /// true` 
+
+concatenation
+- in JS string concatenation is done via `+`, but usually it is clearer to just use template strings
+- for variable string size we can use:
+	- `str.concat(str1, ...)` 
+	- `[str1, str2, ...].join("separator")` 
+
+#### Coercion
+If types match `==` is the same as `===`, otherwise coercion on values is done first
+
+JS is tends to convert to a number
+
+rules:
+- if we try add smth to a string it will become string
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
