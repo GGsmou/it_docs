@@ -1561,6 +1561,61 @@ concatenation
 	- `str.concat(str1, ...)` 
 	- `[str1, str2, ...].join("separator")` 
 
+API
+- `String.raw'...'` - default template tag function, that prevents character escape
+
+###### Number
+While working with numbers it is important to remember about IEEE-754 floating point imprecision, famous: `0.1 + 0.2 === 0.3000...004` 
+to deal with it:
+- we can use `Number.EPSILON`, that basically just a small number, that, in theory, should be less, than such imprecision errors
+	- in practice it is no a deal, so we can scale `EPSILON` or use other approaches
+- convert floating numbers to number/biging, operate with them and convert back on output
+- use external libs
+- don't use IEEE-754 based environment
+
+comparison - numbers are always compared as binary values under the hood and not literal representations, so base notation doesn't matter
+- JS doesn't differ between `37`, `37.0`, `37.0000` etc
+- remember that: `-0 === 0 // true` and `NaN === NaN // false` 
+	- `Object.is` avoids this problems
+
+math operations
+- `+`, `-`, `*`, `/`, `** // exponentiation`, `% // modulo` 
+	- `+` is overloaded, so if one of operand is string, we will have string coercion and concatenation
+	- all operations have `+=` like short-hand
+	- all this operations are binary, so expect number(or try to do coercion to it) on both sides
+	- `+` and `-` can be used in unary form, meaning with one operand like this: `+37` 
+		- interestingly, JS syntax doesn't allow to have negative numbers, so `-42` will be ready as positive 42 negatived by minus sign
+		- we can put any number of whitespaces(tab, space, new line) between operator an operand
+- `++` and `--` - increment and decrement operators, that are unary and except only one valid number and do `+= 1` to it
+	- there is a behavior difference between position of this operator(before or after operand)
+- BITWISE - bit-level operations
+	- flow: convert operand to 32-bit signed int, do bit manipulation, convert back to IEEE-754 representation
+	- all bitwise have `+=` like short-hand
+	- `&` - AND
+	- `|` - OR
+		- can be used to truncate decimal part AKA convert to int
+	- `^` - XOR(eXclusive OR) - true if both different
+	- `~` - NOT - unary operator
+		- basically: `~x === -(x + 1)` 
+	- `operand << number` - shift operand's bits to left to number positions
+	- `>>` - right shift, with sign preservation
+	- `>>>` - right shift, without sign preservation
+
+`.property` on number value can case exception, if there is no dot in it(can be whitespaced, boxed or put into `()` to avoid exception)
+- we can see that `37..property` is legal, case `37.` syntax itself is legit
+- bigint won't suffer from it, caze no decimals
+
+interestingly we can find `NaN, Infinity, -Infinity` as static properties on `Number` object
+
+for math purposes JS exposes `Math` object with constants and static helpers
+- `Math.random` is disregarded as been unsafe for pseudo random number generator(PRNG)
+	- as alternative we have `crypto.getRandomValues()` API
+
+bigint <-> number
+- float -> bigint will throw
+- `NaN` | `Infinity` -> bigint will throw
+- too big bigint -> `Infinity`
+
 #### Coercion
 If types match `==` is the same as `===`, otherwise coercion on values is done first
 
@@ -1568,6 +1623,10 @@ JS is tends to convert to a number
 
 rules:
 - if we try add smth to a string it will become string
+- when coercing smth to string we will get similar representation as in code
+	- `String(Infinity) -> "Infinity"` 
+	- for object to string we will get `"Object[Object]"` 
+- there is no coercion between `bigint` and `number` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
