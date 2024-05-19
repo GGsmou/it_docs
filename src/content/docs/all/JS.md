@@ -1616,6 +1616,35 @@ bigint <-> number
 - `NaN` | `Infinity` -> bigint will throw
 - too big bigint -> `Infinity`
 
+#### Objects
+`object` as  a type has several sub-types with uniq behaviors. but overall they all just act as collection of properties with some values:
+- plain object
+	- usually defined via `{}` or `new Object(prototype)` 
+	- acts as collection of named properties with values(any primitive or object)
+	- `__proto__` is linked to `Object.prototype`, so they have delegation access to some methods
+- boxed primitives(fundamental objects)
+	- instances of various built-in constructors
+	- `String`, `Number`, `Boolean` etc
+	- by calling `Obj(value)` we performing coercion, but when calling it with `new` we are getting instance, that wraps a primitive value inside of it
+		- it is a bad practice to use `new`, caze plain primitives are more reliable and optimized. Also `typeof` will be `"object"` for such instances
+		- `Symbol` and `BigInt` are "constructor" sub-type, which means they can't be used with `new` and will always produce plain value
+		- auto-boxing is built on top of this instances, thus JS is creating temp object, wrapping primitives, to access methods
+			- we can't directly create instance for `Symbol` and `BigInt`, but JS still allows to auto-box them
+			- `null` and `undefined` don't have auto-boxing, because there is no corresponding fundamental object
+	- `Obj.proptotype` is holding corresponding methods for the type, so instance will have `__proto__` linkage to it
+- built-in objects
+	- `Date`, `Error`, `Number` etc - defined by JS specialized objects
+- array
+	- similar to plain objects, but with number based keys
+	- can be defined via `[]` or `new Array()` 
+		- there are 3 type of methods on `Array.protoptype`:
+			- computing and returning non-array values
+			- modifying array in-place
+			- modify and return copy of array
+- regex
+	- specialized object to work with regular expressions
+- function(callable object)
+
 #### Coercion
 If types match `==` is the same as `===`, otherwise coercion on values is done first
 
@@ -1627,6 +1656,8 @@ rules:
 	- `String(Infinity) -> "Infinity"` 
 	- for object to string we will get `"Object[Object]"` 
 - there is no coercion between `bigint` and `number` 
+
+technically, auto-boxing is part of coercion, caze there is primitive->object->primitive type conversion
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
