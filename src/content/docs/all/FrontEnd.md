@@ -298,6 +298,8 @@ i18n is deep theme, that includes
 - data-time
 - different variations of same language
 - design
+	- right to left
+	- overall page layout(example: in Japan layouts are more cluttered then western)
 - *and many more* 
 
 #### Translation

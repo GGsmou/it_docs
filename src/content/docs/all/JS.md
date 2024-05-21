@@ -1646,18 +1646,82 @@ bigint <-> number
 - function(callable object)
 
 #### Coercion
-If types match `==` is the same as `===`, otherwise coercion on values is done first
+NOTES FROM BEFORE
+- If types match `==` is the same as `===`, otherwise coercion on values is done first
+- JS is tends to convert to a number
+- rules:
+	- if we try add smth to a string it will become string
+	- there is no coercion between `bigint` and `number` 
+- technically, auto-boxing is part of coercion, caze there is primitive->object->primitive type conversion
 
-JS is tends to convert to a number
+Coercion - type conversion, aka casting one type to other
+- it cam be explicit or implicit(or both, based on opinion)
+- it is deep part of JS and even if you don't like it, you still most certainly using it :)
 
-rules:
-- if we try add smth to a string it will become string
-- when coercing smth to string we will get similar representation as in code
-	- `String(Infinity) -> "Infinity"` 
-	- for object to string we will get `"Object[Object]"` 
-- there is no coercion between `bigint` and `number` 
-
-technically, auto-boxing is part of coercion, caze there is primitive->object->primitive type conversion
+by spec we have set of predefined abstract operations, that determine how values are coerced(we can't invoke this operations, it is just method to describe behavior)
+- ToBoolean
+	- method: all values in JS are truthy of falsy and based on that ToBoolean makes a decision how to convert
+		- falsy: `undefined, null, "", NaN, 0, -0, 0n` 
+		- truthy: other
+		- basically it just a look-up table
+	- invoked at: `if, for` 
+- ToPrimitive
+	- method: takes a hint wether we converting to number or to string, than tries to convert via `.toString()` or `.valueOf()`(will be first for number or no hint) and, if final and hint types aren't matching, additional ToString/ToNumber used
+	- examples
+		- `ToPrimitive(obj, number) -> NaN` 
+		- `ToPrimitive([], number) -> 0` 
+- ToString
+	- when coercing smth to string we will get similar representation as in code
+		- examples:
+			- `String(Infinity) -> "Infinity"` 
+			- for object to string we will get `"Object[Object]"` 
+		- exceptions:
+			- large numbers will be represented via notation
+			- `-0` -> `"0"` 
+			- we can't convert `Symbol` 
+				- but `String()` itself can
+					- *kinda JS moment :)* 
+- ToNumber
+	- method
+		- when coercing string, we are getting number(if string itself is full number/number with whitespaces) or `NaN` 
+		- `true` -> `1`; `false` -> `0`; `null` -> `0`; `undefined` -> `NaN`; `"" || "      "` -> `0`;
+		- we can't convert `Symbol` and `BigInt` 
+			- but `Number()` itself can
+	- other:
+		- ToNumeric - activate ToPrimitive with number hint
+		- ToIntegerOrInfinity, ToInt32, ToBigInt etc
+			- list is long and covers different number types, but, for the most parts, ToNumber is activated
+- SameValue - for equality comparison
+	- no coercion or exceptions, just straight equality check(not deep)
+	- variations
+		- SameValueZero - treats `0` and `-0` as same
+		- bigint and number have their variation
+		- non-numeric values are compared via SameValueNonNumeric
+		- IsStrictlyEqual
+			- no coercion
+			- if types are matched -> numeric check
+				- it is not same numeric check as pointed earlier, because in this one `-0 !== 0` and `NaN !== NaN` 
+		- IsLooselyEqual
+			- IF values are same -> IsStrictlyEqual ELSE do coercion
+				- coercion is tending to numeric values, with minimal number of coercions
+			- coercion algorithm(recursive until types are same)
+				- `null === undefined` 
+				- if one is `number` and other is `string` - convert `string` with ToNumber
+				- if one is `bigint` and other is `string` - convert `string` with StringToBigInt
+				- `boolean` -> `number` 
+				- non-primitive convert with `ToPrimitive` with no hint(same as number hint)
+				- summary: never converts to `string`, or `boolen`, or non-primitive
+- IsLessThen - used for all relational comparisons
+	- it takes isLeftFirst as third parameter which determents if we need to calculate second value first
+		- used to accomplish greater then, because we inverting order of parameters and order of their computation
+	- only coercive
+	- if both values are strings, string comparison kicks-in
+		- method
+			- check for first value to be prefix of second, if so -> `true` 
+			- compare numeric codes from start-to-end(language specific) char by char
+				- most often it will result in dictionary order
+				- IMPORTANT: `IsLessThan("🐔","🥚", true); // true` 
+	- for number computation `Number:lessThan` or `BigInt:lessThan` are used
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
