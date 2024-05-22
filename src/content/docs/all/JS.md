@@ -1489,6 +1489,8 @@ String(obj); // [object 123]
 ```
 other WKS:
 - `.iterator` - symbol that stores iterator implementation
+- `.toPrimitive` - allow to override ToPrimitive bahvior
+	- `[Symbol.toPrimitive](hint) {...}` 
 
 JS has built in global symbols management system, so we won't need to cary them around. API:
 
@@ -1664,29 +1666,55 @@ by spec we have set of predefined abstract operations, that determine how values
 		- falsy: `undefined, null, "", NaN, 0, -0, 0n` 
 		- truthy: other
 		- basically it just a look-up table
-	- invoked at: `if, for` 
+	- invoked at:
+		- `if` OR `? :` 
+			- we can't access coerced value, it is incapsulated inside `if` 
+		- `for/while` 
+		- `Boolean()`, but more often `!!` 
+			- `!` is unary operator to flip boolean value, that can do coercion
+		- `||`, `&&` 
+			- note, we aren't coercing result, we are just checking if it is truthy or falsy
 - ToPrimitive
 	- method: takes a hint wether we converting to number or to string, than tries to convert via `.toString()` or `.valueOf()`(will be first for number or no hint) and, if final and hint types aren't matching, additional ToString/ToNumber used
 	- examples
 		- `ToPrimitive(obj, number) -> NaN` 
 		- `ToPrimitive([], number) -> 0` 
+	- invoked for object -> primitive cases
+		- we have some edge cases:
+			- `String(obj) -> obj.toString`, but `obj + "" -> String(obj.valueOf())` 
+			- `Number(obj) -> Number(obj.valueOf())`, but `+obj -> +obj.valueOf()`, so bigint will throw
+			- if result of converters is non-primitive we will get an exception
+			- boolean coercion won't delegate to ToPrimitive
+	- we can unbox objects with this: `String(new String("123")) -> "123"` 
+		- but there is a case with boolean: `Boolean(new Booleand(false)) -> true`, case of look-up table to object
 - ToString
 	- when coercing smth to string we will get similar representation as in code
 		- examples:
 			- `String(Infinity) -> "Infinity"` 
 			- for object to string we will get `"Object[Object]"` 
+			- `nonString + "string"`, caze `+` is overloaded
+				- note that such coercion will throw for symbols, with some other differences with `String()` 
+			- property access: `[3] -> ["3"]` 
+				- yep, we don't actually have numeric indexes in JS, by spec, only symbols and strings(can be number like string)
 		- exceptions:
 			- large numbers will be represented via notation
 			- `-0` -> `"0"` 
 			- we can't convert `Symbol` 
-				- but `String()` itself can
-					- *kinda JS moment :)* 
+				- but `String()` itself can, so we could still coerce, but it won't be by mistake
+			- some `.toString` operations can have underlying implementation of how to convert to string
 - ToNumber
 	- method
 		- when coercing string, we are getting number(if string itself is full number/number with whitespaces) or `NaN` 
 		- `true` -> `1`; `false` -> `0`; `null` -> `0`; `undefined` -> `NaN`; `"" || "      "` -> `0`;
-		- we can't convert `Symbol` and `BigInt` 
+		- we can't convert `Symbol` and `BigInt` to number like this: `+37n` 
 			- but `Number()` itself can
+	- invoked at:
+		- `Number()` 
+			- we can do convert from notations like this: `Number("0b101010"); // 42` 
+		- `BigInt()` 
+			- for false coercion we won't have NaN, but rather a `throw` 
+		-  `+smth` or any other math/bitwise operation
+			- note that bitwise is clamping value to 32-bit int
 	- other:
 		- ToNumeric - activate ToPrimitive with number hint
 		- ToIntegerOrInfinity, ToInt32, ToBigInt etc
@@ -1695,12 +1723,14 @@ by spec we have set of predefined abstract operations, that determine how values
 	- no coercion or exceptions, just straight equality check(not deep)
 	- variations
 		- SameValueZero - treats `0` and `-0` as same
+			- invoked at: `[NaN].includes(NaN); // true` 
 		- bigint and number have their variation
 		- non-numeric values are compared via SameValueNonNumeric
 		- IsStrictlyEqual
 			- no coercion
 			- if types are matched -> numeric check
 				- it is not same numeric check as pointed earlier, because in this one `-0 !== 0` and `NaN !== NaN` 
+			- invoked at: `.indexOf`, `===` 
 		- IsLooselyEqual
 			- IF values are same -> IsStrictlyEqual ELSE do coercion
 				- coercion is tending to numeric values, with minimal number of coercions
@@ -1711,6 +1741,12 @@ by spec we have set of predefined abstract operations, that determine how values
 				- `boolean` -> `number` 
 				- non-primitive convert with `ToPrimitive` with no hint(same as number hint)
 				- summary: never converts to `string`, or `boolen`, or non-primitive
+			- invoked at: `==` 
+				- `==` is very beneficial for nullish checks, case it won't differ `null` and `undefined` 
+				- `if(val) !== if(val == true)` case of number preference
+					- it is better to just avoid second type of coercion
+	- invoked at:
+		- `Object.is` 
 - IsLessThen - used for all relational comparisons
 	- it takes isLeftFirst as third parameter which determents if we need to calculate second value first
 		- used to accomplish greater then, because we inverting order of parameters and order of their computation
