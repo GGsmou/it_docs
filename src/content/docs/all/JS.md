@@ -1759,6 +1759,19 @@ by spec we have set of predefined abstract operations, that determine how values
 				- IMPORTANT: `IsLessThan("🐔","🥚", true); // true` 
 	- for number computation `Number:lessThan` or `BigInt:lessThan` are used
 
+corner cases
+- `String([null, undefined]) -> ","` 
+- `Number("") -> 0` and `Number("   ") -> 0` 
+- `Number([]) -> 0` 
+- `[] == ![]` 
+
+#### More about types
+TS is statically typed(types are declared while writing program and checked on compilation) and strongly typed(variable types won't change implicitly)
+- basically TS forces to declare types
+- JS is opposite, so types are managed at runtime and can coerce
+- basically we can stay type-aware without TS with right variable naming and code structure, but it adds huge mental overhead
+	- thus TS won't cover all corner cases and might add some more :) So it is important to still think about types etc
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 

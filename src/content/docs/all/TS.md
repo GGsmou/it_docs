@@ -11,3 +11,9 @@ Can be done:
 ```ts
 filter: (this: User) => boolean
 ```
+
+## Other
+we can create types for templated strings like this:
+```ts
+type s = `some text with ${number} in it`;
+```
