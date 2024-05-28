@@ -1772,6 +1772,22 @@ TS is statically typed(types are declared while writing program and checked on c
 - basically we can stay type-aware without TS with right variable naming and code structure, but it adds huge mental overhead
 	- thus TS won't cover all corner cases and might add some more :) So it is important to still think about types etc
 
+#### Async
+Async is mostly about managing operations that takes quite a while to complete. Managing state, program flow(blocking/non-blocking) etc
+- common examples: user input, BD request, data fetching, animation handling, I/O
+- we can call async that part of a program, that can't complete now and will complete later
+- ways to do: callback, Promise
+- async heavily based on event loop, case remember, there is only 1 thread to spear :)
+	- interestingly, proper event loop spec was introduced in ES6
+	- JS doesn't have true parallelism(multy-threading)(except workers), so we always work in one process/thread and don't have shared memory and concurrency problems
+		- fearless concurrency in its base 🦀
+- all code in JS will run to completion, meaning if we started function execution, it will block thread until finishes
+	- we still have race condition problems, when it comes to order of async function execution
+		- generally, it isn't a problem for non-interacting tasks, BUT when they interact...you need to deal with it and coordinate tasks is some way
+			- it is a bad practice to just assume that async tasks will always be in same order, even if one is much slower then other
+		- in opposite to race scenario we have latch, which means that we care only about first finisher
+	- note: generator functions in-deed can be non-run until completion
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
