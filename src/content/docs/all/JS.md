@@ -1788,6 +1788,12 @@ Async is mostly about managing operations that takes quite a while to complete. 
 		- in opposite to race scenario we have latch, which means that we care only about first finisher
 	- note: generator functions in-deed can be non-run until completion
 
+cooperation - other form of concurrency, but this time we create "cooperative" code, that won't block all event loop, while executing some heavy function
+- example: if we mapping across large amount of data we can break it into slices and delay executing between ticks via `setTimeout(.., 0)` or `process.nextTick()` 
+
+#### Callbacks
+
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
