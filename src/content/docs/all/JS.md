@@ -1792,7 +1792,33 @@ cooperation - other form of concurrency, but this time we create "cooperative" c
 - example: if we mapping across large amount of data we can break it into slices and delay executing between ticks via `setTimeout(.., 0)` or `process.nextTick()` 
 
 #### Callbacks
+Callbacks is a most common form of async in JS. It is implemented as do some function(aka callback), when async event is finished
+- callbacks are base for `Promise` 
+- there is a concern in callback world called "callback-hell", that happens for multiple reasons
+	- it is hard for brain to process async code, case of control-flow changes, multiple scenarios(loading, errors, happy flow) etc
+	- purely structure of code will lead to nested logic
+	- harder to test
+	- 3-party dependencies(aka inversion of control), which may result in unexpected bugs in logic, such as
+		- execute to early/late or even never
+		- multiple executions
+		- missing props or results(some error conversions etc)
+		- SO, always be careful with too many dependencies and their updates
 
+callback patterns:
+- separation of success and error flows
+	- do what it says
+	- example: ES6 Promises with `.then` and `.catch` 
+- error first
+	- return error as first value to make user explicitly handle it
+	- example: common for some Note APIs
+- explicit handle of not been called
+	- wrap function in HOK, that will check if function was called before some delay and if not raise an error
+- red-blue functions
+	- be extremely careful, when designing APIs and avoid mixing async/sync callback handlers
+		- it is preferable to make all callback handlers async, but if it is not right for your situation, try to state type of func in some way
+			- this principle is called "never release Zalgo"
+		- you can also add explicit "asyncify" HOK, that will always make you cb called async
+this patterns are aimed to resolve callback hell, but also can introduce in-efficiency and bloatiness to your code :)
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS

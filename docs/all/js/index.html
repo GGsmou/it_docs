@@ -2591,6 +2591,60 @@ to deal with it:</p>
 <li>example: if we mapping across large amount of data we can break it into slices and delay executing between ticks via <code dir="auto">setTimeout(.., 0)</code> or <code dir="auto">process.nextTick()</code></li>
 </ul>
 <h4 id="callbacks-1">Callbacks</h4>
+<p>Callbacks is a most common form of async in JS. It is implemented as do some function(aka callback), when async event is finished</p>
+<ul>
+<li>callbacks are base for <code dir="auto">Promise</code></li>
+<li>there is a concern in callback world called “callback-hell”, that happens for multiple reasons
+<ul>
+<li>it is hard for brain to process async code, case of control-flow changes, multiple scenarios(loading, errors, happy flow) etc</li>
+<li>purely structure of code will lead to nested logic</li>
+<li>harder to test</li>
+<li>3-party dependencies(aka inversion of control), which may result in unexpected bugs in logic, such as
+<ul>
+<li>execute to early/late or even never</li>
+<li>multiple executions</li>
+<li>missing props or results(some error conversions etc)</li>
+<li>SO, always be careful with too many dependencies and their updates</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>callback patterns:</p>
+<ul>
+<li>separation of success and error flows
+<ul>
+<li>do what it says</li>
+<li>example: ES6 Promises with <code dir="auto">.then</code> and <code dir="auto">.catch</code></li>
+</ul>
+</li>
+<li>error first
+<ul>
+<li>return error as first value to make user explicitly handle it</li>
+<li>example: common for some Note APIs</li>
+</ul>
+</li>
+<li>explicit handle of not been called
+<ul>
+<li>wrap function in HOK, that will check if function was called before some delay and if not raise an error</li>
+</ul>
+</li>
+<li>red-blue functions
+<ul>
+<li>be extremely careful, when designing APIs and avoid mixing async/sync callback handlers
+<ul>
+<li>it is preferable to make all callback handlers async, but if it is not right for your situation, try to state type of func in some way
+<ul>
+<li>this principle is called “never release Zalgo”</li>
+</ul>
+</li>
+<li>you can also add explicit “asyncify” HOK, that will always make you cb called async
+this patterns are aimed to resolve callback hell, but also can introduce in-efficiency and bloatiness to your code :)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="clean-code-js">Clean Code JS</h2>
 <p>adaptation of Clean Code principles onto JS</p>
 <h4 id="variables">Variables</h4>
