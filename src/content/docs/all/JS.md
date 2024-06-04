@@ -1820,6 +1820,38 @@ callback patterns:
 		- you can also add explicit "asyncify" HOK, that will always make you cb called async
 this patterns are aimed to resolve callback hell, but also can introduce in-efficiency and bloatiness to your code :)
 
+#### Promise
+Promise is a programing concept to work with async, that was integrated in JS and now a main way to work with async code
+- basically we writing a code like this: take a value from Promise and do this and this OR take an error and handle it in some way, BUT this value/error are placeholders, that Promise promises to resolve, when result is ready
+	- so we are working with future values
+	- key thing that Promise makes normalization of future and now values and makes all values future
+		- this leads to result of Promise been future value to, thus we can chain Promises
+			- note: when Promise resolves, it's output is read-only immutable value
+				- so we can observe one Promise from several places and not fear of interference
+- main difference from callbacks is that we don't need any inversion of control, meaning we aren't passing callback to be executed by Promise, it is otherway, we are getting "notified", when Promise resolved, so we can do some action
+	- we can view Promise as event system OR as flow control mechanism
+
+when constructing Promise we passing callback with resolve+reject functions as arguments, that can be called, when/if needed
+- this pattern of non-async cb's are called "revealing constructor"
+
+interestingly, it is not recommended to check received values is a Promise via `instaceof`, but rather with a "duck typing" pattern, that verifies a type, by checking implementation
+- for Promise we need to check if object is thenable, aka can work with `then` 
+- it is done, case non-native API maybe used instead, that behaves as Promise
+- this thenable check is enforced by ES6 spec, so by adding `then` function to prototype of `Array`, all array instances will be treated as Promises
+
+Promise resolves all of Trust problems with callbacks:
+- calling too early(aka Zalgo problem) - won't happen, caze Promise is always async
+- calling too late - won't happen, caze after resolve/reject call, all `.then` callbacks will be called "immediately"(on next possibility, inside queue)
+- never calling - `.then` cb will be called, even in case of an error, after resolving of a Promise
+	- it is still a concern that Promise will just hang and never call `resolve`, BUT we can utilize `Promise.race` with Promise, that will `regect` after some delay, thus we can easily fix this
+- calling too many times - Promise always takes first resolve/reject in function and ignoring others, so we are getting only 1 call(or 0 as raised before)
+- not passing all arguments - Promise guarantees to pass first parameter of resolve/reject and ignores others(intended)
+	- same applies for swallowing errors, BUT it is also important, that Promise will reject because of built-in errors as well(similar to `try/catch`)
+		- and we even can catch from `.then` callbacks, by chaining
+but recalling thenable problem it may appear, that it is easy to fake Promise, until its not
+- ES6 specifies `Promise.resolve(...)`, which takes any value and tries to unwrap it, if it thenable, until non-thenable value is reached and returned
+	- so we can pass some fake thenable(or even non-thenable) value and take back normalized Promise
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
