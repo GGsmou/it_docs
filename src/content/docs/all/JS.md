@@ -1852,6 +1852,52 @@ but recalling thenable problem it may appear, that it is easy to fake Promise, u
 - ES6 specifies `Promise.resolve(...)`, which takes any value and tries to unwrap it, if it thenable, until non-thenable value is reached and returned
 	- so we can pass some fake thenable(or even non-thenable) value and take back normalized Promise
 
+Promise is made chainable, meaning we can chaine multiple Promises together by passing result, this achieved via:
+- `then` always returns Promise
+- `return` from inside `then` is performing Promise unwrapping, so we never end-up with nested structure
+- all returned values are passed to next `then` 
+- note: if we hadn't pass rejection handler(second parameter to `then`, we will end up with unhandled rejection, caze JS have default function that re-throws error)
+	- same will happen to first argument, but it will simply return value
+	- this pattern is called a pit of despair, which means that program punishes wrong actions by default
+		- the opposite is pit of success
+	- it is usually a good practice to end Promise chain with final `catch`, that will handle our final error
+		- but be careful with unhandled error in `catch` itself :)
+
+Promise unwrapping
+- it is important to consider that `reject` function won't do any unwrapping and pass value as is
+	- it is similar to `throw` in `then`, which won't unwrap/promisify any value and will just proceed to next chain element
+	- but `resolve` will un-wrap/promisify, similar to `return` in `then` 
+
+Error handling
+- incorrect usage of Promise API leads to immediate exception and not in rejected Promise
+
+Promise patterns
+- chaining
+- `Promise.all([...])` - take a bunch of Promises inside and resolve, when all Promises finish
+	- empty array will immediately resolve
+	- all values inside array will be normalized to Promise via `Promise.resolve()` 
+	- result will be an array, with resolved values in order of original Promises in array
+	- rejection of one Promise will caze rejection of all
+- `Promise.race([...])` - take an array of Promises and resolve, when first resolves
+	- have same nuances as `Promise.all`, but will never resolve for empty array
+- `finaly` - used to do clean-up, when Promise finishes, despite of result
+	- we can't cancel Promise run
+- `Promise.none([...])` - revers of `Promise.all`, where all rejection will become resolution values
+- `Promise.any([...])` - same as `Promise.all`, but ignores any rejections
+- `Promise.first([...])`- similar to `Promise.race`, but ignores any rejections
+	- reverse - `Promise.last([...])` 
+
+Limitations
+- we can't observe all errors inside Promise chain reliably, meaning, some errorHandlers can swallow error and we will miss it
+- Promise resolve in a single value(more a limitation of JS)
+	- but it can push dev to take another approach and split Promise into two separate functions, which reduces coupling and there for great
+- Promise is only resolves once, so we can't subscribe to some event with one Promise, we need to revert and create Promise for each subscription
+	- observable pattern can be helpful for such cases
+- We can't cancel Promise
+	- which is good, caze of immutability, but it still maybe useful to timeout Promise
+- Less performant that raw dogging callbacks, but you are getting more trustable code with higher dev experience
+	- *but why use JS in a first place, if you need performance :)* 
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
