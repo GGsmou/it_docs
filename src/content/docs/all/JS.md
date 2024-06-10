@@ -1880,6 +1880,7 @@ Promise patterns
 	- rejection of one Promise will caze rejection of all
 - `Promise.race([...])` - take an array of Promises and resolve, when first resolves
 	- have same nuances as `Promise.all`, but will never resolve for empty array
+	- can make a memory leak, if some Promises inside won't resolve
 - `finaly` - used to do clean-up, when Promise finishes, despite of result
 	- we can't cancel Promise run
 - `Promise.none([...])` - revers of `Promise.all`, where all rejection will become resolution values
@@ -1897,6 +1898,35 @@ Limitations
 	- which is good, caze of immutability, but it still maybe useful to timeout Promise
 - Less performant that raw dogging callbacks, but you are getting more trustable code with higher dev experience
 	- *but why use JS in a first place, if you need performance :)* 
+
+#### Generators
+Generator - type of function, that can stop and re-new later it's execution, so run is broken into partial completions and full completion can be achieved after more then one partial completion
+- this pattern helps with building more linear async flow in ES6
+
+generator can be defined as `function *funcName() {}` and `yield` keyword can be used inside of it to break execution flow
+
+execution flow
+- calling the function will construct iterator INSTANCE for function
+	- it is important, that it is instance with it's own state and have no shared state with function/other instances
+		- we can force some interesting concurrency with generators and shared scope
+	- note: for ES6 to consider object iterable it need to have `Symbol.iterator`, that return iterator(usually new instance)
+		- it enables usage of such function with `for of` etc
+			- it is important that `for or` won't pass any value to `.next()` 
+		- object can be iterator and iterable at the same time
+		- generator is not iterable(we can't iterate through it's values), but it is never the less can create an iterator(which is also an iterable)
+- `iterator.next()` will start/continue function execution, until `yield` keyword is met
+	- this will pause our function and return object with intermediate result
+		- `value` - result that was passed to `yield`/`return` 
+		- `done` - if function fully finished it's execution
+	- we can use `yield` as value
+		- function will stop, when trying to eval it and next `next(val)` will evaluate this `yield` with passed `val` 
+		- this result in `count(next) = count(yield) + 1`, case we first start execution and only then evaluation `yield`s
+- stopping generator
+	- default way to stop generator - use `iterator.return(val)` 
+	- it may seam, that non-returned generators will hang infinitely, after, for example, `for..of` is finished, but JS have `Abnormal completion` pattern, which means that, when `for..of` finishes - send signal to kill iterator
+	- any exceptions will stop generator
+	- generators give a possibility to clean-up with `finally {}` syntax
+		- this code will execute, when stopping is triggered
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
