@@ -1921,12 +1921,25 @@ execution flow
 	- we can use `yield` as value
 		- function will stop, when trying to eval it and next `next(val)` will evaluate this `yield` with passed `val` 
 		- this result in `count(next) = count(yield) + 1`, case we first start execution and only then evaluation `yield`s
+	- other variation of `.next()` is `.throw()` 
 - stopping generator
 	- default way to stop generator - use `iterator.return(val)` 
 	- it may seam, that non-returned generators will hang infinitely, after, for example, `for..of` is finished, but JS have `Abnormal completion` pattern, which means that, when `for..of` finishes - send signal to kill iterator
 	- any exceptions will stop generator
 	- generators give a possibility to clean-up with `finally {}` syntax
 		- this code will execute, when stopping is triggered
+
+###### Generators with Async
+generator enables pattern, that allows to stop function execution, until we get some result and than continue it, without using callbacks
+- we still have a possibility of error handling via try+catch and `.throw()` OR not, if not caught, caze generator will just re-throw it
+- it is a predecessor to `async/await` 
+- it is important to remember, that we can still call async code concurrently/in-paralel, for optimization
+	- it might be useful to abstract hard Promise logic into one "async" function and then call it via `await` for simplicity
+
+###### Generator delegation
+we can delegate execution from one generator function to other via `yield* func2()`, so basically our `func2` will now be controlled from it's parent iterator, until finished and control of parent is returned
+- note: we are delegating iterator control
+- it is possible to construct any iterator from iterable this way: `yeld* []` 
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
