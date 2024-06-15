@@ -1938,8 +1938,24 @@ generator enables pattern, that allows to stop function execution, until we get 
 
 ###### Generator delegation
 we can delegate execution from one generator function to other via `yield* func2()`, so basically our `func2` will now be controlled from it's parent iterator, until finished and control of parent is returned
+- from outside it seems as we just control `func2` parent, caze all values/responses/errors are pathed through, except `return`, wich will fulfill `funct2` value at the end, inside it's parent
+- it is possible to delegate to itself via recursion calls
 - note: we are delegating iterator control
 - it is possible to construct any iterator from iterable this way: `yeld* []` 
+
+###### Thunk
+Thunk - older approach of handling async, which is done by wrapping original function into it's Thunk, where it is immediately called, with some predefined(can be partially) parameters
+- default way of dealing is to use callback-last approach, where, when thunkifying we predefining all parameters at first and leaving last callback parameter unknown to pass to thunk itself
+	- we can take two approaches to making thunks factories
+		- factory that creates thunk with parameters
+		- factory that creates thunk factory, that will wrap function, but binding to parameters will be done via separate call
+- thunk pattern can be viewed as symmetrical to promises in basic functionality, but all-in-all Promises in JS have mush more overhead
+
+###### Pre-ES6 Generators
+It is impossible to polyfil a generator, caze it is new syntax and not API, but there are tools, that can transpile new syntax into all code with same functionality
+
+Basic approach to creating generator analog is to create a function, that will keep in-scope state and current part of program + an executor inner function, that will perform actions for this part of program, with existing state + return an object with `next` and `throw` functions, that will wire state changes and output, based on executor results
+- it is basic approach, that won't be fully compatible, so use libs instead :)
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
