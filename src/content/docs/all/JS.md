@@ -1901,7 +1901,7 @@ Limitations
 
 #### Generators
 Generator - type of function, that can stop and re-new later it's execution, so run is broken into partial completions and full completion can be achieved after more then one partial completion
-- this pattern helps with building more linear async flow in ES6
+- this pattern helps with building more linear async flow in ES6(pre async/await)
 
 generator can be defined as `function *funcName() {}` and `yield` keyword can be used inside of it to break execution flow
 
@@ -1956,6 +1956,107 @@ It is impossible to polyfil a generator, caze it is new syntax and not API, but 
 
 Basic approach to creating generator analog is to create a function, that will keep in-scope state and current part of program + an executor inner function, that will perform actions for this part of program, with existing state + return an object with `next` and `throw` functions, that will wire state changes and output, based on executor results
 - it is basic approach, that won't be fully compatible, so use libs instead :)
+
+#### Performance
+>  User perception of performance is every bit -- if not more! -- as important as actual measurable performance.
+
+###### WebWorkers
+JS doesn't have any way of native multi-threading, but environment can enable it
+Here comes WebWorkers - browser's API to achieve multi-threading
+- WebWorkers enable "task parallelism", which is meant we can run some part of program on separate thread, as separate instance of JS
+- it is important, that worker is guaranteed to have separate thread, but we can't be sure, that it will be real thread(it is possible, but is still browsers decision)
+
+API:
+initiate worker via:
+```js
+const worker = new Worker("http://url/toJsFile.js");
+```
+- we are passing a link to file, that will be ran under separate thread
+	- this worker is named "Dedicated Worker"
+	- it is also possible to pass blob link to some inline `<script>` and run it as worker
+		- it will create an "Inline Worker"
+- workers are created one-to-one
+	- but workers can still have sub-workers
+	- each worker, created from same file will be separate instance
+
+to communicate between workers we can use `worker` object, that is event listener and emitter
+- `"message"` is fixed event name to listen
+- `.postMessage(data)` is used to send events
+- inside a worker we can use top level `addEventListener` or use top level function `postMessage()` 
+
+to stope worker we have `worker.terminate()`, which kills it without finishing/clean up
+
+Environment
+- worker can't access anything from parent thread, more over his environment is a bit uniq
+	- we still can do `fetch`, WebSockets, timers, `JSON`, `location` etc
+	- `importScripts(link_1, link_2, ...)` will sync-load any needed script
+
+Usage
+- math
+- parallel operations with large data sets, like: sorting
+- heavy data operations: image/audio/video processing, compression
+- high-traffic network operations
+
+Data transfer
+- default way is to use serialization to string
+	- problems: double memory usage, serialization+de-serialization of data
+- other way is to pass object, that will be "smart" cloned by browser
+	- it is important to keep an eye of wether some feature is usable or not with some browser(or it's version)
+- the best approach is to rely on "Transferable Objects", which means that we are passing ownership and not data
+	- object need to implement special interface to be "transferable"
+	- older browsers will just copy object and thats it
+	- example:
+```js
+// arr: Uint8Array
+postMessage(arr.buffer, [arr.buffer]);
+```
+
+###### SharedWorkers
+SharedWorker - type of WebWorker, that can be shared via multiple instances of an app(for example tabs)
+- useful case is to create SharedWorker, that will create one socket connection and manage data between tabs, so we won't exceed max number of opened sockets
+
+API:
+initiate via:
+```js
+const sw = new SharedWorker("http://url/toJsFile.js");
+```
+
+caze worker can be shared, we need to distinct incoming users, which is done via `port`:
+- `sw.port.addEventListener("message", handler);` 
+- `sw.port.postMessage(data);` 
+- we need to first init this port: `sw.port.start();` 
+	- this is must be listened with response in such way:
+```js
+addEventListener("connect", (e) => {
+	const port = e.ports[0];
+
+	port.addEventListener("message", ...);
+	port.start();
+} );
+```
+
+`sw` will survive `terminate`, if other connections are still opened
+
+other capabilities are same with WebWorkers
+
+it is problematic to polyfil workers, caze there is no real multi-threading, but:
+- it is possible to use `iframe` as source of separate env, but it is still same thread
+- it is possible to virtualize one thread via event loop via `setTimeout` 
+
+###### SIMD
+Single instruction multiple data - patter to achieve "data parallelism", which enables processing some data by parts, where each part is done in parallel
+- usually achieved via CPU's "vectors", that is array-like data number structure, with strict sizes, that enables SIMD
+- great pattern, but currently died on Stage 3, caze of browser support problems with alternative to WebAssembly
+
+###### Asm.js
+Asm.js - subset of JS, with aim to optimization, that avoids some hard to optimize stuff(GC, coercion etc) and works only with ams aware engines
+- it possible, that it will be integrated to TC39, but for now it is not there yet and typical way of using it is - compiling via some 3d-party tools and running in ASM-engine
+- it is common to meet asm in game dev space
+
+using asm.js(as said, it is more common to compile to asm.js, but we can write it by hand)
+- if variable will be always int32, we can state it by doing things like this: `let b = a | 0`, which is do nothing operation for JS, but for asm states that it is int32, case `|` is int only operation
+- asm have a concept of "modules" - some pre-allocated heap(with no possibility of growing) with hardcoded to it global APIs
+	- this way we avoiding GC and memory allocation
 
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
