@@ -2058,6 +2058,62 @@ using asm.js(as said, it is more common to compile to asm.js, but we can write i
 - asm have a concept of "modules" - some pre-allocated heap(with no possibility of growing) with hardcoded to it global APIs
 	- this way we avoiding GC and memory allocation
 
+#### Benchmarking
+common way to do is `start = Date.now(); ...; conosole.log(Date.now() - start);` 
+- problems
+	- older systems can measure time in slices more than 1ms
+	- same code can output different time, depending on number of runs or system state overall
+	- outliers can ruin stats, BUT we can't fully throw them away, case they are still valid tuns, so it is important to find out reason why they ran so
+	- you most probably have skill-issues in statistics and just can't write a proper tool :)
+- you can run a function in a loop, but you need to have enough runs, so average will be not too hight
+	- and it is better to base number of runs on time(based on timer accuracy) and not just count
+
+better approach - use some lib(as always btw)
+- benchmark.js
+	- API
+		- to run head-to-head tests there are Suite API inside lib
+		- options
+			- setup/teardown - do something before/after each test cycle
+				- important, that it is not for each test run
+```js
+const b = new Benchmark(testName, func, options);
+
+b.["some property with statisitcal data about benchmark"];
+```
+- .
+	- use-cases
+		- test performance of function
+		- compare two functions
+		- run similar to unit tests to test-out critical performance in some part of an app
+			- it is also possible to track down/up-grades between releases
+
+remember to never over-optimize, it more often than not just not worse it
+as a general rule of thumb it is better to write some stuff, test and then, if needed, optimize
+- it is also important to note, that engine can add some over-optimizations(something, that might not be possible to meet in real scenarios) to your synthetic tests
+	- but we can't rely on engine optimizations, caze it is matter to change and not really public
+	- remember that synthetic tests are evil :)
+- it is also important to take in consideration some additional allocations, function creations etc
+	- also don't create tests with different outcomes
+
+there is interesting website [jsperf.com](https://jsperf.com/), that collects test results from variety of environments(devices, browsers etc), so it is more fair to check results of Y faster than X here
+
+good tests are done by
+- including more relevant context
+	- don't just synthetically test on small snippet
+- keep an eye on unintentional differences
+
+funny engine optimizations that might not be in JS, but possible
+- `factorial(5)` can be replaced with `120` 
+- engine can rewrite code from recursion to loop, if it seems to be more optimized
+- variables can be inlined with values
+- `arr.length` call is more performant than pre-cashing this value
+
+###### Tail Call Optimization(TCO)
+Introduced in ES6, TCO - sort of optimization, which happens in cases, where we are calling function at the end of another function, so there is only option to return it's result or do nothing
+- usually met in recursions
+- main algorithm is to detect if it is a tail call and, if so, call function on current stack frame, without wasting memory on a new one
+	- otherwise we need to limit depth of recursion, so keep an eye on it
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
