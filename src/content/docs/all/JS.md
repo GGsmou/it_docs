@@ -2114,6 +2114,29 @@ Introduced in ES6, TCO - sort of optimization, which happens in cases, where we 
 - main algorithm is to detect if it is a tail call and, if so, call function on current stack frame, without wasting memory on a new one
 	- otherwise we need to limit depth of recursion, so keep an eye on it
 
+#### Async Patterns
+Some advanced patterns, that can be built on top of Promises+generators+async/await, with/without external libs
+
+- iterrable
+	- map/for..of through array of Promises
+	- can be done one by one in parallel OR wait for all -> perform operation -> wait for operation to complete
+- expandable
+	- example: request for data, IF there is more -> request again, IF NOT -> finish
+- event reactive
+	- async event emitter, which will fire after async operation completion + listener
+		- note: it is impossible to do with one Promise, case it is resolved once, so you need to create new Promise, for each emmittion
+		- basically it is an observable from RxJS, which we might(or not) get later, if Observable proposal is passed
+	- in it's core, it is again based on generator+iterator patter :)
+- coroutine
+	- run two generators in parallel, with passing control from one to another
+	- via this pattern we can create state machine, which is basically some executor, that will execute one function or another, depending on current state, until "stop" condition is met
+- communicating sequential processes
+	- in it's core a method to concurrent processes to communicate during execution
+		- in JS can be again done via generators, by stoping function A, with passing message to B and unblocking A, when B is ready and received message
+			- it is like that, caze CSP must be done in a sync-looking way
+			- there are more into it, with buffers, that act as communication channels between processes and other stuff, that eventually leads to data streams
+	- CSP states, that we aren't passing control as in coroutines, but rather blocking execution, when waiting for the value OR blocking execution, when trying to send a value, but channels isn't available yet
+
 ## Clean Code JS
 adaptation of Clean Code principles onto JS
 
