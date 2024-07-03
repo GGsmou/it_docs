@@ -55,6 +55,12 @@ Works by comparing substr inside str
 Regex is heavy operation, so better use simple expressions for small data sets
 - sometimes better use self written solution
 
+## Blob
+Blob - binary large object, used in JS as basic protocol for working with binary data
+- can be streamed
+- there is blob->link conversion API, which is useful in cases, where you need to represent in-memory file via HTML element with src(or download via `a.href`)
+	- to force download from JS we can create invisible `a` component and `.click()` 
+
 ## Service Worker
 Service worker - browser api
 - for simplicity we can call it as hybrid of proxy and js(file) between client and browser
