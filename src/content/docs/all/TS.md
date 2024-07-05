@@ -42,8 +42,10 @@ also there is possibility to run TS live in browser via [ts-playground](https://
 - symbol - corresponding type for JS's `Symbol` 
 
 #### Object Types
-- interface - used specify a format/type of an object
+- interface - used specify a format/type of an object, commonly used as contract, that specifies a structure of a class/object
 	- can be used as abstract class, that other classes are `implement` 
+	- unlike `type` interface's purpose is more about defining an object structure and to work with classes(they themselves can be extended etc), but `type` is more about aliasing other type or some kind of type combination
+		- extending is done via `extend`, which states that interface must have all properties of it's "parent", but can have some more
 - classes - similar to JS's classes, but with
 	- syntactic sugar
 		- you can specify params of `constructor` and TS will auto init them
@@ -89,7 +91,7 @@ variations:
 
 ## Type Combination & Manipulation
 - union - combine multiple types into one, that represents all of them
-	- `number | string` 
+	- `number | string` (it is also called a Hybrid Type, meaning variable can be some of those types)
 - intersection - create new type from combination of properties of other types, with saving all properties
 	- `ObjType1 & ObjType2` 
 - type alias - possibility to create alias for other type
@@ -111,6 +113,98 @@ Technic to narrow down a type(for example union to just one of the types in it) 
 notes:
 - TS don't expect values in `if`, `||`, `!!` etc use-cases to be `boolean` 
 
+## Functions
+TS functions are same as JS, but with possibility add add parameter, return types(can be generic)
+
+Interestingly, you can declare two+ functions with same name, but different parameters(overload functions) and TS will determine which one to execute, based on number, type or order of parameters, like this:
+```ts
+function aF(a: number): number;
+function aF(a: string): string;
+
+function aF(a: number | string): number | string {
+  return a;
+}
+```
+
+## Classes
+Similar to JS, but with some extra syntactic sugar and types
+
+One of main features is constructor params with access features, this allows not only state access restrictions to a property, but auto-init this property
+Consider classical approach and TS one:
+```ts
+class A {
+  a: string;
+  b: number;
+  
+  constructor(a: string, b: number) {
+    this.a = a;
+    this.b = b;
+  }
+}
+
+class A {
+  constructor(public a: string, private b: number) {}
+}
+```
+
+We can also do constructor overloading, similar to function one, by specifying several types and one implementation, that covers all cases
+
+Access modifies:
+- public (default) - property can be accessed from everywhere
+- private  - property can be accessed only from inside of a class
+- protected - property can be accessed only from inside of a class or it's subclass
+
+Abstract classes - class, that acts as blueprint for other classes, that can't be instantiated and only can be extended by subclass
+- can consist of abstract methods without implementation, that must be overridden and implemented
+```ts
+abstract class A {
+  abstract a(): void;
+
+  b(): string { return "b"; }
+}
+```
+
+We can do Polymorphism and Inheritance in TS via method overriding and `extends` 
+- unlike in JS, when overriding we must keep signature(parameters and result type) exactly the same
+
+TS allows to use decorators in classes(property, method and parameter) in a way of adding additional functionality
+- useful for logging, validation, optimization etc
+```ts
+function log(
+  target: Object,
+  propertyKey: string | symbol,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = function (...args: any[]) {
+    // do smth
+    
+    return originalMethod.apply(this, args);
+  };
+
+  return descriptor;
+}
+
+class A {
+  @log
+  a() {}
+}
+```
+
+## Generics
+Generic is standard pattern, that allow functions to work with different parameter types, where type will be specified similar to placeholder
+```ts
+function a<T>(b: T): T {
+  return b;
+}
+```
+
+Key note, that TS have mechanisms to infer generics, so good written generic function can avoid explicit type annotation at all
+
+We can use generics with: function, class, interface, object type
+
+It is possible to constrain generic via `<T extends Type>` syntax, which states to TS, that `T` must implement `Type` 
 
 ## THIS
 In TS we can explicitly set interface of `this` 
