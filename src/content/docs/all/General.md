@@ -344,3 +344,30 @@ regex modifiers(can be combined)
 note
 - you must remember about case sensitivity
 - (non)strict matches: one or more spaces, what comes before/after etc
+
+## Animations
+Animation is one of the things, that can sell your product
+
+key to great animation:
+- animation often better than no animation
+	- but animation must have a purpose, caze too many cause overload
+	- use cases:
+		- enrichment of visual perception
+		- enter/exit state change
+	- not recommended use-cases
+		- repeated actions(example: keyboard binded), caze it slows down experience
+- it should feel natural, alive-like
+- animation must be fast, snappy
+	- this increases speed in perception of a user
+	- from UX point of view, animation can't block user interactions, that partially achieved with fast animation
+	- great starting point is `ease-out`(fast -> slow) with bellow `300ms` of time execution
+- it must be performant
+	- it is important to keep animation smooth and optimized
+	- `opacity` + `transform` > `margin`, `padding` etc
+		- if you want to deviate from opacity+transform, it is important to incorporate hardware-accelerated animations, that don't depend on main thread via Web Animation API or CSS animations
+- as said before, animation must be interruptible and non-blocking for user
+	- it can be achieved with frameworks like Framer Motion(or other with support for interruptiability) OR with vanilla CSS transitions(built-in support)
+- we must remember `prefers-reduced-motion` and similar configs, that can be accessed via media queries and disable or change animation to smth simpler
+- animations must be cohesive and systematic
+	- it is important to take some time and perfect important(or better all) animations
+		- *it is hard :)* 

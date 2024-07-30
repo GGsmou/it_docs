@@ -1,7 +1,7 @@
 ---
 title: Testing
 ---
-> Testing is a hussle, so it is important to make if fill good
+> Testing is a hussle, so it is important to make it fill good
 
 > It is important to remember, test must break, but not too often
 
