@@ -111,3 +111,42 @@ idleCallback(function () {
   prefetch(nodeLists)
 })
 ```
+
+## Low Quality Image Placeholder
+It is common that images weight more that HTML+CSS on your page and while they don't block rendering, it is affecting UX
+
+Except of caching, pre-loading, skeletons and compression, there is other technique, replacing images with low quality placeholder, which is increasing UX, by giving the user smth to look at
+- it is also possible to improve LCP score, but it can be tricky to align loading speed
+	- basically Chrome finds larges element on page and tries to find larges before ~2.5s passes or user interacts with page
+	- same size elements won't trigger change, with some nuances to prevent LCP Hacks:
+		- upscaled version of image will be replaced with more quality one
+			- simplifying image area is calculated via: `area = size * min(displaySize, naturalSize) / displaySize` 
+				- `size` is what eventually user sees
+				- `displaySize` is what rendered, but can be cropped or out of viewport
+	- general rule of thumb keep UX > LCP Hacking
+
+rules:
+- don't simply downscale images
+- image must be "dense", meaning that 1 pixel must contain .055 bits of data after all rendering and cuts
+- it is ok to make image larger than minimum requirements for LCP, if it is beneficial to UX
+- it is better to use images processing services like [Cloudinary](https://cloudinary.com/), which is platform that lets you store your images and receive different quality versions of it when needed
+
+how to with bg-img
+```html
+<head>
+	<link rel=preload as=image href=lo-res.jpg fetchpriority=high />
+</head>
+
+<body>
+  <header style="background-image: url(hi-res.jpg),
+                                   url(lo-res.jpg)">
+  </header>
+</body>
+```
+it is working, case CSS will display first account on what image is loaded and after that on order
+- thats why we are preloading, we need for our image to be on screen "instantaneously" and not race with `hi-res` 
+- as good rule, we can add `bg-color` to prevent no bg at all, if no image loaded yet
+	- to increase UX we can use ultra low quality image to prevent `bg-color` from appearing at all(in most cases), but it won't help with LCP
+
+how to with img:
+- we can use semantic `img` with `src` set to `hi-res` image and set `bg-image` to `lo-res` 
