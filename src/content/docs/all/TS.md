@@ -126,6 +126,8 @@ function aF(a: number | string): number | string {
 }
 ```
 
+It is useful pattern when migrating from JS to TS, but it general better keep one function <-> one use-case(interface) and not overcomplicate function
+
 ## Classes
 Similar to JS, but with some extra syntactic sugar and types
 
