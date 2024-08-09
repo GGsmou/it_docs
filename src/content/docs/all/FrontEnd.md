@@ -168,11 +168,30 @@ Accessibility in web is big topic that includes(sorted by priority):
 	- elements must be selectable by tab, forms submittable by enter etc
 	- it is possible to make div natively selectable, but recommended to use only native tags(a, button, forms, inputs etc)
 - screen readers(there are different types of them)
+	- huge part of this topic is semantic elements, elements that have predefined meaning
+		- historically `div` and `span` is used as main building blocks, but they have no meaning to screenreader and other devs, so there are number of `HTML5` elements, that work like containers(sometimes with special properties), but with this semantic meaning
+		- `<article>` - independent peace of content, that can be understood by it's own
+			- post, comment etc
+		- `<aside>` - some content, placed aside main content
+			- table of content
+		- `<details>` - additional details, that can be hidden like accordion
+			- `<summary>` - used to define always visible part of `<details>` 
+		- `<figure>` - self contained content, like illustration, image(s), diagram, code
+			- usually used with `<figcaption>`, that is semantic description of a `<figure>` 
+				- placed as first or last element of a block
+		- `<footer>` - bottom part of webpage, that includes contact info, navigation etc
+		- `<header>` - top part of webpage, that includes headers, navigation, logo etc
+		- `<main>` - main part of webpage
+		- `<mark>` - highlighted text
+		- `<nav>` - major block of navigation links, that contains hyperlinks inside
+		- `<section>` - some content grouping, that usually has a heading
+		- `<time>` - used to wrap a time text
+			- can contain any data, but if it is correct time value, it will be localized by screen reader
 - reduce monition, dark/light themes
 - low quality screens
 - colorblindness(contrast issues)
 - gestures
-- optimization for cases where no js has loaded
+- optimization for cases where no JS has loaded
 
 accessibility must be firstly included in design
 
@@ -324,3 +343,79 @@ one of the best localization frameworks: LinguiJS
 - lightweight
 - compatible with international formats
 - tags(like links) can be part of translation
+
+## Shadow DOM
+Shadow DOM is part of DOM, that is used for creating parts of component, that can't be affected by CSS or JS from regular DOM
+- element can't be:
+	- queried from JS
+	- styled by CSS selector
+	- etc
+
+Basically we are having a shadow DOM root, that points to shadow tree, that will be joined with regular DOM on render
+
+Shadow DOM is used to create incapsulated object, meaning we can manipulate Shadow DOM as regular DOM from inside of it, but can't interact from outside or with outside DOM
+
+JS API
+```js
+const root = document.querySelector("#root");
+const shadow = root.attachShadow({ mode: "open" });
+const span = document.createElement("span");
+
+span.textContent = "Shadow DOM";
+shadow.appendChild(span);
+```
+- `mode: open` makes our component open to use from JS via `root.shadowRoot` 
+	- it is not strict(extension can break it) and more like recommendation
+
+
+HTML API
+```html
+<div id="root">
+  <template shadowrootmode="open">
+    <span>Shadow DOM</span>
+  </template>
+</div>
+```
+- everything in template is not visible by default, so we are using `shadowrootmode` 
+- on render, `template` will be replaced with it's children, creating correct DOM structure
+
+To style we can  use JS like this:
+```js
+const sheet = new CSSStyleSheet();
+...
+shadow.adoptedStyleSheets = [sheet];
+```
+Or add `<style>` inside `<template>` 
+All in all, this styles will be scoped to this Shadow DOM
+
+Often use-case is creating custom elements, with some inner workings, like this:
+```js
+class Circle extends HTMLElement {
+  constructor() {
+    super();
+  }
+  connectedCallback() {
+    const shadow = this.attachShadow({ mode: "open" });
+    
+    const circle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle",
+    );
+    circle.setAttribute("cx", "50");
+    circle.setAttribute("cy", "50");
+    circle.setAttribute("r", "50");
+    circle.setAttribute("fill", this.getAttribute("color"));
+
+	const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.appendChild(circle);
+
+    shadow.appendChild(svg);
+  }
+}
+
+customElements.define("filled-circle", Circle);
+```
+```html
+<filled-circle color="red"></filled-circle>
+```
+*yep, I was pretty shocked too* 
