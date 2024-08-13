@@ -386,6 +386,8 @@ const sheet = new CSSStyleSheet();
 shadow.adoptedStyleSheets = [sheet];
 ```
 Or add `<style>` inside `<template>` 
+Or add link to external style-sheet
+- note: stylesheets won't block render of shadow root, so un-styled element may appear on screen for some time
 All in all, this styles will be scoped to this Shadow DOM
 
 Often use-case is creating custom elements, with some inner workings, like this:
@@ -419,3 +421,57 @@ customElements.define("filled-circle", Circle);
 <filled-circle color="red"></filled-circle>
 ```
 *yep, I was pretty shocked too* 
+
+## Creating custom elements
+Custom element is element that extends some predefined element, with added behavior by developer
+
+two main types are:
+- customized built-in element - extends behavior of existing element, like `<p>` etc
+- autonomous custom element - extends from `HTMLElement`, and fully implements needed behavior
+- note for framework devs:
+	- both patterns are appliable to react(or smth else), where second is standard approach to creating components(but without need to implement `HTMLElement` interface) and the first is mainly used when creating custom elements lib, where you can create some highlight element and extend `<mark>` element props + pass it like this to main element: `{...rest}` 
+
+API
+- both types are done as class, that `extends` needed interface, with `constructor`, that calls `super` 
+	- `constructor` can also add some event listeners, init state etc, BUT not interact with `children`, `tags` and break some other requirements
+		- this interactions can be done in lifecycle callbacks - functions, that browser calls at specific moments
+			- so smth like react-classes lifetime methods
+- lifecycle callbacks
+	- `connectedCallback` - called, when element is added to the document
+		- used for most setup purposes
+	- `disconnectedCallback` - called, when element is removed from document
+	- `adoptedCallback` - called, when element is moved to new document
+	- `attributeChangedCallback` - called, when attributes are changed
+		- takes `(name, oldVal, newVal)` parameters
+		- it is used in combination with `observedAttributes: string[]` static property, which states, what attributes we need to observe
+			- example: `static get observedAttributes() { return ["color", "size"]; }` 
+		- cb will be called, when DOM is inited, so it is safe to do attribute related setup here
+- registering step is done by calling `window.customElements.define(name, constructor, { extends: "tag" })` 
+	- name is usually lowercase with hyphen
+	- extends is used with customized built-in elements
+- usage is done by:
+	- using `is` parameter for customized elements:
+		- `<p is="some-name"></p>` 
+	- using element like element for autonomous elements:
+		- `<some-name></some-name>` 
+- custom CSS selectors(only for autonomous elements)
+	- CSS allows to react to custom properties, similar to `hover` and others via `:state(name-of-internal-state)` 
+	- to make it work we need to implement it via JS like this:
+		- call `this._internals = this.attachInternals();` in `constructor`, which makes element reachable from CSS and add `this._internals.states` to interact with it
+		- add getter and setter, that interacts with states
+```js
+get st() {
+	return this._internals.states.has("st");
+}
+
+set st(flag) {
+    if (flag) {
+      this._internals.states.add("st");
+    } else {
+      this._internals.states.delete("st");
+    }
+  }
+```
+- -
+	- -
+		- note: `st` is not visible from outside
