@@ -187,6 +187,7 @@ Accessibility in web is big topic that includes(sorted by priority):
 		- `<section>` - some content grouping, that usually has a heading
 		- `<time>` - used to wrap a time text
 			- can contain any data, but if it is correct time value, it will be localized by screen reader
+		- `<dl>` + `<dt>` + `<dd>` - description list element, that is used with description title and description description to implement a glossary like structure
 - reduce monition, dark/light themes
 - low quality screens
 - colorblindness(contrast issues)
@@ -431,6 +432,13 @@ two main types are:
 - note for framework devs:
 	- both patterns are appliable to react(or smth else), where second is standard approach to creating components(but without need to implement `HTMLElement` interface) and the first is mainly used when creating custom elements lib, where you can create some highlight element and extend `<mark>` element props + pass it like this to main element: `{...rest}` 
 
+CSS API
+- `:define` - matches every "defined" element
+- `:host` - matches host of ShadowDOM style is used
+- `:host(selector)` - same as `:host`, but with possibility to pass another selector as parameter
+- `:host-context(selector)` - matches all host's ancestors via selector
+- `:state(name-of-internal-state)` - match custom state
+
 API
 - both types are done as class, that `extends` needed interface, with `constructor`, that calls `super` 
 	- `constructor` can also add some event listeners, init state etc, BUT not interact with `children`, `tags` and break some other requirements
@@ -458,6 +466,7 @@ API
 	- CSS allows to react to custom properties, similar to `hover` and others via `:state(name-of-internal-state)` 
 	- to make it work we need to implement it via JS like this:
 		- call `this._internals = this.attachInternals();` in `constructor`, which makes element reachable from CSS and add `this._internals.states` to interact with it
+		- note: `st` is not visible from outside
 		- add getter and setter, that interacts with states
 ```js
 get st() {
@@ -472,6 +481,32 @@ set st(flag) {
     }
   }
 ```
-- -
-	- -
-		- note: `st` is not visible from outside
+
+## Web Components
+WebComponents is a term, that includes several technologies, that allow creating reusable components with encampsulated logic
+
+Basically it is emphasis on DRY in native web, without custom UI render mess
+
+Main pillars are:
+- custom elements - reusability of component
+- shadow dom - markup, style and script encapsulation
+- HTML templates - creating some structure in HTML, that won't be rendered into the DOM
+	- `<template>` - used to:
+		- declaratively create ShadowDOM, if has `shadowrootmode` set to proper value
+			- there are also other properties, including `shadowrootdelegatesfocus`, which allows to click on any part of shadowroot and delegate focus to first focusable element inside of it
+				- this will also focus parent element
+		- create HTML, that can be later cloned into DOM somewhere else
+			- basically more declarative way of constructing HTML via JS
+			- there is a pitfall to woking with `DocumentFragment`, when we appending it's clone, we are actually appending it's children, so it is important not to add handlers etc to fragment itself, caze they aren't passed over
+	- `<slot>` - element, that can be later filled with some markup, aka separate DOM tree
+		- it has `name`, that acts as ID and can take some placeholder as children
+		- to use fill it, we need to pass element as child to our web component with `slot="name-of-the-slot"` and now this element is "slotted" to needed place
+			- note: `<slot>` without a name will take all top level children of component, that don't have `slot` attribute
+		- it can be useful as a pattern for rendering async data(for example, it can take `<loader-component>` as placeholder)
+
+Basic flow of implementing web component:
+- create a class for custom component with needed functionality
+- register custom component
+- attach ShadowDOM if needed
+	- `template` with `slot`s can be attached here too
+- use in markup, as regular component
