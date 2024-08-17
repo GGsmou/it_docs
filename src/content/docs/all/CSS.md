@@ -76,3 +76,48 @@ css modules - technologie that helps encapsulate styles for only one module/comp
 1. slate-50, blue-950 etc
 2. dangerous, success, prime
 3. main, secondary, mainLight
+
+## Optimization
+As any other asset, CSS can slow down page load and lower UX
+- crucial part that CSS blocks page render
+
+main ways of optimizing it is to work on:
+- load speed
+	- reduce file size
+		- minification - often included as a part of some build step
+			- note: always include minified CSS, when working with external dependencies
+		- removing unnecessary code
+			- don't duplicate inherited properties
+			- use build tools that can do auto-removals like:
+				- unused definitions
+				- short-handing hex codes
+				- compressing definitions
+					- `h1 {...} h2 {...}` -> `h1, h2 {...}` 
+		- file compression
+			- often done via server or analog like CDN
+	- manipulate how and when CSS loads
+		- HTTP preload - forces browser to do earlier requests and don't block render
+			- done via `rel="preload"` or HTTP header
+			- usage: load styles, that user will see later
+			- preload is happening, when HTML starts parsing
+				- by default CSS starts loading after HTML parsed
+		- HTTP push - content is pushed by server to browser, so content will be delivered even earlier
+			- caveats: HTTP 2 is required, browser caching can be broken
+			- preload will do push, if possible, by default
+		- embedding CSS - used to deliver most important styles as fast as possible
+			- done by adding CSS into `<style>` tag
+			- caveats: increases HTML file size, disables caching of CSS files
+		- lazy loading hack - defers load of CSS, by making it non-blocking in native way:
+			- explanation: make browser load content, but with wrong media, which forces it to think that it is not CSS, so no need to block, but, when loaded, apply styles
+```html
+<link  
+	rel=”stylesheet”  
+	href=”/path/to/my.css”  
+	media=”print”  
+	onload=”this.media=’all’; this.onload=null;”  
+>
+```
+- parsing speed
+
+all in all, there are many tools to analyze and optimize your code, some of them:
+- "Coverage" section in DevTools, that shows how many CSS in sent to user and not used
