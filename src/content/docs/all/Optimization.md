@@ -12,6 +12,34 @@ title: Optimization
 	- use weak device emulation chrome
 	- safari browser(poorly optimized by itself)
 
+## Web-Performance
+
+#### Main metrics
+- load time - time until page is fully loaded and interactable
+- FCP(first contentful paint) - time it takes for first content to appear
+- TTI(time to interact) - time it takes for page to be interactable
+- FID(first input delay) - time it takes for page to response for first user input
+- TBT(total blocking time) - time that main thread was blocked
+
+#### RAIL model
+RAIL(response, animation, idle, load) - focuses on UX aka performance perceived by user
+
+- first response of page should take less then 100ms
+- animation should perform in under 10ms
+	- meaning, there shouldn't be noticeable lags, when activating animation
+- non-crucial operations should be delayed to time, when page is idling
+- general load time should be under 1s
+	- *well....it is kinda hard with react :)* 
+
+#### PRPL pattern
+PRPL(push, render, pre-cache, lazy-load) - focuses on minimizing time for initial load
+- similar to RAIL model, it focuses of perceived performance, but in network side
+
+- push - prioritize crucial resources first
+- render - start render as soon as possible, even if something non-important is still loading
+- pre-cache - cache most of needed resources
+- lazy-load - defer load of resources, that out of view
+
 ## CSS optimization
 Big amount of `var()` can cause problems, so you can change vanilla var to preprocessed var from SaaS(or smth else)
 
@@ -150,3 +178,27 @@ it is working, case CSS will display first account on what image is loaded and a
 
 how to with img:
 - we can use semantic `img` with `src` set to `hi-res` image and set `bg-image` to `lo-res` 
+
+## Dev Tools
+Many browsers have dev tools, aka tools that help developing web apps
+
+Main standard is Chrome Dev Tools, that have number of possibilities, some of them are:
+- `Elements` - inspect HTML+CSS
+- `Console` - work with JS
+- `Network` - request/response view + network performance analyze
+- `Performance` - performance :)
+- `Application` - managing page resources, such as Storages, Cookies etc
+
+## Lighthouse
+Lighthouse - tool for auditing performance, accessibility and CEO of websites
+- good starting point to investigate week places of page
+- can give CEO boost, because involved in google search engine to determine website quality
+
+key measurement:
+- load time
+- first paint
+- time to interact
+- accessibility
+	- missing `alt` 
+	- broken links
+	- incorect image sizes

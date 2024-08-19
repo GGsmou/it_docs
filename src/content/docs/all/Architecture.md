@@ -232,3 +232,10 @@ Naming must be short, descriptive, consist(style, case)
 
 #### Data
 API must not give out useless data
+
+## Mutex
+Mutex is a pattern, that used to avoid race conditions and similar problems, when working with async
+
+(*JS example*) One of the way to "cook" it, is creating sharable `Promise`, that can be `hold` and `released`, so if one async operation is in progress, other will be locked, awaiting for the Promise, so:
+- removing race condition
+- queuing events
