@@ -510,3 +510,36 @@ Basic flow of implementing web component:
 - attach ShadowDOM if needed
 	- `template` with `slot`s can be attached here too
 - use in markup, as regular component
+
+## Web APIs
+- Storage - used to store data(`key: string` - `value: string` pairs) in browser
+	- `localStorage` - stored data have no expiration time and will be kept, until smth/smb will clear it
+	- `sessionStorage` - data is stored in scope of one tab
+		- closing tab or browser will erase data
+		- refreshes will keep data
+	- generally more efficient and have more space, compared to cookies
+- WebSockets - used for bi-directional communication between client and server over single TCP connection
+	- gives low latency and high speed, by excluding need to send new requests
+	- main use-case - data streaming
+	- connection is stable, guarantees data consistency and order(there are nuances, when used with Promise API)
+- Server Sent Events (SSE) - used for one way(server to client) communication in form of events
+	- similar to WebSockets, but for one-directional use-cases, such as push-notifications etc
+	- basically client creates `EventSource` with needed URL and server send formatted stream of responses
+- Service Workers - used as a proxy layer for network
+	- use-cases: offline-first app, caching
+	- basically ServiceWorker is registered onto page and, after that, can control all it's requests(event in background)
+- Location - used to determine user's location(if permission is granted)
+	- use-cases: maps, location sharing, working with location specific data
+	- it is also possible to do calculations and subscribe to location changes
+- Notifications - used to send notification into system level(for example from browser to user's phone)
+	- as many others requires permission granting
+	- done by creating `Notification` object
+		- it is possible to customize title, body, icon, actions etc
+- Device Orientation - used to access data about orientation and other motion data(pitch, roll, yaw etc)
+	- use-cases: motion controlled games
+	- if permission is granted, it is possible to read to react(via events) to change of parameters
+- Payments - used as standard flow for checkouts, collecting payment or shipping data etc
+	- used by creating `PaymentRequest`, triggering it, when needed and receiving data from user
+	- only with HTTPS
+- Credentials - used as interface for getting/retrieving emails, passwords and other tokens from/to user
+	- only with HTTPS
