@@ -13,7 +13,6 @@ title: Optimization
 	- safari browser(poorly optimized by itself)
 
 ## Web-Performance
-
 #### Main metrics
 - load time - time until page is fully loaded and interactable
 - FCP(first contentful paint) - time it takes for first content to appear
@@ -202,3 +201,48 @@ key measurement:
 	- missing `alt` 
 	- broken links
 	- incorect image sizes
+
+## Caching
+Basically it is about storing some frequently accessed data in temp storage(cache), that can return this data faster than actual storage
+- it is important not to break data integrity, by serving some obsolete information from cache, so cache invalidation is important
+- everything can be cached: static files, query responses, API calls
+
+Benefits:
+- improved UX, by reducing latency and network usage
+- improved backend, by lowering server load
+
+#### Cache Types
+- in-memory - storing data in RAM
+	- useful for servers and databases, case we reducing number of costly I/O operations
+	- it is important not to store data changes in RAM, because it is can be lost
+- distributed - storing data in multiple nodes in network
+	- useful for some highload servers
+	- prevents data loss, but harder+costly to setup/operate
+	- simple example: create a Redis layer of cache and look there first
+		- more complicated version can have multiple Redis nodes, that falls back to nearest DB, that duplicates main DB
+- client side - storing data in the client
+	- useful to reduce number of requests from client(UX and server boost) for some static content
+		- also can be used to cache API calls in-memory or via Storage API
+	- it is important to be careful with caching policies, to prevent stale data
+
+#### Caching Stratagies
+- aside(client side caching) - caching inside app
+	- be careful with stale cache
+- write-through - write to cache and then to DB, keeping cache up-to-date
+	- slower writes
+- write-behind - similar to write-through, but with batching writes
+	- a bit slower writes
+	- possibility of inconsistent data
+- read-through - read from cache, with fallback to DB
+	- slower reads
+	- beneficial for rarely changing data, slow DBs
+
+#### Measuring cache effectiveness
+Cache is always introducing some tradeoffs, so it is important to measure and choose right one
+
+- measuring cache hit rate - calculating how often we avoiding DB operations and using cache
+	- formula: `cacheCalls/allCalls` 
+- analyze cache eviction rate - measure how much items are removed from cache due to it's size or expiration data
+	- too high count can be evidence to improve parameters above
+	- be careful with caching by time with too big values(or even by time at all, because it is more stale-affected and not as efficient as other strategies)
+- monitor data consistency - check if cache serves inconsistent data, by comparing it with actual one
