@@ -240,6 +240,63 @@ uses class approach:
 
 base idea that we subscribe to some changes and handle them
 
+## Established UI patterns with React
+It is important to layer and modularize complex apps, to keep them readable and easy to change
+Most of patterns are framework agnostic, so modifications may be needed(or already done)
+In it's core it is important to separate code by it's role(view <-> no-view)(one no-view <-> no-view)
+- by so we can easily change domain logic, by not touching view logic
+
+React is UI library(for the most part :) ), so it is awful practice to mix data consuming(rendering it) and logical manipulations with it: fetching, mapping etc
+- so, Separation of Concerns is your friend
+- basically react creates a way to manipulate DOM via rendering functions(components), but compressing all logic into components/hooks is bad practice
+	- it is better to hook app logic into react with hooks
+
+Main way to conquer large apps is via classical Model-View-Controller, which is an established practice to think about and structure your program(if it is large then 1 component)
+- *I mean, you can write all app in ONE component, but please don't(in general)* 
+
+#### Evolution of an app
+- one component
+	- state management, rendering, logic etc
+- multiple components
+	- container component: state management, logic, network logic etc
+	- child component: pure-ish function to render UI
+		- making component like so increases re-usability and testability
+- state via hooks
+	- hook: global state, logic, network logic, calculations, mapping etc
+		- first use-case of hooks is to re-use logic between components, but they can be also beneficial as logic(state management, etc) encapsulator
+	- container component: state management, render logic
+	- child component: pure-ish function to render UI
+- business model
+	- fetcher: network logic
+	- domain handlers: domain logic(mapping, calculations etc)
+	- hooks: global state
+	- container component: state management, render logic
+	- child component: pure-ish function to render UI
+- layering model
+	- basically similar to business model, but we breaking app into layers like: infrastructure, domain, presentation; that hooked together
+
+it is important to keep an eye on data leakage, because it makes even pure components harder to work with
+- variations of leakages:
+	- in-place mapping
+	- conditional flows
+- main way of conquering this problem is using classes, that encapsulate logic and data
+	- or by using plain object(that implement interface) with combination of helper functions
+
+NOTE: all of this is not about: "clean code: 1 file 5 lines", it is still important to keep some things together to avoid context switching
+- good way of thinking about it, is how hard it would be to migrate to different render library, meaning how much logic you will rewrite
+
+it is important to keep an eye on the **"shotgun surgery"** problem, which happens, when one change requires too many modification through codebase
+- to solve this we can use polymorphism, helpers or similar logic
+	- for example, when adding new currency to the system we no longer need to manually fix all switch cases, that operate with currencies, it is enough to update centralized one
+	- what is cool about such handling is that we possibly can later move such logic to BFF, if it is using node
+- similar problems can arrive, when working with data fetching, so it is good to break it into some steps: fetching, mapping, hooking into react
+
+all in all we are getting:
+- enhanced maintainability and readability
+- increased modularity and composability
+- improved scalability and migratibility
+	- *just don't treat React as JS and you should be fine :)* 
+
 ## Other
 React(and other frameworks) give possibility to work with minimum amount of state(network, API, user input, browser) and generate interface from it, so it is important to minimize state and do not create duplicate states(that will depend on each other)
 - reduces complexity
