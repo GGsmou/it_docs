@@ -540,6 +540,9 @@ Basic flow of implementing web component:
 	- if permission is granted, it is possible to read to react(via events) to change of parameters
 - Payments - used as standard flow for checkouts, collecting payment or shipping data etc
 	- used by creating `PaymentRequest`, triggering it, when needed and receiving data from user
+		- this enables GooglePay like payments, were you can click button and payment modal will appear
+		- PRACTICALY: may be not always useful, but great source for inspiration
 	- only with HTTPS
 - Credentials - used as interface for getting/retrieving emails, passwords and other tokens from/to user
 	- only with HTTPS
+- Auth - used to work with non-default auth methods, like PassKeys

@@ -8,6 +8,39 @@ title: Architecture
 	- example: AccountSelect - selector for Account entitie
 - Use: DRY, KISS, SOLID, GRASP, GOF, OOP, MVC
 
+## Design Patterns
+Pattern is a typical solution to common problem, that acts as customizable blueprint, meaning it can be changed to particular situation
+- it is not an algorithm with defined steps, but more like high-level concept
+- pattern consist of:
+	- intent - briefly about problem and solution
+	- motivation - deeply about problem and solution
+	- structure - describes how each part of patter interacts with each other
+	- example in code
+	- applicability
+	- relation with other patterns
+
+Firstly, in popular media, patterns arrived with GoF book
+- historically, they were supposed to be used with Object-oriented design, but nowerdays, that's not the only case
+
+It is good to know and remember about patterns, caze they are like a toolkit to your work
+- pattern can also give an idea to how to approach not connected problem to it
+- it is important part in dev-to-dev communication, like common language
+
+be careful with patterns, caze they can bring to you:
+- over abstraction
+- inefficient solution(when used without adaptation)
+- using pattern, where simple solution is enough
+	- > If all you have is a hammer, everything looks like a nail.
+
+patterns differ by complexity:
+- idioms - low-lever pattern, often bonded to single programing language
+- architectural - high-level patterns, that can be used in many languages and used as base for application design
+
+patterns differ by intent:
+- creational - provides flexible and reusable object creation mechanisms
+- structural - provides flexible and reusable object combination mechanisms
+- behavioral - provides ways of how to effectively build a communication between objects and how to assign their responsibilities
+
 ## SOLID
 Principles(not rules) for program creation
 
@@ -78,12 +111,46 @@ Gangs of Four - book about 23 design patterns
 #### Creation(5)
 - Singletone - only one class copy can be created. Example of factory
 	- problem: shared state
-- Factory - takes similar inputs, but return different classes, based on inputs
-- Abstract factory - factory for factories
-- Builder - create class step by step
-	- example: SQL query builder for backend
+- Factory - function for object creation(instead of default constructor), with possibility to override type of object we are creating
+	- done by moving `new` calls into some factory method, which produces "products", that can become needed type
+		- type is overwritten by subclasses of a class
+	- used to solve cases, where we need to create objects, that implements similar interface
+	- via it we can achieve polymorphism, because users of this factory will work with similar interface and hidden implementation
+	- NOTES
+		- FactoryMethod can be just a part of some base class, it is still ok to put some logic into it
+		- it is possible to couple one factory to multiple outcomes, depending on input
+		- based on inheritance, so be careful with it
+	- WHEN TO USE
+		- need your class to be expandable
+		- need to return already existing objects(not possible by definition of constructor)
+		- need more robust interface, that constructor can give you
+- Abstract factory - pattern for creating similar factories
+	- used to solve cases, where we need to create sets of things(set is some category, like material)(thing is some object, that can be categorized)
+		- all sets must be equal
+		- each thing must inherit from abstract thing
+		- it is important that factory itself returns abstract product and not is't variation to lower coupling
+	- basically, firstly user of abstract factory determines which set we need to use, after that creates this factory and the rest of an app can use it
+	- WHEN TO USE
+		- need to work with families of objects
+		- need to have expandability
+		- one class starts dealing with multiple types at once
+- Builder - enables object creation in a step-by-step manner. Allows to produce different types with a single constructor
+	- it is possible to make builders, that have similar interfaces, but different inner implementations
+		- note, result of this builders can be different instances of different classes
+		- it's main use-case is to produce different instances with similar configs
+	- you can add director, that will execute some builder steps, without needing it implement them
+		- director can work as interface to client
+		- director can't give the result, to avoid binding director to concrete builder
+	- builder can act as owner of instance it's building(create, manage, return with reset to new object) or instance can build itself(`new`, do operations)
+	- WHEN TO USE
+		- have too mush optional parameters for constructor
+		- need to create different representations of same product
+		- need to defer execution
+			- such flow is better to do with builder-owner, caze it hold object until done and don't give add ability to access partial solution
+		- need to build tree
+	- example
 ```js
-const pc = new PC.PcBuilder(data).enableWiFi().build();
+const pc = new PC(requiredData).enableWifi().build();
 ```
 - Prototype - create/copy obj instance from other instance
 	- usually done by adding `.clone()` method to class itself, so we can call this on instance and get new instance
