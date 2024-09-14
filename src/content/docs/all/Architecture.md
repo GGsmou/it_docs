@@ -109,8 +109,18 @@ General Responsibility Assignment Software Patterns - group of 9 coding principl
 Gangs of Four - book about 23 design patterns
 
 #### Creation(5)
-- Singletone - only one class copy can be created. Example of factory
-	- problem: shared state
+- Singletone - only one class instance can be created, while providing global access point to this instance
+	- solves problems of:
+		- keeping shared state globally accessible and in single example
+		- keeping shared resources like DB connection, logger instance same across all app
+	- to implement simply make constructor private and expose it only to static `create` method, that will call it and save result to `cache`, which will be returned, when next call to `create` is done
+	- NOTE
+		- PROBLEMS
+			- violation of single responsibility principle
+			- shared state
+			- coupling
+			- harder testability
+		- be careful when using in multithread environment
 - Factory - function for object creation(instead of default constructor), with possibility to override type of object we are creating
 	- done by moving `new` calls into some factory method, which produces "products", that can become needed type
 		- type is overwritten by subclasses of a class
@@ -152,17 +162,78 @@ Gangs of Four - book about 23 design patterns
 ```js
 const pc = new PC(requiredData).enableWifi().build();
 ```
-- Prototype - create/copy obj instance from other instance
-	- usually done by adding `.clone()` method to class itself, so we can call this on instance and get new instance
+- Prototype - create/copy obj instance from other instance, without class dependence
+	- direct approach is to use class constructor with passing all the fields, but there are problems:
+		- some fields may be private AKA impossible to pass from outside
+		- dependence on a class
+			- for example when working with object+interface and no class implementation(often case with 3d party libs)
+		- logic spread(if you add new field, you need to go through all code base and fix copy operations)
+	- usually done by declaring interface, that forces clonable objects to have some method(`clone`), that delegates copy operation to object itself
+		- note, clonable object is called "prototype"
+	- other use cases is to create a bunch of configs, save them and copy if needed, without need to manually create each time
+		- you can even build some registry(hash map with additional methods) to store this configs
+		- useful when you need to reduce number of subclasses
+	- NOTES:
+		- it is recommended to make construct handle copy from parameters and make `clone` as caller to `new` 
+		- be careful with subclasses, because they might not have access to superclass's private fields, so call to `super` may be needed
+		- be careful with deep clonning
 
 #### Structural(7)
-- Adapter - provides interface for different entities to communicate
-	- example: you need to migrate from one lib to other lib without changing other code, so you write adapter layer to communicate
-- Composite - compose different objects into one structure(graph), where each object are treated as same
+- Adapter/Wrapper - provides communication possibility between different objects
+	- basically we converting interface of one object to other, so it could be understood
+	- it is very useful, because we decoupling our code from other interfaces(usually 3d party) and can do easy migrations, just by changing adaptors
+	- one way of implementing is to do multiple inheritance of both interfaces with method overwrite(when needed, you still mostly should rely on one of the interfaces, doing only adapting)
+	- CONS // single responsibility, Open/Closed
+	- EXAMPLE
+		- you have some class that renders data to user, you specify interface for data and write adapters, that can change 3d party data format to yours
+			- it can be done with just mapping data, but when talking about adapter it is more about wrapping one code into adapter layer, that provides an interface to communicating to it(so not only data exchange, but also method calling)
+				- we are doing composition
+- Composite - compose different objects into one tree-like structure(graph), where all objects have same interface
+	- example of same interface: Product and Box have same `getPrice` method, but Product just returns field, where Box need to recursively travers children
+	- useful when your app can be represented as tree, when you need to work uniformly with simple and complex structures
+	- structure
+		- Component - defines similar interface, that composite and client are using
+		- Leaf - executes
+		- Container - stores children(don't know exact type, and treats all of them as Components), delegates work
+	- note, that Interface Segregation Principle is broken here, because some Container methods(like `addChild`), when added to Component interface, will be non implemented(empty) for leafs
+	- it is useful to use builder for building trees, because it can work with tree like structures
 - Proxy - provides other object that controls access/behavior to/of obj
-- Flyweight - cache immutable objects for memory efficiency
-- Facade - creates a wrapper that acts as interface to communicate through with other object
-- Bridge - separate/decouple implementation by creating bridge to communicate with object from other object
+- Flyweight/Cache - pattern that aims for code optimization, by sharing common objects between parts of an app from the cache
+	- important part is that we are caching immutable state(or extraction immutable/intrinsic parts of state from general state)
+		- intrinsic state - constant data, that lives inside an object
+		- extrinsic state - mutable data, that altered from outside
+	- basically we are breaking one storage into two, from which methods can take the data
+		- for mutable storage we can just create data, for immutable it is important to check if needed data exists
+		- for easier access we can place pointer inside mutable data to immutable for easier access
+			- other variation is to always get immutable data from the pull, but it can introduce higher CPU usage
+	- it can be useful to create factory for flyweights
+	- flyweight pattern need to be implemented if RAM problem exists(or potentially can be), there is no need to overcomplicate code
+		- use-cases: large object duplication, large state duplication
+- Facade - creates a simplified interface for complex object or set of objects(library, framework etc)
+	- it faces the problem of coupling your code to 3d party code
+		- arrives when working with complex code, where you need manage initializations, configs, order of execution etc
+	- basically we providing simplified interface(it can be limited in compare to original one), that hides complexity and will be used in app
+		- it is also useful for building layered architecture
+	- it is possible to make several facades and combine them(or use independently)
+	- system behind facade can't know about it
+	- facade redirects all calls to underlying system(it can't create additional logic), but it also can do inner management(initializations, state etc)
+	- don't couple facade too much
+- Bridge - separate/decouple related classes into abstraction and implementation with bridge between them, letting them evolve in separate ways, but stay connected
+	- explanation
+		- in other words, we are creating bridge to communicate with one object from other object
+		- abstraction is some interface, that delegates all work to implementation
+			- implementation can be viewed as adapter layer between some other methods
+	- implementation may look like this, do some abstraction with high-level interface, write implementation, that exposes interface of low-level operations to abstraction
+		- abstraction can be extended, but with usage of same implementation
+	- useful when
+		- need to break monolithic structure into separate smaller structures
+			- multiplatform
+		- some structure need to be extended
+		- hide implementation details
+		- also, it allows to change implementation on fly
+			- to do so you need to pass and keep instance of implementation inside abstraction
+	- provides Single Responsibility + Open/Closed
+	- example
 ```js
 const red = new Color('red');
 const square = new Square(red);
@@ -170,7 +241,22 @@ const square = new Square(red);
 square.printColor();
 // (inside) this.color.print();
 ```
-- Decorator - add some functionality by wrapping object into other object
+- Decorator/Wrapper - adds new behavior to object, by wrapping it inside special object
+	- for proper work Decorator must follow interface of what it is wrapping
+		- this way app can work with 1 interface, that have some inner implementation
+		- also it adds a possibility to create several types of wrappers, that can be put inside each other and stack the behavior
+	- basically we extending the behavior of base class, but with composition and not inheritance
+	- it is important to keep order of doing decoration and calling inner wrapper consistent
+	- decorators always delegates work to what it is wrapping, otherwise the chain will be broken
+	- use-cases:
+		- object behavior can be changed at runtime
+		- it is harder to do the job via inheritance
+		- your logic can be stacked
+	- note:
+		- it may be useful to create base decorator, that acts as a proxy to wrappee and extend other decorators from it
+			- to avoid confusion with Proxy pattern, Proxy is managing lifecycle of what it's wrapping by itself, where decorator is managed by client
+		- it is hard to remove decorator once assigned
+		- it may be useful to have some abstractions to configure needed decorator
 	- example: HOK
 
 #### Behavioral(11)
