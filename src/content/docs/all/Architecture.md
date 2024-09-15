@@ -197,7 +197,16 @@ const pc = new PC(requiredData).enableWifi().build();
 		- Container - stores children(don't know exact type, and treats all of them as Components), delegates work
 	- note, that Interface Segregation Principle is broken here, because some Container methods(like `addChild`), when added to Component interface, will be non implemented(empty) for leafs
 	- it is useful to use builder for building trees, because it can work with tree like structures
-- Proxy - provides other object that controls access/behavior to/of obj
+- Proxy - provides substitute or placeholder to another object, meaning it allows to do some action before or after request gets to original object
+	- when working with restricted or resource intense operations it can be useful to add some optimizations, but it is not always possible to do it directly into original code, so we can use proxy wrapper, to avoid code duplication in all places, where we work with this object
+	- proxy's interface duplicates original interface with delegation of work to it
+		- it is also possible to make proxy as subclass
+	- proxy is doing object management by itself, without client interference(it stores reference to original object instance)
+	- you can wrap original object creation into method, that can return original or proxy instance
+	- use-cases: lazy initialization(virtual proxy), logging(logging proxy), caching(caching proxy), access control(protection proxy), local execution and network management(remote proxy), smart reference
+		- & lazy initialization delays object initialization to time it actually used, to save system resources
+		- & smart reference manages object usage, meaning proxy can check(from time to time) is object been used, and if not dismiss it
+		- & network management - hide implementation details from client, make object available on initialization state(queue requests for example)
 - Flyweight/Cache - pattern that aims for code optimization, by sharing common objects between parts of an app from the cache
 	- important part is that we are caching immutable state(or extraction immutable/intrinsic parts of state from general state)
 		- intrinsic state - constant data, that lives inside an object
@@ -261,24 +270,45 @@ square.printColor();
 
 #### Behavioral(11)
 - Template method - define abstract template with/without implementation of methods, that will be implemented by children
-	- example: react class lifesycle methods
-- Mediator - object that provides a centralized communication between other objects
-- Chain of responsibility - pass request along chain of handlers, which choose: handle or pass to other handler
-	- example: midlware
-```js
-const handlerA = new ...;
-const handlerB = new ...;
-
-handlerA.setNextHandler(handlerB);
-
-handlerA('A') // handle A
-handlerA('B') // handle B
-```
+	- example: react class lifecycle methods
+- Mediator/Controller - restricts dependencies between objets, by becoming centralized communication method between them
+	- direct communication between object can prevent code reusability and couple them to specific place(for example button, that knows too much about components incurrent form, can't be reused elsewhere)
+		- the solution is to couple object to centralized component Mediator, that can redirect calls to other components
+		- for further decoupling we can make general form interface, that specific forms will implement
+		- mediator controls only part of the logic, with delegating other part to it's related components
+		- components interact with a black box
+	- one way of implementing a Mediator is by creating general interface with notify method, that object will call and interface's implementation, that will react on such calls
+		- notify method should have same sufficient protocol for all components
+	- mediator can be implemented with events, as observer
+	- in a way, Mediator is bi-directional Command
+	- Mediator need to store references to all components and can manage state
+		- moreover, mediator can control lifecycle of a component
+		- be careful with making iterator a God Object
+	- try not to create more then 1 mediator per batch
+	- use-cases: decouple complex dependencies, create a way to reuse components in different contexts
+	- example: tanstack form react can be viewed as mediator to other components of a form
+- Chain of responsibility - pass request along chain of handlers, where each handler can process(or not) request and pass(or not) it along the chain
+	- there are approaches to it, depending on requirements:
+		- do I need to pass it(routing middleware)
+		- if I can process I will do and stop passing it(useful in GUI, remember how event bubbles in DOM and can be stoped)
+	- similar to proxy, but for sequential operations
+		- unlike proxy, we can break whole operation to small steps(single responsibility) and construct different "proxies" by combining this steps in a different manner
+	- to implement you can create a class(all handlers must have same interface and can extend base class to remove duplication), that stores reference to next handler and have one method to do operation, which calls next handler OR you can create big Middleware class, that can do chaining
+	- handler should be self contained and immutable + can be executed in any order
+	- it is important to remember that requests can not reach to the end of a chain, or be unhandled
+	- use-cases: access control, request handling(middleware), different types of handling defined at runtime, handling tree structure communication
 - Observer - monitors for state change and notifies about it
 	- example: eventListener, useState
 - Strategy - we have multiple implementations(*for example: effective for long array & effective for short array*) and we choose what to use in runtime
 	- react example: we have component that needs to render two things, instead of if/else we can implement a two small components and delegate chose of which component to render to other(but those components must be independent by them selfs) 
-- Command - turn request into object and work with it with additional params(helps to loose coupling)
+- Command - turn request into object with all needed information
+	- helps with separation of concerns, via layering an app into parts, which communicate with requests
+		- note: part don't directly trigger method on other part, it triggers method on Command object, which collects needed data and triggers needed methods
+		- basically we are building uni-directional communication gateway
+	- by design all commands should extend base command, that have only one `execute` method with no parameters
+		- to send any data command should be preconfigured or be able to aggregate needed data on it's own to prevent coupling(for example we can have one button, that stores command, but commands can be different)
+			- important that configuration is done by external object(or client)
+	- use-cases: pass request as parameter, add delay(possible to add command serialization), add queue, support undoable operations(via state history track(RAM problem) or revert operations(not always possible))
 - State - object has state and can change it's behavior, based on state
 - Visitor - performs different operation on group of similar objects
 ```js
@@ -294,11 +324,32 @@ const areas = [cirle1, square1, circle1].map(
 );
 ```
 - Interpreter pattern - abstracts specific rules
-- Iterator - standard way to traverse through a group of objects
-```js
-arr.map(); // example
-```
-- Memento - saves and later returns state of object
+- Iterator - creates a way to traverse through a group of similar objects, without exposing underlying implementation
+	- used to decouple implementation from traversing logic for different of data structures, even if they aren't implemented via list
+		- main idea is to extract traversal logic to iterator with standard interface(`current`, `hasMore()`, `next()`, `prev()`), that will manage all underlying logic(it is important to incapsulate this logic, so multiple iterators can work at the same time)
+	- as a recommendation, collection should always provide a way to travers it
+	- it should be possible to create iterator from client, but more often it is collection's responsibility
+		- iterator class is linked to other class via constructor
+	- use-cases: remove traversal code duplication, hiding implementation details of traversal, creating similar way for client to traverse unknown beforehand Data Structure, stoppable iteration
+		- note: don't do an overkill for cases, where iterator is not really necessary
+	- example: `array.map() // JS` 
+		- it is introduced by default in many modern languages with possibility to write own iterators co custom Data Structures
+- Memento/Snapshot - save and restore state of an object, without revealing it's inner implementation
+	- there are some cases, like undoable operations, where you need to record a snapshot of an object, but there are some problems with direct approach:
+		- object may have private fields, that can't be accessed from snapshot method
+		- changes in object require changes in snapshot method(shotgun approach)
+		- Snapshot class will need to expose all it's state, thus making dependent code on it even more coupled and fragile to changes
+		- this problems come from broken encapsulation(we are trying do the copy, instead letting object do it)
+	- this problem is solved by letting owner produce a snapshot in form of memento object, that stores state and have some minimal interface to expose name, createdAt etc, but not actual data
+		- in this solution `restore` is also must be implemented by owner and take in a snapshot, so history manager(caretaker) can just pass task to owner and don't operate with actual data
+			- caretaker->owner communication can be implemented via Command
+	- Memento must be immutable and should be linked to concrete owner instance, thus we can support something like multi-window history
+	- original implementation is done via nested classes to make private fields of memento accessible to owner
+		- other implementation is done by creating memento interface, that caretaker will work with and memento implementation, that exposes it's data and used inside owner
+		- other implementation is done by creating memento that coupled to specific owner, so it can keep it's data private and perform `restore` by itself, instead of letting owner read it
+			- in this case owner must have public setter to it's state
+	- notes: remember about RAM, caretaker should track owner's lifecycle to remove old mementos, JS and other "bad-boys" can't guarantee that memento is private, Prototype is simpler analog for Memento(but it also can be used only with simple objects)
+	- use-cases: undoable operations, direct access to object will violate it's encapsulation, need separate history maintenance
 
 ---
 
