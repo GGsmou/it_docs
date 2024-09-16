@@ -131,9 +131,11 @@ Gangs of Four - book about 23 design patterns
 		- it is possible to couple one factory to multiple outcomes, depending on input
 		- based on inheritance, so be careful with it
 	- WHEN TO USE
-		- need your class to be expandable
+		- need your class to be expandable(can be done via classical inheritance of constructor too)
 		- need to return already existing objects(not possible by definition of constructor)
 		- need more robust interface, that constructor can give you
+		- need context to create instance
+			- context can also determine subclass, not only configuration of instance
 - Abstract factory - pattern for creating similar factories
 	- used to solve cases, where we need to create sets of things(set is some category, like material)(thing is some object, that can be categorized)
 		- all sets must be equal

@@ -227,6 +227,8 @@ MAIN PILARS
 	- can be different types
 		- hot observable - always emit values
 		- cold observable - emit values only if someone is subscribed to it
+		- ANALOGS
+			- push/pull model, where push always do smth, but pull do smth if received a request to do so
 - observer - collection of callbacks that know how to listen for Observable values
 	- typical observer is obj with methods: `next`, `error`, `complete`, that are callbacks, that take value from observer and do something with them
 	- `observable.subscribe(observer)` 
