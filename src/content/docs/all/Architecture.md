@@ -271,7 +271,19 @@ square.printColor();
 	- example: HOK
 
 #### Behavioral(11)
-- Template method - define abstract template with/without implementation of methods, that will be implemented by children
+- Template method - define superclass template with/without implementation of methods, that will be implemented by subclasses, with one non-overridable "template" method, that calls other methods in specific order
+	- you can break large operations, with similar steps to execute, into methods with some(or not) base implementation, that can be overwritten by sub-classes
+		- it also enables polymorphism when later working with such sub-classes
+		- basically we are moving similar code to base implementation, while keeping different code in sub-classes
+		- it is also possible to add hook methods, that do nothing by default, but can be overwritten by sub-class to perform operations
+			- usually placed before/after major operations
+	- use-cases: steps of algorithm need to be changeable but not algorithm itself, set of classes have same algorithm with minor changes(avoids shotgun problem)
+		- removes code duplication
+		- makes large algorithm partially changeable
+	- notes:
+		- avoiding limiting functionality, but keeping structure, where it is not needed
+		- Liskov Substitution Principle is broken here, because subclass can't be interchangeable with superclass
+		- maintenance may raise with number of steps
 	- example: react class lifecycle methods
 - Mediator/Controller - restricts dependencies between objets, by becoming centralized communication method between them
 	- direct communication between object can prevent code reusability and couple them to specific place(for example button, that knows too much about components incurrent form, can't be reused elsewhere)
@@ -299,10 +311,34 @@ square.printColor();
 	- handler should be self contained and immutable + can be executed in any order
 	- it is important to remember that requests can not reach to the end of a chain, or be unhandled
 	- use-cases: access control, request handling(middleware), different types of handling defined at runtime, handling tree structure communication
-- Observer - monitors for state change and notifies about it
-	- example: eventListener, useState
-- Strategy - we have multiple implementations(*for example: effective for long array & effective for short array*) and we choose what to use in runtime
-	- react example: we have component that needs to render two things, instead of if/else we can implement a two small components and delegate chose of which component to render to other(but those components must be independent by them selfs) 
+- Observer/Event-Subscriber/Listener - subscription mechanism, that let notify multiple objects about any event that happened to object they are observing
+	- enables notification flow for observers, instead of more default approach of checking if something changed
+		- avoids redundant requests
+		- avoids spam notifications(notify only subscribed objects)
+	- implementation
+		- create Publisher object, that have something to notify about with array to store subscribers and methods to add/remove one
+		- when something happened, Publisher triggers some predefined method, that each Subscriber must implement and sends some data with it
+			- this way we are coupling Publisher to Subscriber interface, to make different Publishers work with any Subscribers we can give access to Publisher's inner state(or use some generics)
+			- it is also possible to make one Publisher handle several types of events via more robust storage system(`Map<EventType, []>`)
+	- use-cases: notifications, dynamical set of subscribers, limited time observability
+	- note that notification order is semi-random
+		- usually notification is done in order subscribing, but it is not fully reliable metric
+	- example: EventListener(JS), useState(react)
+- Strategy - define a family of interchangeable(at runtime) classes
+	- allows defining a set of solutions to some problem, that can be chosen at runtime
+		- note that each solution can't know about other ones
+		- basically we are removing code coupling and doing single responsibility
+	- implementation may look like this: Context class with field to storing current Strategy and methods, that delegate work to current Strategy
+		- Context or Strategy can't change current Strategy, it is received in constructor and can be set later by Client
+		- all Strategies have same interface(usually can be even only one `execute` method), that Context will call(so we can avoid coupling)
+	- use-cases: object need to use set of algorithms without coupling logic(separate implementation from business logic, avoid large conditionals), selected algorithm needed to be changed at runtime, there are many classes with similar/same interface but different behavior, inheritance can be changed to composition
+		- if you wanna do it in more inheritance and static way, you can use Template Method
+	- notes
+		- don't overcomplicate code(if there are not too many algorithms, if algorithms won't be frequently changed)
+		- client is coupled to and manages Strategies
+		- this pattern can be implemented as just function that passed as argument
+	- examples:
+		- (react) we have component that needs to render two things, instead of if/else we can implement two independent "small" components and pass them conditionally as prop
 - Command - turn request into object with all needed information
 	- helps with separation of concerns, via layering an app into parts, which communicate with requests
 		- note: part don't directly trigger method on other part, it triggers method on Command object, which collects needed data and triggers needed methods
@@ -311,8 +347,35 @@ square.printColor();
 		- to send any data command should be preconfigured or be able to aggregate needed data on it's own to prevent coupling(for example we can have one button, that stores command, but commands can be different)
 			- important that configuration is done by external object(or client)
 	- use-cases: pass request as parameter, add delay(possible to add command serialization), add queue, support undoable operations(via state history track(RAM problem) or revert operations(not always possible))
-- State - object has state and can change it's behavior, based on state
-- Visitor - performs different operation on group of similar objects
+- State - object has state and can change it's behavior, based on it
+	- main concept behind state is Fine-State machine, that works like this: there finite number of possible states in program and program is always in one of them, but can change to another, depending on current state(program is performing transition, where there are finite number of transitions)
+		- state can be calculated from one or more fields
+		- straightforward solution is write `if/else` statements, but it resolves in hard to maintain and understand code(coupling, breakage of single responsibility)
+			- state machines can grow and bloat over time
+	- to deal with bloat we can extract each state into own class, that inherits from same interface and pass each class instance into Context, that delegates all actual work to state class and exposes method to change current state
+		- kinda similar to Strategy, but in this pattern one state class can know and operate(change current state to) with it
+		- NOTES: interface can't have useless methods and must be fully implemented by each State, State can(and most often should) store reference to Context
+		- if you need access to private fields in Context use: class nesting, make needed fields public, delegate work back to Context
+	- use-cases: state change behavior of object(with large number of states and/or frequent changes to state logic), class polluted with conditional statements, need to reduce code duplication between state(even if it is state transition logic)
+		- try not to overkill with this pattern, don't use with:
+			- low number of states
+			- not frequently changed code
+- Visitor - performs different operation on group of similar objects, separating algorithm from object it is operated on
+	- used to fix problem, where you need to operate with set of different objects, without bounding execution logic to them
+		- instead of integrating logic you can place it into separate class
+	- there separate ways of how to choose method needed for specific class:
+		- visitor can perform `if/else` checks to determine `instanceof` which class is our object and do it's magic
+		- using Double Dispatch, we can call `accept` method(that must be present on each object), that accepts visitor instance and calls needed method to operate on their own
+			- this way we altering implementation of objects, but we aren't bounding some alien logic to them and just adding sort of hook, that allows any visitor with base interface to be used with this object
+				- even more, we can do method overload this way and keep interface simple
+			- why double dispatch if we can just overload? Simple, often compiler uses safe path of early+static binding, where it finds the most safe variant before compilation to figure out if this operation is valid and, mostly it will result in call to base class and not the one, that inherits from it
+	- note
+		- visitor must be updated, when new class is added to hierarchy
+		- visitor can't access private fields
+	- use-cases
+		- iteration over different types, with possibility to prohibit iteration of other ones
+			- good in combination with Composite
+	- example:
 ```js
 class AreaCalc {
 	static visit(shape) {
@@ -321,11 +384,19 @@ class AreaCalc {
 	}
 }
 
-const areas = [cirle1, square1, circle1].map(
-	shape => AraCalc(shape)
-);
+const areas = [cirle1, square1, circle1].map(AreaCalc.visit);
 ```
-- Interpreter pattern - abstracts specific rules
+- Interpreter - solve problems, that a defined with set of grammar or in language-like format
+	- basically we providing some grammar, that can be interpreted into actions
+	- implementation can be done by so:
+		- define an abstract expression, that have `interprete` method and inherited by other expressions
+		- implement terminal expression - simplest building block of grammar, like leaf node in Composite
+		- implement non-terminal expression - container for terminal or non-terminal expressions, like Container in Composite
+		- add Context, that can store additional data
+		- client can build expression in for of AST, consisting of expressions, passes it to interpreter, which parses in in a tree way
+	- use-cases: expression evaluation, language parsing, problem is represented as AST
+	- be aware that it is hard to scale an maintain
+	- examples: `eval`(JS)
 - Iterator - creates a way to traverse through a group of similar objects, without exposing underlying implementation
 	- used to decouple implementation from traversing logic for different of data structures, even if they aren't implemented via list
 		- main idea is to extract traversal logic to iterator with standard interface(`current`, `hasMore()`, `next()`, `prev()`), that will manage all underlying logic(it is important to incapsulate this logic, so multiple iterators can work at the same time)

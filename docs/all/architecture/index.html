@@ -505,8 +505,32 @@
 </ul>
 <h4 id="behavioral11">Behavioral(11)</h4>
 <ul>
-<li>Template method - define abstract template with/without implementation of methods, that will be implemented by children
+<li>Template method - define superclass template with/without implementation of methods, that will be implemented by subclasses, with one non-overridable “template” method, that calls other methods in specific order
 <ul>
+<li>you can break large operations, with similar steps to execute, into methods with some(or not) base implementation, that can be overwritten by sub-classes
+<ul>
+<li>it also enables polymorphism when later working with such sub-classes</li>
+<li>basically we are moving similar code to base implementation, while keeping different code in sub-classes</li>
+<li>it is also possible to add hook methods, that do nothing by default, but can be overwritten by sub-class to perform operations
+<ul>
+<li>usually placed before/after major operations</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>use-cases: steps of algorithm need to be changeable but not algorithm itself, set of classes have same algorithm with minor changes(avoids shotgun problem)
+<ul>
+<li>removes code duplication</li>
+<li>makes large algorithm partially changeable</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>avoiding limiting functionality, but keeping structure, where it is not needed</li>
+<li>Liskov Substitution Principle is broken here, because subclass can’t be interchangeable with superclass</li>
+<li>maintenance may raise with number of steps</li>
+</ul>
+</li>
 <li>example: react class lifecycle methods</li>
 </ul>
 </li>
@@ -557,14 +581,65 @@
 <li>use-cases: access control, request handling(middleware), different types of handling defined at runtime, handling tree structure communication</li>
 </ul>
 </li>
-<li>Observer - monitors for state change and notifies about it
+<li>Observer/Event-Subscriber/Listener - subscription mechanism, that let notify multiple objects about any event that happened to object they are observing
 <ul>
-<li>example: eventListener, useState</li>
+<li>enables notification flow for observers, instead of more default approach of checking if something changed
+<ul>
+<li>avoids redundant requests</li>
+<li>avoids spam notifications(notify only subscribed objects)</li>
 </ul>
 </li>
-<li>Strategy - we have multiple implementations(<em>for example: effective for long array &#x26; effective for short array</em>) and we choose what to use in runtime
+<li>implementation
 <ul>
-<li>react example: we have component that needs to render two things, instead of if/else we can implement a two small components and delegate chose of which component to render to other(but those components must be independent by them selfs)</li>
+<li>create Publisher object, that have something to notify about with array to store subscribers and methods to add/remove one</li>
+<li>when something happened, Publisher triggers some predefined method, that each Subscriber must implement and sends some data with it
+<ul>
+<li>this way we are coupling Publisher to Subscriber interface, to make different Publishers work with any Subscribers we can give access to Publisher’s inner state(or use some generics)</li>
+<li>it is also possible to make one Publisher handle several types of events via more robust storage system(<code dir="auto">Map&#x3C;EventType, []></code>)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>use-cases: notifications, dynamical set of subscribers, limited time observability</li>
+<li>note that notification order is semi-random
+<ul>
+<li>usually notification is done in order subscribing, but it is not fully reliable metric</li>
+</ul>
+</li>
+<li>example: EventListener(JS), useState(react)</li>
+</ul>
+</li>
+<li>Strategy - define a family of interchangeable(at runtime) classes
+<ul>
+<li>allows defining a set of solutions to some problem, that can be chosen at runtime
+<ul>
+<li>note that each solution can’t know about other ones</li>
+<li>basically we are removing code coupling and doing single responsibility</li>
+</ul>
+</li>
+<li>implementation may look like this: Context class with field to storing current Strategy and methods, that delegate work to current Strategy
+<ul>
+<li>Context or Strategy can’t change current Strategy, it is received in constructor and can be set later by Client</li>
+<li>all Strategies have same interface(usually can be even only one <code dir="auto">execute</code> method), that Context will call(so we can avoid coupling)</li>
+</ul>
+</li>
+<li>use-cases: object need to use set of algorithms without coupling logic(separate implementation from business logic, avoid large conditionals), selected algorithm needed to be changed at runtime, there are many classes with similar/same interface but different behavior, inheritance can be changed to composition
+<ul>
+<li>if you wanna do it in more inheritance and static way, you can use Template Method</li>
+</ul>
+</li>
+<li>notes
+<ul>
+<li>don’t overcomplicate code(if there are not too many algorithms, if algorithms won’t be frequently changed)</li>
+<li>client is coupled to and manages Strategies</li>
+<li>this pattern can be implemented as just function that passed as argument</li>
+</ul>
+</li>
+<li>examples:
+<ul>
+<li>(react) we have component that needs to render two things, instead of if/else we can implement two independent “small” components and pass them conditionally as prop</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Command - turn request into object with all needed information
@@ -587,13 +662,98 @@
 <li>use-cases: pass request as parameter, add delay(possible to add command serialization), add queue, support undoable operations(via state history track(RAM problem) or revert operations(not always possible))</li>
 </ul>
 </li>
-<li>State - object has state and can change it’s behavior, based on state</li>
-<li>Visitor - performs different operation on group of similar objects</li>
+<li>State - object has state and can change it’s behavior, based on it
+<ul>
+<li>main concept behind state is Fine-State machine, that works like this: there finite number of possible states in program and program is always in one of them, but can change to another, depending on current state(program is performing transition, where there are finite number of transitions)
+<ul>
+<li>state can be calculated from one or more fields</li>
+<li>straightforward solution is write <code dir="auto">if/else</code> statements, but it resolves in hard to maintain and understand code(coupling, breakage of single responsibility)
+<ul>
+<li>state machines can grow and bloat over time</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>to deal with bloat we can extract each state into own class, that inherits from same interface and pass each class instance into Context, that delegates all actual work to state class and exposes method to change current state
+<ul>
+<li>kinda similar to Strategy, but in this pattern one state class can know and operate(change current state to) with it</li>
+<li>NOTES: interface can’t have useless methods and must be fully implemented by each State, State can(and most often should) store reference to Context</li>
+<li>if you need access to private fields in Context use: class nesting, make needed fields public, delegate work back to Context</li>
+</ul>
+</li>
+<li>use-cases: state change behavior of object(with large number of states and/or frequent changes to state logic), class polluted with conditional statements, need to reduce code duplication between state(even if it is state transition logic)
+<ul>
+<li>try not to overkill with this pattern, don’t use with:
+<ul>
+<li>low number of states</li>
+<li>not frequently changed code</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Visitor - performs different operation on group of similar objects, separating algorithm from object it is operated on
+<ul>
+<li>used to fix problem, where you need to operate with set of different objects, without bounding execution logic to them
+<ul>
+<li>instead of integrating logic you can place it into separate class</li>
+</ul>
+</li>
+<li>there separate ways of how to choose method needed for specific class:
+<ul>
+<li>visitor can perform <code dir="auto">if/else</code> checks to determine <code dir="auto">instanceof</code> which class is our object and do it’s magic</li>
+<li>using Double Dispatch, we can call <code dir="auto">accept</code> method(that must be present on each object), that accepts visitor instance and calls needed method to operate on their own
+<ul>
+<li>this way we altering implementation of objects, but we aren’t bounding some alien logic to them and just adding sort of hook, that allows any visitor with base interface to be used with this object
+<ul>
+<li>even more, we can do method overload this way and keep interface simple</li>
+</ul>
+</li>
+<li>why double dispatch if we can just overload? Simple, often compiler uses safe path of early+static binding, where it finds the most safe variant before compilation to figure out if this operation is valid and, mostly it will result in call to base class and not the one, that inherits from it</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>note
+<ul>
+<li>visitor must be updated, when new class is added to hierarchy</li>
+<li>visitor can’t access private fields</li>
+</ul>
+</li>
+<li>use-cases
+<ul>
+<li>iteration over different types, with possibility to prohibit iteration of other ones
+<ul>
+<li>good in combination with Composite</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>example:</li>
+</ul>
+</li>
 </ul>
 <div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre tabindex="0"><code><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">class</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FFCB8B;--1:#111111">AreaCalc</span><span style="--0:#D6DEEB;--1:#403F53"> {</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">  </span><span style="--0:#C792EA;--1:#8D46B4">static</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">visit</span><span style="--0:#D9F5DD;--1:#111111">(</span><span style="--0:#D7DBE0;--1:#403F53">shape</span><span style="--0:#D9F5DD;--1:#111111">)</span><span style="--0:#D6DEEB;--1:#403F53"> {</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">    </span><span style="--0:#C792EA;--1:#8D46B4">if</span><span style="--1:#403F53"><span style="--0:#D6DEEB"> (</span><span style="--0:#D7DBE0">shape</span><span style="--0:#D6DEEB"> </span></span><span style="--0:#7FDBCA;--1:#097174">instanceof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FFCB8B;--1:#111111">Sicrle</span><span style="--0:#D6DEEB;--1:#403F53">) </span><span style="--0:#C792EA;--1:#8D46B4">return</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#097174">...</span><span style="--0:#D6DEEB;--1:#403F53">;</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">    </span><span style="--0:#C792EA;--1:#8D46B4">if</span><span style="--1:#403F53"><span style="--0:#D6DEEB"> (</span><span style="--0:#D7DBE0">shape</span><span style="--0:#D6DEEB"> </span></span><span style="--0:#7FDBCA;--1:#097174">instanceof</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#FFCB8B;--1:#111111">Square</span><span style="--0:#D6DEEB;--1:#403F53">) </span><span style="--0:#C792EA;--1:#8D46B4">return</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#097174">...</span><span style="--0:#D6DEEB;--1:#403F53">;</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">  }</span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">}</span></div><div class="ec-line">
-</div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">const </span><span style="--0:#82AAFF;--1:#3C63B3">areas</span><span style="--0:#C792EA;--1:#8D46B4"> =</span><span style="--1:#403F53"><span style="--0:#D6DEEB"> [</span><span style="--0:#D7DBE0">cirle1</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">square1</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">circle1</span><span style="--0:#D6DEEB">]</span></span><span style="--0:#C792EA;--1:#8D46B4">.</span><span style="--0:#82AAFF;--1:#3C63B3">map</span><span style="--0:#D6DEEB;--1:#403F53">(</span></div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">  </span><span style="--0:#D7DBE0;--1:#403F53">shape</span><span style="--0:#C792EA;--1:#8D46B4"> => </span><span style="--0:#82AAFF;--1:#3C63B3">AraCalc</span><span style="--1:#403F53"><span style="--0:#D6DEEB">(</span><span style="--0:#D7DBE0">shape</span><span style="--0:#D6DEEB">)</span></span></div><div class="ec-line"><span style="--0:#D6DEEB;--1:#403F53">);</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="class AreaCalc {  static visit(shape) {    if (shape instanceof Sicrle) return ...;    if (shape instanceof Square) return ...;  }}const areas = [cirle1, square1, circle1].map(  shape => AraCalc(shape));"><div></div></button></div></figure></div>
+</div><div class="ec-line"><span style="--0:#C792EA;--1:#8D46B4">const </span><span style="--0:#82AAFF;--1:#3C63B3">areas</span><span style="--0:#C792EA;--1:#8D46B4"> =</span><span style="--1:#403F53"><span style="--0:#D6DEEB"> [</span><span style="--0:#D7DBE0">cirle1</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">square1</span><span style="--0:#D6DEEB">, </span><span style="--0:#D7DBE0">circle1</span><span style="--0:#D6DEEB">]</span></span><span style="--0:#C792EA;--1:#8D46B4">.</span><span style="--0:#82AAFF;--1:#3C63B3">map</span><span style="--0:#D6DEEB;--1:#403F53">(</span><span style="--0:#7FDBCA;--1:#097174">AreaCalc</span><span style="--0:#C792EA;--1:#8D46B4">.</span><span style="--0:#7FDBCA;--1:#097174">visit</span><span style="--0:#D6DEEB;--1:#403F53">);</span></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="class AreaCalc {  static visit(shape) {    if (shape instanceof Sicrle) return ...;    if (shape instanceof Square) return ...;  }}const areas = [cirle1, square1, circle1].map(AreaCalc.visit);"><div></div></button></div></figure></div>
 <ul>
-<li>Interpreter pattern - abstracts specific rules</li>
+<li>Interpreter - solve problems, that a defined with set of grammar or in language-like format
+<ul>
+<li>basically we providing some grammar, that can be interpreted into actions</li>
+<li>implementation can be done by so:
+<ul>
+<li>define an abstract expression, that have <code dir="auto">interprete</code> method and inherited by other expressions</li>
+<li>implement terminal expression - simplest building block of grammar, like leaf node in Composite</li>
+<li>implement non-terminal expression - container for terminal or non-terminal expressions, like Container in Composite</li>
+<li>add Context, that can store additional data</li>
+<li>client can build expression in for of AST, consisting of expressions, passes it to interpreter, which parses in in a tree way</li>
+</ul>
+</li>
+<li>use-cases: expression evaluation, language parsing, problem is represented as AST</li>
+<li>be aware that it is hard to scale an maintain</li>
+<li>examples: <code dir="auto">eval</code>(JS)</li>
+</ul>
+</li>
 <li>Iterator - creates a way to traverse through a group of similar objects, without exposing underlying implementation
 <ul>
 <li>used to decouple implementation from traversing logic for different of data structures, even if they aren’t implemented via list
