@@ -41,6 +41,78 @@ patterns differ by intent:
 - structural - provides flexible and reusable object combination mechanisms
 - behavioral - provides ways of how to effectively build a communication between objects and how to assign their responsibilities
 
+## Code Refactoring
+Generally refactoring is systematic process of improving code, without creating new functionality
+- it is preferable, when this process makes codebase better and resolves tech debt ;)
+- good tests for codebase will make refactoring safer
+
+- dirty code can rise because of many reasons: inexperience, tight deadlines, mismanagement, shortcuts
+- clean code is kinda subjective term, but generally it can be viewed as
+	- readable and can be easily understood
+		- good naming
+		- non-bloated classes/methods
+		- no magic
+	- maintainable
+		- no duplications
+			- it is about DRY, but also about situations, where you need to add update to feature and it is results in change in every corner of codebase
+		- keep it short and simple
+			- less bugs, less parts to maintain
+	- covered with tests
+	- makes final product higher quality and easier to develop
+
+tech debt is a term, that originates from banking, where you can take a loan to move faster, but too much interest from loan will slow you down(or kill)
+- causes:
+	- business pressure
+	- lack of experience
+	- monolith-like structure of code
+		- slows down development, can cause breakage in non related parts
+	- no tests
+	- no documentation
+		- slows down onboarding, can kill project if too many core maintainers left the team
+	- lack of peer-to-peer interaction
+		- some people may work with outdated techniques or even worse, onboard new people by them
+	- long development in separate branches
+		- trunk based development is key to moving fast
+	- delayed refactoring
+		- some parts of a project will become rusty overtime, if not refactored in time, they cause more debt, because other parts are based on them
+		- it is also harder to onboard, when different parts of codebase look/work in different ways
+	- lack of monitoring
+		- leads to devs writing code as they want
+
+to determine whether to refactor you can use some rules:
+- rule of three
+	- doing for the first time just get it done
+	- doing smth similar for the second time just do it anyway
+	- doing smth similar for the third time start refactoring
+- when adding a feature try to refactor a bit, so it is easier to work with code
+	- it is generally good advice to improve code, that you work with/close to
+	- it is also useful with bug fixing, case some refactoring can eliminate bugs
+- when reviewing
+	- works better with pair-reviewing
+
+general advises of how-to refactor:
+- do it in small portions
+- do it in background(if possible), so there is no need to sell it to the management
+
+check-list if you done a good job:
+- code should become cleaner
+	- it can be not, when working with large chunks of code in tight timings
+	- when working with too bad code
+		- it might be better to start rewriting, BUT you need to have tests for code + good amount of time
+- try not to mix feature development and refactoring
+	- in span of commit, when working on feature
+	- in span of MR, when refactoring only
+- tests must pass
+	- this is obvious, BUT other aspect to it, rather then bug, is the you need to refactor your tests too
+
+#### Code Smells
+Code smell is indicator of some deep/shallow problem in code, that can be spotted and addressed, while refactoring
+
+- bloaters - methods/classes, that are so big, it is hard to work with. Evolves overtime with project's grows, so don't forget to kill monoliths :)
+
+#### Refactoring Techniques
+Refactoring Technique is step by step guide on solving some problem. It can have it pros and cons, so should be applied with caution
+
 ## SOLID
 Principles(not rules) for program creation
 
