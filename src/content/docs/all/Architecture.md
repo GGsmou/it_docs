@@ -109,6 +109,99 @@ check-list if you done a good job:
 Code smell is indicator of some deep/shallow problem in code, that can be spotted and addressed, while refactoring
 
 - bloaters - methods/classes, that are so big, it is hard to work with. Evolves overtime with project's grows, so don't forget to kill monoliths :)
+	- long methods - too many code for one function
+		- be careful with adding to much code into one method
+		- to fix break code into separate functions by behavior with descriptive names, so there is no need to read how it is implemented
+			- conditional parts is good sign of what can be extracted
+		- payoffs: easier to understand and maintain, less code duplication
+	- large classes - class contains too many methods and fields
+		- be careful with infinite class expanding
+		- to fix break classes by functional, use subclassing
+		- payoffs: less mental overhead and code duplication
+	- obsession with primitives - using primitives over small objects for complex data(currency), constants for info or as field names
+		- be careful with adding a bunch of primitives, that simulate a data type
+			- better to create a real class, that logically groups this fields and methods, that operate on them
+		- be careful with storing map+key strings inside class to accessing some additional data
+			- better to create a separate class or expand current class's interface
+		- payoffs: flexibility, better understanding(data incapsulated with methods and described by class name), less duplication
+	- long parameter list - over 4 parameters for a method
+		- long parameter list can signify about:
+			- too much behavior for one class
+				- juts break it into parts
+			- incorrect data manipulation
+				- often method must receive data from it's class
+				- if no needed data is in class:
+					- you can receive it by calling some external method
+					- you should pass it as whole object, rather then breaking into parts
+						- increases understanding, but be careful with passing whole object, when we need 1-2 fields from it, because it is preferable to pass as little info as possible for flexibility, in order not to cause too much dependency
+					- if you need to much data aggregation change parameter list to one object
+			- payoffs: shorter and readable code, less code duplication
+	- data clumps - turn similar set of variables/parameters into classes, instead of keeping them as is(also can be result of breaking whole class into separate fields and passing them partially)
+		- often result of copy-paste
+		- do it when it logically make sense
+			- also good idea when behavior can be extracted too
+		- payoffs: better understanding and organization of code, encapsulation
+			- be careful with increasing dependency between classes
+- abusing OOP - incomplete/incorrect OOP principles usage
+	- switch statements - too complex `switch` or `if/else` sequences
+		- it is often better to use polymorphism or Strategy instead of switch
+		- also long conditionals are signals of bloated method, so break it
+		- payoffs: avoid shotgun problem(also can be done by incapsulating switch), code organization
+			- avoid when: switch performs simple operation, in Factory
+	- temporary field - some fields are not always needed(or needed for one method as parameters), so often can be empty of harmful
+		- causes problems, with fields with strange meaning and not value
+		- extract this methods into separate classes, or introduce this fields as parameters
+		- payoffs: better code clarity and organization
+	- refused request - unused/unimplemented inherited methods
+		- cause problems with incorrect hierarchy and arrives from need to just re-use superclass's methods, without close connection between class and subclass
+		- to fix this, without introducing duplication use delegation of work to other class
+			- if inheritance is correct, just extract unused methods from superclass and put into sibling class
+		- payoffs: code organization and understanding
+	- alternative classes with different interfaces - classes have same functionality, but different method naming
+		- arrives from lack of communication
+		- to fix
+			- rename methods
+			- inherit from same interface or move duplicated logic into superclass
+			- delete unneeded class(optional)
+		- payoffs: less duplication, easier to read and understand
+			- be careful with over engineering and merging classes, where the is no scenes to it
+- change preventers - it is harder to introduce new functional, because change in many other places is needed
+	- divergent change - when changing one class, many changes to class's unrelated methods are needed
+		- comes from copy-paste programing, pure abstractions and structure
+			- introduce abstractions to your code
+		- payoffs: less code duplication, faster development, better organization
+	- shotgun surgery - when changing one party of code, many changes to other parts are needed
+		- be careful with splitting code too much
+		- to fix:
+			- add common interface OR delegate work
+			- place logic tighter(encapsulation)
+		- payoffs: less code duplication, faster development, better organization
+	- parallel inheritance hierarchies - when extending one class, you need to create similar extension to other class
+		- to fix: merge hierarchies into one, use delegation
+			- be careful with merging and avoid bloated code
+		- payoffs: less code duplication, faster development, better organization
+- dispensables - parts of code that not really needed and can be avoided
+	- comments - explanatory comments
+		- arrives when comment is needed as explanation
+			- better to rewrite/rename function to something easier to understand
+			- better to break expression into smaller expressions
+			- better to move code section into separate self explaining method
+		- still comments are useful to point to some intricacies or explain "whys"
+		- payoffs: duplication(need to change code and comment)
+	- code duplication(DRY) - when separate chunks are almost identical
+		- arrives from lack of communication or time constrains
+		- to fix:
+			- extract code into functions
+			- pull up method to superclass
+			- change same algorithms with different implementations to better one
+			- use Template pattern
+			- merge code with adding conditional behavior(be careful with this to not bloat helper function)
+		- payoffs: better maintenance and readability
+	- lazy class - each peace of code costs time to maintain, so code that don't do much must be deleted
+		- arrives when class lost most of it's functional after refactoring, no longer used etc
+		- to fix merge code(collapse hierarchy or inline class)
+		- payoffs: better maintenance and readability
+			- be careful with bloating code or removing some code that will be used a bit later
 
 #### Refactoring Techniques
 Refactoring Technique is step by step guide on solving some problem. It can have it pros and cons, so should be applied with caution
