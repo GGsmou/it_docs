@@ -202,9 +202,76 @@ Code smell is indicator of some deep/shallow problem in code, that can be spotte
 		- to fix merge code(collapse hierarchy or inline class)
 		- payoffs: better maintenance and readability
 			- be careful with bloating code or removing some code that will be used a bit later
+	- data class - class that contains only data fields + getters/setters with no additional behavior
+		- problem comes from breaking encapsulation and keeping all related logic outside of class
+		- to fix: move related methods into class, make some fields private(if needed)
+		- payoffs: less duplication, better code structure and understanding
+	- dead code - any unused code(usually signal of obsolete code)
+		- happens after big changes or when some conditional becomes unreachable
+			- it is important to spot such places and clean codebase, because dead code requires maintenance too, while been unused
+		- to fix: use IDE to spot dead parts, inline logic, collapse hierarchy
+		- payoffs: better codebase support
+	- speculative generality - code that unused at the moment, but created "for future"
+		- just delete dead code and don't create new because JUST IN CASE :)
+			- when working on lib it is ok to include some functionality, used only by users and not by lib itself
+			- it is ok to keep some code, for testing purposes
+		- payoffs: better codebase support
+- couplers - excessive coupling or too much delegation between parts of code
+	- feature envy - methods works more with other class's data, that with it's own
+		- usually happens when data moved to data class, without behavior
+			- it is ok to ignore, when behavior splitted from data on purpose(Strategy pattern fro example)
+		- to fix: move method fully to other class, move method partially
+		- payoffs: less data duplication, better code organization(encapsulation)
+	- inappropriate intimacy - class interacts with internal method/fields of another class
+		- too mush interaction between classes may be a sign of coupling, it is preferable to keep as little interaction as possible
+		- to fix:
+			- move methods from one class to other, if appropriate
+			- use delegation for not connected classes
+			- use inheritance for connected classes
+		- payoffs: simplification of code, better reusability and support
+	- message chains - to get some data a chain of aggregation requests need to happen
+		- problem is that change in chain result to change in client
+		- to fix: use delegation, restructure the code
+			- be careful with not over hiding logic with delegation, it is important to keep clear how data is moving
+		- payoffs: less bloat and coupling
+	- middle man - we don't need class, that only do delegation to other classes
+		- happens with aggressive fixes to message chains smell OR when breaking logic from class, but keeping it as a shell
+		- to fix just kill this middle man
+			- do it when appropriate, sometimes it used to avoid interclass dependencies OR with patterns like Proxy, Decorator
+		- payoffs: better understanding of code
+	- other
+		- incomplete library class - foreign library need changes, but it is impossible to do so(library is read-only)
+			- to fix: extend library(big changes), add custom overhead of logic(small changes)
+			- payoffs: no need to create own library when you can extend existing one
+				- be careful with this, because now you need to maintain your changes
 
 #### Refactoring Techniques
 Refactoring Technique is step by step guide on solving some problem. It can have it pros and cons, so should be applied with caution
+
+- composing methods - techniques to group methods, break large methods and remove code duplication
+	- extract method - extract logical part of function into other function and perform a call to it
+		- why: to keep functions easier to understand, reuse and compose, with additional code isolation
+		- be careful with introducing too much small methods
+	- inline method - merge methods together
+		- why: to make code easier to read(no need to do context switching), no need to keep too short methods
+		- be careful with coupling too much code into one place
+	- extract variable - if expression is hard to understand create a better name or break into parts, that can be easily combined
+		- why: make conditional, arithmetics and string manipulations easier to understand
+		- keep names long and expressive
+		- be careful with introducing too many variables
+		- compiler optimizations will be lost
+	- inline temp - if variable is not storing result of heavy operation or used as explanatory it is ok to inline it
+		- why: less bloat
+	- replace with temp query - move temporary variable to separate method and get it by calling it
+		- why: keep common variable separate from places it is used to avoid duplication, code readability improvement
+		- be careful with heavy operation(cache can be introduced tho)
+			- it still can heart the performance, because we are doing calls to functions, BUT you are using react and 300 libs for DX, so don't worry ;)
+		- usable only if variable is constant and calls to method won't change state
+	- split temp variable - avoid variables with intermediate values and keep 1 value to 1 variable ratio
+		- why: it is always hard to refactor code with global state, single responsibility, better understanding(each value has a name)
+	- remove assignments to parameters - it is generally bad practice to reassign parameter, just create new variable
+		- why: loosing original value, unexpected cases when passing new value instead of original one(basically problem with state), single responsibility
+			- situation is even worse when working with references
 
 ## SOLID
 Principles(not rules) for program creation
