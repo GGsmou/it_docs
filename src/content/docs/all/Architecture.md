@@ -272,6 +272,70 @@ Refactoring Technique is step by step guide on solving some problem. It can have
 	- remove assignments to parameters - it is generally bad practice to reassign parameter, just create new variable
 		- why: loosing original value, unexpected cases when passing new value instead of original one(basically problem with state), single responsibility
 			- situation is even worse when working with references
+	- replace method with method object - to break complex method with interconnected local variables you can change it to class with variables as fields and easily break
+		- why: easier and smaller methods, less duplication, problem is scoped to class, no need to pollute original class
+		- be careful with introducing small unneeded classes
+	- substitute algorithm - if method implementation is changing, but interface stays the same, just change implementation
+		- why: it can be easier to kill and rewrite bad method, better or already made solution may be found(we don't need to change interface and do big refactoring to incorporate library)
+		- be careful and keep return values identical
+- moving features between objects - methods to safely reorder code in your program
+	- move method - if method is mostly used in other class, just move it here and use by reference
+		- why: keep classes internally coherent, lower dependency
+		- it is ok to: move a bunch of methods together, rename them, delete methods in old places and entirely use delegation
+		- keep an eye on class relationships and use polymorphism/etc if needed
+	- move field - if field is mostly used in other class, just move it here and use by reference
+		- why: keep field and it's users close, lower dependency
+	- extract class - if one class do two things, just break it into two
+		- why: single responsibility, class is easier to change and maintain
+		- don't over break classes, the is no need in 100 too small classes
+		- don't forget to change name of original class
+		- it is ok to make second class private and expose it via first class
+	- inline class - class is only used in one place and do almost nothing, so there is no need to keep it
+		- why: don't keep unneeded classes, make code easier to understand, optimization
+			- happens after partial refactor
+	- hide delegate - client gets info from one class and passes to other class, thus depending on both, so you can pass this dependency to one of the class and make client do one call
+		- why: remove dependency between both classes and client(make only classes depend on each other)
+		- be careful with introducing Middle Man problem, do it when only classes are dependent on each other
+	- remove middle man - class consists of methods, that only call other methods, so they can be removed
+		- why: there is only delegation logic and no overhead to it so no need to add complexity and dependency between classes, remove need to add delegation to each new method that was created
+	- introduce foreign method - if one class don't contain useful method, just add this helper method to some related class and pass instance of class, that needs to be extended
+		- why: remove code duplication
+		- note:
+			- it is ok to locate code in sub-optimal space(but it may be confusing, so comments are welcome)
+			- if you need to do several foreign methods, it is better to fully extend class
+			- you WILL need to do more maintenance, when lib is updated
+	- introduce local extension - if you need to add several methods to read-only class, you can wrap or inherit from it with additional functionality
+		- ways:
+			- create subclass(not always possible due to realization)
+			- create wrapper(more maintenance, harder to setup because needed methods must be delegated to original class)
+		- why: no need in random helper methods from place to place, better code structure
+		- note:
+			- don't forget to add conversion methods
+			- you WILL need to do more maintenance, when lib is updated
+- organizing data - methods to handle and store data properly with proper classes. It can also introduce better class associations
+	- self encapsulate field - access private field via getter to introduce flexibility
+		- why: do additional operations when querying/modifying data, ability to change this behavior in subclass, make data read-only by not introducing setters
+			- examples: lazy initialization, validation, caching
+		- be careful with not overcomplicating code, use this only when needed
+	- replace data value with object - move data fields and their behavior into separate class and use it as object instance in original place
+		- why: encapsulation(join simple field(s) with their behavior), less duplication
+			- useful to store one object for each value
+	- change value to reference - replace identical instances with one object and access it by reference
+		- there are two approach to thinking about objects:
+			- references - one real-world object to one instance
+				- references are often stored in some map and can be prefilled or created on fly
+					- don't forget to deal with cases, where object is not exists
+					- work with map is managed by factory
+			- values - one real-world object to several instances of class
+		- why: enables sharable state, optimization
+			- tho be careful, because sharable state is a pain(especially in parallel)
+	- change reference to value - avoid maintaining lifecycle of object that small and really changes, by converting them to regular instances
+		- why: shared state is hard so no need to work if there is no reason to do so, problems with parallelism, harder codebase
+		- note:
+			- it can be less performant
+			- no benefits of state
+	- replace array with object - replace tuple of different types with object
+		- why: easier to work with(especially when many fields are present), no need to `find` or keep indexes of data, behavior can be moved with fields, easier to document
 
 ## SOLID
 Principles(not rules) for program creation

@@ -585,6 +585,154 @@
 </li>
 </ul>
 </li>
+<li>replace method with method object - to break complex method with interconnected local variables you can change it to class with variables as fields and easily break
+<ul>
+<li>why: easier and smaller methods, less duplication, problem is scoped to class, no need to pollute original class</li>
+<li>be careful with introducing small unneeded classes</li>
+</ul>
+</li>
+<li>substitute algorithm - if method implementation is changing, but interface stays the same, just change implementation
+<ul>
+<li>why: it can be easier to kill and rewrite bad method, better or already made solution may be found(we don’t need to change interface and do big refactoring to incorporate library)</li>
+<li>be careful and keep return values identical</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>moving features between objects - methods to safely reorder code in your program
+<ul>
+<li>move method - if method is mostly used in other class, just move it here and use by reference
+<ul>
+<li>why: keep classes internally coherent, lower dependency</li>
+<li>it is ok to: move a bunch of methods together, rename them, delete methods in old places and entirely use delegation</li>
+<li>keep an eye on class relationships and use polymorphism/etc if needed</li>
+</ul>
+</li>
+<li>move field - if field is mostly used in other class, just move it here and use by reference
+<ul>
+<li>why: keep field and it’s users close, lower dependency</li>
+</ul>
+</li>
+<li>extract class - if one class do two things, just break it into two
+<ul>
+<li>why: single responsibility, class is easier to change and maintain</li>
+<li>don’t over break classes, the is no need in 100 too small classes</li>
+<li>don’t forget to change name of original class</li>
+<li>it is ok to make second class private and expose it via first class</li>
+</ul>
+</li>
+<li>inline class - class is only used in one place and do almost nothing, so there is no need to keep it
+<ul>
+<li>why: don’t keep unneeded classes, make code easier to understand, optimization
+<ul>
+<li>happens after partial refactor</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>hide delegate - client gets info from one class and passes to other class, thus depending on both, so you can pass this dependency to one of the class and make client do one call
+<ul>
+<li>why: remove dependency between both classes and client(make only classes depend on each other)</li>
+<li>be careful with introducing Middle Man problem, do it when only classes are dependent on each other</li>
+</ul>
+</li>
+<li>remove middle man - class consists of methods, that only call other methods, so they can be removed
+<ul>
+<li>why: there is only delegation logic and no overhead to it so no need to add complexity and dependency between classes, remove need to add delegation to each new method that was created</li>
+</ul>
+</li>
+<li>introduce foreign method - if one class don’t contain useful method, just add this helper method to some related class and pass instance of class, that needs to be extended
+<ul>
+<li>why: remove code duplication</li>
+<li>note:
+<ul>
+<li>it is ok to locate code in sub-optimal space(but it may be confusing, so comments are welcome)</li>
+<li>if you need to do several foreign methods, it is better to fully extend class</li>
+<li>you WILL need to do more maintenance, when lib is updated</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>introduce local extension - if you need to add several methods to read-only class, you can wrap or inherit from it with additional functionality
+<ul>
+<li>ways:
+<ul>
+<li>create subclass(not always possible due to realization)</li>
+<li>create wrapper(more maintenance, harder to setup because needed methods must be delegated to original class)</li>
+</ul>
+</li>
+<li>why: no need in random helper methods from place to place, better code structure</li>
+<li>note:
+<ul>
+<li>don’t forget to add conversion methods</li>
+<li>you WILL need to do more maintenance, when lib is updated</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>organizing data - methods to handle and store data properly with proper classes. It can also introduce better class associations
+<ul>
+<li>self encapsulate field - access private field via getter to introduce flexibility
+<ul>
+<li>why: do additional operations when querying/modifying data, ability to change this behavior in subclass, make data read-only by not introducing setters
+<ul>
+<li>examples: lazy initialization, validation, caching</li>
+</ul>
+</li>
+<li>be careful with not overcomplicating code, use this only when needed</li>
+</ul>
+</li>
+<li>replace data value with object - move data fields and their behavior into separate class and use it as object instance in original place
+<ul>
+<li>why: encapsulation(join simple field(s) with their behavior), less duplication
+<ul>
+<li>useful to store one object for each value</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>change value to reference - replace identical instances with one object and access it by reference
+<ul>
+<li>there are two approach to thinking about objects:
+<ul>
+<li>references - one real-world object to one instance
+<ul>
+<li>references are often stored in some map and can be prefilled or created on fly
+<ul>
+<li>don’t forget to deal with cases, where object is not exists</li>
+<li>work with map is managed by factory</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>values - one real-world object to several instances of class</li>
+</ul>
+</li>
+<li>why: enables sharable state, optimization
+<ul>
+<li>tho be careful, because sharable state is a pain(especially in parallel)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>change reference to value - avoid maintaining lifecycle of object that small and really changes, by converting them to regular instances
+<ul>
+<li>why: shared state is hard so no need to work if there is no reason to do so, problems with parallelism, harder codebase</li>
+<li>note:
+<ul>
+<li>it can be less performant</li>
+<li>no benefits of state</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>replace array with object - replace tuple of different types with object
+<ul>
+<li>why: easier to work with(especially when many fields are present), no need to <code dir="auto">find</code> or keep indexes of data, behavior can be moved with fields, easier to document</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
