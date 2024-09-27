@@ -336,6 +336,65 @@ Refactoring Technique is step by step guide on solving some problem. It can have
 			- no benefits of state
 	- replace array with object - replace tuple of different types with object
 		- why: easier to work with(especially when many fields are present), no need to `find` or keep indexes of data, behavior can be moved with fields, easier to document
+	- duplicate observed data - keep domain data separate form GUI data, meaning you should have separate Entity class and separate class to display that Entity
+		- why: less duplication when working with multiple platforms, single responsibility, no need to change domain when working with GUI
+		- note: such technique can be different or no applicable for WebApps
+		- this technique is also about creating reactive interface via observable, where you create Domain class instance, which, when changed, will sync GUI class instances' data
+	- change unidirectional association to bidirectional - if classes need to communicate in both sides, change their communication to bidirectional
+		- why: resolve some complex cases
+		- note: it makes both classes depend on each other, such code is harder to implement and maintain
+		- can be done by breaking classes into "dominant"(one who controls reference to other one) and "non-dominant"(one who provides helpers to establish connection)
+	- change bidirectional association to unidirectional - if classes have bidirectional connection, but one of them don't need it(or it can be changed to smth else), just use unidirectional
+		- why: less coupling, easier code(no need for additional methods), potentially lowers RAM usage because it is easier for garbage collector to remove objects that aren't referenced by anyone
+		- one way to refactor is just pass one object as method parameter
+	- replace magic number with symbolic constant - replace number with meaning to code constant, with self-explanatory name
+		- why: self-explanatory code with no additional comments, better maintenance(easier to find references of usage, less risk of changing same number by value and not by meaning), less duplication
+		- note:
+			- obvious numbers aren't magical
+			- sometimes magic number can be changed to method call(example: get last element of array)
+	- encapsulate field - make field private and add access methods to it if needed
+		- why: encapsulation(it is harder/impossible to maintain public code, so we need to expose only what is necessary), access fields can do some additional logic(possibility to lower code duplication)
+		- be careful, because this introduces additional function calls, that can slow down performance in heavy loaded parts
+	- encapsulate collection - collections are often passed as references, so, for encapsulation sake, it can be better to change getter to return copy/read-only value and change direct setter to mutation methods
+		- why: prevent exposing the internals(encapsulation), more control over collection(like API layer in front of DB), reduce coupling(collection can be changed to other data structure)
+		- note: setter as is should allow whole change of collection, so better to use named methods
+	- replace type code with class - class have field with type code, that have only semantic meaning to it, so it is better to change it to class
+		- type code is some primitive value(string, number) with some meaning to it, that is used with other type codes of similar meaning(user roles: admin - 1, user - 2)
+			- they are normalized, because often replaced with symbolic constant, which looks not so ugly
+		- why: if your language don't allow types with primitives(example TS's: `name: "Bill" | "Peter"`) you have a risk of taking a non-intended value into your field, benefits of classes, static hints via IDE
+		- don't use for control flows, or other cases, where value has other meaning, except semantic
+	- replace type code with subclasses - class have field with type code, that used in code, so it is better to create class + subclasses for each type code
+		- why: encapsulation and better code structure(behavior of subclass is controlled by itself), easier to write control flows(via `instanceof` or even polymorphism), open/closed(we only need to add subclass for each new type code), IDE hints
+		- BUT:
+			- don't create dual hierarchy(if you already have one), it is better to use delegation
+			- use delegation, if values will change on fly
+	- replace type code with State/Strategy - when inheritance can't be used, delegation is the way to deal with type codes(just plug in needed type with some implementation of generic interface)
+		- why: often inheritance isn't an option because we already have one hierarchy, we need to change value on fly, open/closed
+		- drawbacks: more code even for simple type code cases
+		- note, if you need to do only picking of needed operation, Strategy is the way, if you need to consider different fields etc, State is better
+	- replace subclass with fields - remove subclasses, if their only role is to keep some, same by meaning, constant values. This values can be moved to parent class
+		- why: make code easier by removing unneeded class hierarchy(when it contains only set of values and no functionality)
+		- you can use builder to keep a presets of configuration of one class
+- simplifying conditional expressions - conditionals can get complex overtime, so it is important to keep their state healthy
+	- decompose conditional - break complex conditional into smaller(easier) parts, name them and combine
+		- why: easier and maintainable code, less mental overhead
+		- you can do this for even small conditions or just add names, like `isSmthTrue`, so your code is even simpler to understand
+	- consolidate conditional expression - if several conditionals lead to similar result, just combine them together
+		- why: less mental overhead(less flows for reader to follow), less duplication
+		- be careful with: 
+			- not making conditional too complex, better to use with Decompose Conditional
+			- conditions that have side effects or other differences in final result
+	- consolidate duplicate conditional fragments - if several conditionals have same code inside, restructure duplication out
+		- can be caused by lack of peer-to-peer communication
+		- why: less duplication, safer code(you don't need to remember to do something in all control flows)
+		- often done by moving code before/after a set of conditionals
+	- remove control flag - don't use boolean, that acts as stopper for all conditionals in function, just use `continue`, `break`, `return` as default control flow operations
+		- why: easier to understand code, more error prone
+	- replace nested conditional with guard clauses - flat list of conditionals is always more readable and preferable over nested
+		- why: easier to understand flow of program
+		- often done by isolating some if -> return cases to top of function first and refactoring form there
+		- it is ok to introduce some duplication
+		- be careful with side effects
 
 ## SOLID
 Principles(not rules) for program creation
@@ -348,7 +407,7 @@ Principles(not rules) for program creation
 - Interface Segregation - don't implement useless functional(make interfaces small)
 	- one big -> several small
 	- react example: big object as props -> several small properies
-- Dependency Inversion - all connections are build on abstractions, that can't depend on realisation
+- Dependency Inversion - all connections are build on abstractions, that can't depend on reallisation
 	- abstractions can't depend on details
 	- abstractions have unified naming
 
