@@ -395,6 +395,136 @@ Refactoring Technique is step by step guide on solving some problem. It can have
 		- often done by isolating some if -> return cases to top of function first and refactoring form there
 		- it is ok to introduce some duplication
 		- be careful with side effects
+	- replace conditional with polymorphism - change conditional that performs action depending on object type to set of objects with similar interface
+		- why: easier code maintenance OR open/closed(no need to change each similar conditional for new added case), tell-not-ask principle(ask object to do proper action, and not inlining the decision process in-place), less duplication
+		- note: it can blow code with additional hierarchy, so don't overuse
+	- introduce null object - if you have cases, when class object can be null, avoid null checks with additional logic, by adding NullClass that extends BaseClass with implemented additional logic
+		- why: less null checks, more compact logic placement(via adding new methods or redefining existing)
+		- drawbacks: may be more mental overhead(new class), always fully implement all methods
+		- note: don't forget to include some `isNull(): boolean` method for ease of use
+	- introduce assertion - if part of code can be accessed only if statement is true, change condition to assertion, that will do fallback or throw(if system in unexpected state)
+		- example: `invariant(cond, "error msg")` 
+		- why: assertion acts as live documentation by narrowing types and stating that this variable must be some type(otherwise we are in error state), less tests because code fails by itself, corrupted state === error
+			- good point to add assertion is to check if explaining comment is present near conditional, that can be removed by adding assertion
+		- note that throwing unnamed exception can act as assertion, but it is generally better to use named exceptions for known errors and assertions
+		- don't overdo assertions, if you app should work normally with other state, it is the case for condition
+- simplifying method calls - make methods calls easier and simpler to understand, with addition of better class-to-class interaction via this methods
+	- rename methods - name must explain the behavior
+		- cases: bad name in a first place, functionality changed but name stayed the same
+		- why: better code understanding
+		- note: when working with public interfaces, add new method with proper name and make old method just redirect call to it, with marking it as deprecated
+	- add parameter - add required parameters to methods
+		- why: access occasional or frequently changed data that is pointless to store in private field
+		- drawbacks: long parameter list, coupling(it can be better to move parameter to current class or move method to class, that contains a parameter)
+		- note: when working with public interfaces, add new method with new parameters and make old method just redirect call to it, with marking it as deprecated
+			- parameters can default to `null`, `0` or `""` placeholder
+	- remove parameter - remove parameter that unused in method
+		- don't add parameters "for future"
+		- why: extra code to run, extra logic to understand, additional dependency
+		- don't delete if parameter is used in some parts of hierarchy
+		- note: when working with public interfaces, add new method without unneeded parameters and make old method just redirect call to it, with marking it as deprecated
+	- separate query from modifier - make method perform single read/write operation, not both
+		- why: single responsibility, no side-effects when reading data, command and query responsibility segregation
+		- note:
+			- it is ok to keep caching as part of query flow
+			- it is ok to receive some data after modifying, but not modifying when queering data
+	- parameterize method - combine similar methods, that have small difference in behavior, by adding parameter that acts as an option
+		- why: less duplication, easier to extend
+		- be careful not to create large complex methods
+		- be careful with combining methods that do smth similar to activate/deactivate, it is better to keep them separate
+	- replace parameter with explicit methods - if parameterized method becomes to complex or handles several different flows, split it
+		- also good case is set of methods, that rarely grows in size
+		- why: easier to understand and maintain code
+	- preserve whole object - if you need many fields from object, just path whole one
+		- why: simplify parameter field, no need in destructing object, if object fields are changed it affects only methods and not places were they are called, no need to rewrite all method calls when adding new "field parameter"
+		- be careful with increasing dependency, it is impossible to use method, that needs only couple fields from object in place with this couple of fields and nothing else
+			- we need to somehow construct full object, when it is not even needed
+	- replace parameter with method call - if data is externally queried, remove it from argument list and call directly in methods
+		- why: params are easier to read and understand, no need in pre-calculations for each method call(it is good to combine it with Extract Method, moving pre-calculations to separate method and calling it from inside our method)
+		- drawbacks: more coupling(but sometimes it is ok, and moving value to a parameter can be a useless "make future proof")
+	- introduce parameter object - group of methods have same parameter list, so change it to object
+		- why: less duplication(parameter list + operations on this parameters can be moved to new class itself), more readable params list
+		- be careful with moving only data and no behavior to the class
+	- remove setting method - remove setter for private field, if it needs to be immutable, assigning it's value only via constructor
+		- why: encapsulation, public interfaces are always harder to manage
+		- if needed you can directly change field, but don't overuse it
+			- there is not point to mark it as immutable and disregard it
+	- hide method - properly set method to private or protected, depending on it's usage
+		- why: encapsulation, public interfaces are always harder to manage
+		- strive to keep fields/methods as private as possible
+			- unit testing and static code analyzation can help with this
+	- replace constructor with factory method - if constructor have additional logic to it, use Factory pattern
+		- why: return different subclasses as result of method, caching, better naming depending on what is done
+		- note: factory always delegate actual creation to constructor, it might be useful to make constructor private
+	- replace error code with exception - if you need to indicate error, return Error value or throw exception, instead of some value with such semantic meaning(like: -1)
+		- why: reduces mental overhead, proper indication that error needs to be handled, exception can have own methods to deal with smth, possibility to use in constructor(when throwing error)
+		- note: it is ok to use such values in languages like C, where it is standard practice
+		- never use exceptions to direct flow of program(like if/else), they are only for error cases
+		- don't forget to add signatures(`@throws`) OR update return values, if it is possible in your programing language
+	- replace exception with test - avoid unnecessary exceptions, by changing them to conditions
+		- why: program should enter error state only after some unexpected behavior happened and not just condition missed, it is more obvious to work with checks that with throw/catch
+- dealing with generalization - manipulate abstraction properly
+	- pull up field - if two classes have same fields, move it to superclass
+		- subclasses can grow in isolation, introducing unnecessary duplication
+		- why: less duplication
+		- note that `private` fields with become `protected` 
+	- pull up method - if two classes have same methods, move it to superclass
+		- subclasses can grow in isolation, introducing unnecessary duplication
+		- why: less duplication
+			- it can be also used to merge subclass redefined method with superclass method, if there are no much difference between them
+		- note that if there is no field/method needed for method's work, you can pull up this field/method too(maybe even abstractly)
+	- pull up constructor body - if two classes have similar constructors, move this similar parts to superclass
+		- why: less duplication
+		- notes:
+			- in some languages constructor can't be inherited
+			- it is required to call superclass's constructor from top of the class's constructor
+			- move only shared parameters to superclass
+	- push down method - if method is not used/implemented by all(or at least most) of children, remove it from super class and declare separately for each child
+		- happens when: some pre-planed features aren't implemented, code removal done partially
+		- why: class coherence improvement, localization of behavior
+		- note that you can create intermediate subclass, to avoid duplication
+	- push down field - if field is not used/implemented by all(or at least most) of children, remove it from super class and declare separately for each child
+		- happens when: some pre-planed features aren't implemented, code removal done partially
+		- why: class coherence improvement, localization of behavior
+		- you will introduce duplication, so push down when field have uniq meaning for each subclass or used by some of subclasses
+			- note that you can create intermediate subclass, to avoid duplication
+	- extract subclass - class have features that aren't universally used, so extract them to subclasses and use in those cases
+		- why: keep rare use-cases connected but a bit separate from main class, less bloat
+			- several sub-classes can be create for each use-case
+		- be careful with inheritance
+			- can make code harder to understand and maintain
+			- impossible to use in some cases
+				- alternative is Composite, Strategy or other examples of Delegation
+		- don't forget to use polymorphism here
+		- move methods first
+	- extract superclass - if two related classes have same functionality, move this functionality to superclass
+		- happens because classes are developed separately, without pre-planning
+		- why: less duplication
+		- it is hard/impossible to combine classes from already existing hierarchies
+		- don't forget to use polymorphism here
+		- move fields first
+	- extract interface - if two related classes have same interface parts, move this parts to shared interface
+		- why: indicate classes role in code, describe what operations can be done with class(es)
+		- note that extracting interface is more about semantic and won't help deduplicate code
+		- it acts good in combination with delegation
+		- don't forget to use polymorphism here
+	- collapse hierarchy - merge subclass and superclass, if they are mostly the same
+		- happens when superclass grows to subclass or vise-versa, when subclass degrades into superclass
+		- why: lower complexity, easier navigation and code structure
+		- be careful with creating bloated class
+		- collapse can be done in both ways
+		- remember that partial collapse is an option(with proper inheritance structure), BUT don't violate Liskov substitution
+	- form Template method - as said in Template method, move similar steps of an algorithm into superclass and leave different steps in subclasses
+		- why: avoid complex duplication and shotgun problem, Open/Closed
+		- don't forget to use polymorphism here
+	- replace inheritance with delegation - if inheritance isn't working(hard to create hierarchy, parallel hierarchies, Liskov substitution is violated), change it to delegation, by delegating work to methods of other class
+		- why: no bloat with unneeded methods, Strategy can be implemented
+		- drawbacks: delegation methods will appear
+	- replace delegation with inheritance - class contains many simple methods that only delegate, while can be inherited with no consequences
+		- why: delegation is powerful option but useless when you delegate to all methods of only one class, nicer interface, no need to create "proxy" methods
+		- don't use when:
+			- Liskov substitution is violated
+			- class already has parrent
 
 ## SOLID
 Principles(not rules) for program creation
@@ -712,6 +842,7 @@ square.printColor();
 		- NOTES: interface can't have useless methods and must be fully implemented by each State, State can(and most often should) store reference to Context
 		- if you need access to private fields in Context use: class nesting, make needed fields public, delegate work back to Context
 	- use-cases: state change behavior of object(with large number of states and/or frequent changes to state logic), class polluted with conditional statements, need to reduce code duplication between state(even if it is state transition logic)
+		- for FE: keyboard controls(several nested modals are closed on-by-one with `esc`, by changing current KeyboardControl)
 		- try not to overkill with this pattern, don't use with:
 			- low number of states
 			- not frequently changed code
@@ -791,9 +922,11 @@ For React we can say that hook is wrapper for UseCase
 Pattern that helps achieve Inversion of Control(IoC)
 
 Basically we can pass some object to class constructor and use it from inside, without creating instances
-	also possible to inject by setting property
+- also possible to inject by setting property
 
-Usually it is useful to write custom class to mange DI, for example to save state across all injected objects, by creating or taking from cache instances
+If generalized, can be viewed as Strategy pattern, but with flavour of blackbox for creating object
+
+Usually it is useful to write custom class to manage DI, for example to save state across all injected objects, by creating or taking from cache instances
 - We can expand and add DI scope into other DI, so we can use one set of properties from smaller DI first and if smth missing go to upper DI
 
 Useful for testing, because we can flush all state easily
