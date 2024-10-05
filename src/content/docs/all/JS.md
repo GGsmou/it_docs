@@ -250,6 +250,82 @@ Methods on Regex object:
 - `g` - search for all matches
 - `i` - case insensitive search
 
+## General Patterns
+Patters provide common solution for different problems and serve as general guidelines
+There are list of JS specific or classical(with modifications) patterns
+
+- Command - don't execute methods directly, but create command interface with `execute` method and extend from it, by calling specific method with specific command
+	- pros: decouple method usage from it's user, command can be queued and reverted
+	- cons: boilerplate, complication of code
+- Factory - create a method that will create class instances
+	- in JS we can also just create objects from giving parameters
+	- pros: creation of complex object(with backing env state into them), additional logic(caching, additional calculations), creation of objects with similar interface(but avoiding classes)
+	- cons: `class` is mostly sufficient for this task(but class is still can be used with factory for adding additional logic over default constructor)
+- Flyweight - split class's data that is static(newer changes) and dynamic(can be changed often) and break into to classes, store "static" class in some cache, to prevent unneeded object creation(aka RAM usage) and reference it in "dynamic" class
+	- in JS we can also bind static and dynamic data via prototype inheritance
+	- pros: less RAM usage with large number of objects created
+	- cons: more complex code(in general you should only use it as optimization matter)
+- Mediator - remove direct object communication and make them communicate(can be uni and bi directional) with mediator, that delegates all the work between objects and only processes request/result
+	- similar pattern is Middleware, that takes request, do smth with it and pass along the chain, where it can be taken by other Middleware or by receiver
+	- pros: less coupling between objects(makes many-to-many communication easier)
+- Mixin - change inheritance with delegation, by passing mixin object with needed functionality to class and delegate tasks to it
+	- mixin, by itself, can use inheritance
+	- only used to add functionality to other object
+	- example: `window` object, that includes large number of different mixins
+- Module - logically split code into independent, reusable chunks. With keeping parts of module private
+	- JS has many variations of modules, with newest and mostly recommended to use ESModules(import/export syntax)
+	- private fields prevent naming collisions
+		- other naming collisions can be prevented via `as` renaming, when importing some part of module
+	- ESM won't pollute global scope(usually `window` object) with exported parts of module
+	- we can export some part of module as `default` export, which may be useful to indicate main functionality of module(for example react Component is default export, while it's components, as not main part of module, are just exported)
+	- module can be imported like
+		- `import someDefault from ""` 
+		- `import {someExp1, someExp2} from ""` 
+		- `import * as fullModule from ""`, where:
+			- `fullModule.default` -> `someDefault`  
+			- `fullModule.someExp1` 
+			- note that this way is disregarded, because we might import unnecessary parts of module
+			- we still can't import private parts of module this way
+	- when working with UI framework, it is a good practice to keep 1 module for 1 component
+	- when conditional or deferred import is needed we can use async `import("") -> Promise<module>` to do so
+		- often used as optimization matter
+		- unlike default imports, we can use template literals here
+	- transpiling is needed, to use modules in pre ES2015 envs
+		- basically the will merge modules into one file, with adding scopes via function wrapper
+- observer - observer object is subscribed to observable object and notified each time, when some event in observable occurs
+	- great for working with events and async operations
+	- example: RxJS
+	- pros: separation of concerns(observable monitors events, observer handle function execution)
+	- cons: performance with too many subscribers
+- prototype - share properties between objects(a way to do inheritance)
+	- native to JS(in pre classes we were basically managing prototypes by hand, now we have sugar syntax with classes)
+		- basically, when accessing an object method, JS will check object, if it has one, that it's prototype and on and on and on
+			- as an example, `Object.create(proto)` will create object, with assigning passed prototype to it
+		- it is possible, but disregarded, modify prototype on fly
+	- pros: optimization(we only reference one object with needed methods)
+- provider - if data is needed in many places or somewhere deep in code, it is better to create provider, that will give access to the data, instead of passing it down via the props
+	- example: React Context
+		- in React, it is common to implement:
+			- helper hooks, that call `useContext(Ctx)` and return value, with addition `null` check, that throws, if it used outside context
+			- HOC, that incapsulates logic of context and provides context value
+			- ---
+			- by doing both, we separate logic of getting and providing values from components
+	- use-cases: global data(current theme of an app)
+	- pros: avoid prop drilling(easier to refactor+read code, easier to find origin of value), global state
+	- cons: performance(consumers need to react to each change of context)
+		- to deal with performance, just don't overuse context and break it into smaller one
+- proxy - add additional behavior to object, by wrapping it fully/partially in proxy
+	- basically, proxy adds layer of logic in front of method
+	- we can implement proxy or use built in JS `Proxy` object, that takes original object and config, that will change interactions with passed object
+		- common config methods:
+			- `get(obj, property)` 
+			- `set(obj, property, value)` 
+	- other API to work with proxies is `Reflect`, basically it is used as sugar to do standard operations easier, like:
+		- `obj[property]` -> `Reflect.get(obj, property)` 
+		- `obj[property] = value` -> `Reflect.set(obj, property, value)` 
+	- use-cases: validation, permissions, formatting, logging, debug
+	- be careful with performance
+
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
 
