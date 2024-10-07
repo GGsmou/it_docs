@@ -269,6 +269,7 @@ There are list of JS specific or classical(with modifications) patterns
 	- similar pattern is Middleware, that takes request, do smth with it and pass along the chain, where it can be taken by other Middleware or by receiver
 	- pros: less coupling between objects(makes many-to-many communication easier)
 - Mixin - change inheritance with delegation, by passing mixin object with needed functionality to class and delegate tasks to it
+	- NOTE: passing functionality into class is more TS way, so to safely do so you need to specify type of this. Other approach is to modify prototype(not safe operation)
 	- mixin, by itself, can use inheritance
 	- only used to add functionality to other object
 	- example: `window` object, that includes large number of different mixins
@@ -325,6 +326,105 @@ There are list of JS specific or classical(with modifications) patterns
 		- `obj[property] = value` -> `Reflect.set(obj, property, value)` 
 	- use-cases: validation, permissions, formatting, logging, debug
 	- be careful with performance
+- singleton - allow only one instance of a class to be created
+	- implementation:
+		- generally just store nullable reference to created instance(as static filed), and return it, when user requests via separate method
+			- worst noticing, that it might be a good idea to freeze object, thus preventing accidental changes to it from outside
+			- also we can avoid class implementation at all and just create single object + freeze it
+		- in plain JS we need to `throw` in constructor, if instance is no null
+		- in TS we can make constructor private and create a factory to avoid throwing errors
+	- use-cases: global shard state, optimization
+	- drawbacks: global state management problems(hard to test, unexpected behavior in parts that rely on this global state, data flow is unreadable)
+		- it is generally considered an anti-pattern(JS also accepts this statement)
+		- of corse we need global state in app, but it is better to use some pre-build solutions, that makes state read-only or implement proper mutation system
+- static imports - default ESM `import` is example of static imports pattern, which job is to give current module access to parts of other modules + include this parts in final bundle
+	- static imports load data in locking sync manner
+- islands rendering - allow to pre-render static parts of an app on server, with keeping dynamic parts as is(they can hydrate directly on client or via server-side rendering too)
+	- drastically improves performance(less JS shipped and ran on client) and CEO(all content is pre-generated) for an app, with keeping it interactive
+		- prioritization to content first and interactivity second
+		- better accessibility
+	- ABOUT REHYDRATION
+		- it is a process of binding into pre-rendered HTML with shipped near it JS on client
+			- differs from default hydration, by including pre-rendering step
+		- can be done in different ways:
+			- SSR - fully render on server
+			- Progressive - render part of an app, other parts are rendered and shipped as needed
+			- islands - break app into static and dynamic parts, ships static as is an dynamic with needed JS + do hydration
+				- hydration can be done in different moments of time:
+					- on client only
+					- on server + rehydrate on client
+				- island is self contained
+				- unlike SSR/Progressive rehydration, one component won't block other, because their process of hydration is async
+	- how to do islands:
+		- render static content with no JS on server
+		- dynamic content must be filled with placeholders inside static content + rehydrated as soon as main thread is idle(requestIdleCallback)
+			- `requestIdleCallback` is used to implement scheduling
+		- allow isomorphic rendering, thus using same code to render on server and on client
+	- examples:
+		- Marko - automatically decide wether component is dynamic
+		- Astro - static site generator, that creates lightweight apps, that can use dynamic components from other frameworks. Allows lazy loading
+			- was built to work with islands with component based design
+		- Preact(static site generator) + Eleventy(isomorphic compatible components) - combination to do islands, with lazy loading
+	- use-cases: blogs, news, landings, e-commerce etc
+	- DRAWBACKS:
+		- not useful for highly interactive pages
+		- new topic(not many guides, patterns and practices are not existent yet)
+- rendering - there are many modern techniques, when it comes to "where" and "when" to render
+	- NOTE: this section is not about general patterns, but kinda a vercel add ;)
+	- main way to choose is by finding best solution to your case, with consideration of UX and DX
+		- it will lead to: fast development, fast load times, low cost of processing
+		- remember that each pattern is designed to solve one issue with introducing other tradeoffs
+			- in general SSR or progressive hydration is a way to go, but they might be harder to cook, overkill or just not sufficient for some cases
+		- it might be a good solution to choose different patterns to different parts of an app
+	- MAIN CONCEPTS
+		- CWV(core web vitals) - set of optimization metrics to improve UX
+			- time to first bite
+			- time to interactive
+			- first contentful paint
+			- cumulative layout shift - visual stability of an app, to avoid interface shifts, when content is loaded
+			- largest contetful paint
+			- first input delay - time between user interacts and event is handled
+		- DX points to improve, so product is developed fast and smooth
+			- fast build times - build + deploy time
+			- easy rollbacks
+			- low server cost
+			- reliability of an app
+			- performance of dynamic content
+			- scalability(in both ways)
+	- PATTERNS:
+		- static rendering - render content on build and keep it as is
+			- used together with CDN(caching, faster request processing)
+			- TYPES:
+				- plain - render content on build and keep as is, with possibility to add dynamic components with rehydration
+					- pros: fast load times, CEO friendly, low cost
+					- cons: only for static content and pages that don't rely on data
+				- with client-side fetch - render content on build with placeholders, that will be changed to dynamic components with rehydration, that will `fetch` and paint data
+					- pros: fast enough load times, CEO friendly, allow dynamic content
+					- cons: harder to scale, more server to keep running, content shift
+				- with server-side backing of the data(getStaticProps) - similar to plain, but with piping dynamic data to HTML, when building it
+					- similar to plain, but with slower build times
+					- also, we might need separate service for better separation of concerns
+						- it might be costly to do API calls on each build
+				- incremental static rendering - generate some pages at a build time, while other are generated, when user requests them
+					- we can easily cache the new generated pages
+						- for dynamic pages we need to set invalidate period, so next request will invalidate and trigger regeneration
+					- pros: fast enough load times, CEO friendly
+					- cons: high server cost(for very dynamic content invalidation is near instant, so non-needed invalidations might happen), might be harder to maintain, can't be user specific, cached only on edge
+				- on-demand incremental static rendering - similar to incremental static rendering, but regenerations happens after event occurs and not invalidation happens
+					- pros: fast, cached CDN wide, CEO friendly
+					- cons: can't be user specific, might be expensive
+			- all in all, good solution for semi-dynamic pages with non-user specific data
+		- server side rendering - HTML is rendered on each request, that allows for highly dynamic pages, with user specific data and possibility auth
+			- in it's core, each request produces custom HTML + with JS bundle send right after to do rehydration
+			- it is fast and easy to build, but pretty slow and costly
+				- also might need separate API service for separation of concerns(note that API call will block rendering, so it is better to keep it close or on same server)
+			- it can be optimized wit
+				- granular rendering of dynamic and non-dynamic parts(breaking app into islands)
+				- react server components to avoid shipping large dependencies to client
+- bundle splitting - modern JS code is often bundled together in large file, that can be slow to download and pars, which is blocking operation to render page
+	- it is useful to split parts of an app into separate bundles, making them load async in background, thus not blocking main thread
+		- it is a tradeoff operation, because we enable faster first load, but now need to wait for parts of an app to download, before user can interact with them
+	- it is not possible to do auto bundle splitting, so it is mainly used with large libs
 
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
