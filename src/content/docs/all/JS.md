@@ -424,7 +424,63 @@ There are list of JS specific or classical(with modifications) patterns
 - bundle splitting - modern JS code is often bundled together in large file, that can be slow to download and pars, which is blocking operation to render page
 	- it is useful to split parts of an app into separate bundles, making them load async in background, thus not blocking main thread
 		- it is a tradeoff operation, because we enable faster first load, but now need to wait for parts of an app to download, before user can interact with them
+		- it can be nicely done via `React.Suspense` or similar solutions to manage async state
+			- it may be problematic to use with SSR, so some lib(like `loadable`) can help here
+		- note that additional bundler config may be required
 	- it is not possible to do auto bundle splitting, so it is mainly used with large libs
+- animating view transitions - modern browser API to add transitions, between DOM changes(from small toggles to page changes), that is very useful for SPA apps
+	- from JS perspective we call `document.startViewTransition(cb)`, where callback will do changes
+		- basically browser makes snapshot of DOM state before and after `cb` call, and then do smooth transition in between
+	- by default we will get linear crossfade with some default time, but it can be changed via CSS, like so: `::view-transition-old(root),::view-transition-new(root) {animation-duration: 2s;animation:...}` 
+		- to do more granular actions, we can add groups via names like so:`view-transition-name: photo-heading;`, to reference elements + specify containment: `contain: layout;`, which allows us to do partial animations, only on this groups
+		- to do navigation animations, we can call `startViewTransition` on navigation, BUT return a promise, that will wait until re-render happened
+			- this won't block interface, when re-render or page fetching happens, but when promise resolves, transition is smoothly performed
+			- for snappier animations we can do alternative approach, by animating out first HTML, wait until new page loaded + animation completed, animate in second HTML, BUT this way we are loosing transitions between elements
+			- all in all, there are plans to do native animations between pages OR you can use some lib :)
+- compressing JS - there are quite a few techniques to compress and split your bundle, so here are some strategies to do so with pros&cons(some can work against each other)
+	- JS is largest, after images, by contribution to page size, so it is important to keep an eye on it's size
+	- general info
+		- mathematically, compressing one big file will make final size smaller, that breaking and compressing it parts
+		- when bundling and serving files use gzip or brotli(better both, so users with newer browser will get better, brotli compressed, data, when still leaving gzip option for older browsers)
+			- browser will always tell what it supports via `Accept-Encoding` header, while server uses `Content-Encoding` to indicate one
+				- using this headers you can also see, are really files compressed
+					- this will be also told by LightHouse report
+	- HTTP compression - compress data to take lower space
+		- lossy - some data is lost(reasonably), with higher compression, which is great for media files
+		- lossless - data is compressed into less size, but can be precisely restored back
+		- done with gzip, brotly etc on build OR serve step
+			- doing on build will result in slower build times, but lower server resources usage and higher compression
+			- you can even do both, but it might be not really useful
+	- minification - reduce file size, by removing unnecessary data(whitespaces, long variable names etc), while keeping code valid
+		- common for JS and CSS, but can be used with other files, like HTML etc
+		- as a good practice, library author should provide minified `.min.js` file
+		- done on build step with some tools(pick most popular one ;) )
+	- bundling and splitting code - we can pack together or split or JS code to load all at once, or by some chunks
+		- about:
+			- module - encapsulated part of program
+			- bundle - modules packed together, after compilations
+			- bundle splitting - breaking bundles into separate parts, for better caching, isolate publishing, deferred downloads
+			- chunk - part of splitted bundle
+				- it is important to have always request parts be in base chunk and other are packed together with ranking of needability
+				- all related code should be bundled together
+		- pros/cons:
+			- larger chunks will take less total space
+			- smaller chunks will be better cached
+			- if action results in another chunk loading, actions will take longer time than it should
+		- all in all, recommended size is around 10 chunks, but you can break some heavy dependencies or parts of an app into separate chunks
+			- it is considered best practice to move 3d-party dependencies into separate chunks
+- import on visibility - pattern to defer load of some data, to point when it becomes visible
+	- it can be done to static files like images, API calls(infinite scroll) or even parts of bundle via some libs(`react-lazyload`,`react-loadable-visibility`) or hand rolled
+		- all of it is based on `IntersectionObserver API` 
+	- don't forget about tradeoff, that now user needs to wait until something is loaded
+- prefetch - pattern to fetch some data in background, that might be used in future(result in near instant interactions with "non-loaded" data)
+	- ways to achieve:
+		- HTML: `<link rel="prefetch">` 
+		- HTTP: `Link: </js/chat-widget.js>; rel=prefetch` 
+		- Service Workers
+		- some custom solution with bundlers
+	- don't over prefetch, it may cause slowdowns, only do when user will most likely need that data
+		- a good rule of thumb is to disable prefetch(if possible) for low tier devices
 
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.

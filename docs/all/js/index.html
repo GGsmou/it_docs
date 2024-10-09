@@ -711,9 +711,134 @@ There are list of JS specific or classical(with modifications) patterns</p>
 <li>it is useful to split parts of an app into separate bundles, making them load async in background, thus not blocking main thread
 <ul>
 <li>it is a tradeoff operation, because we enable faster first load, but now need to wait for parts of an app to download, before user can interact with them</li>
+<li>it can be nicely done via <code dir="auto">React.Suspense</code> or similar solutions to manage async state
+<ul>
+<li>it may be problematic to use with SSR, so some lib(like <code dir="auto">loadable</code>) can help here</li>
+</ul>
+</li>
+<li>note that additional bundler config may be required</li>
 </ul>
 </li>
 <li>it is not possible to do auto bundle splitting, so it is mainly used with large libs</li>
+</ul>
+</li>
+<li>animating view transitions - modern browser API to add transitions, between DOM changes(from small toggles to page changes), that is very useful for SPA apps
+<ul>
+<li>from JS perspective we call <code dir="auto">document.startViewTransition(cb)</code>, where callback will do changes
+<ul>
+<li>basically browser makes snapshot of DOM state before and after <code dir="auto">cb</code> call, and then do smooth transition in between</li>
+</ul>
+</li>
+<li>by default we will get linear crossfade with some default time, but it can be changed via CSS, like so: <code dir="auto">::view-transition-old(root),::view-transition-new(root) {animation-duration: 2s;animation:...}</code>
+<ul>
+<li>to do more granular actions, we can add groups via names like so:<code dir="auto">view-transition-name: photo-heading;</code>, to reference elements + specify containment: <code dir="auto">contain: layout;</code>, which allows us to do partial animations, only on this groups</li>
+<li>to do navigation animations, we can call <code dir="auto">startViewTransition</code> on navigation, BUT return a promise, that will wait until re-render happened
+<ul>
+<li>this won’t block interface, when re-render or page fetching happens, but when promise resolves, transition is smoothly performed</li>
+<li>for snappier animations we can do alternative approach, by animating out first HTML, wait until new page loaded + animation completed, animate in second HTML, BUT this way we are loosing transitions between elements</li>
+<li>all in all, there are plans to do native animations between pages OR you can use some lib :)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>compressing JS - there are quite a few techniques to compress and split your bundle, so here are some strategies to do so with pros&#x26;cons(some can work against each other)
+<ul>
+<li>JS is largest, after images, by contribution to page size, so it is important to keep an eye on it’s size</li>
+<li>general info
+<ul>
+<li>mathematically, compressing one big file will make final size smaller, that breaking and compressing it parts</li>
+<li>when bundling and serving files use gzip or brotli(better both, so users with newer browser will get better, brotli compressed, data, when still leaving gzip option for older browsers)
+<ul>
+<li>browser will always tell what it supports via <code dir="auto">Accept-Encoding</code> header, while server uses <code dir="auto">Content-Encoding</code> to indicate one
+<ul>
+<li>using this headers you can also see, are really files compressed
+<ul>
+<li>this will be also told by LightHouse report</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>HTTP compression - compress data to take lower space
+<ul>
+<li>lossy - some data is lost(reasonably), with higher compression, which is great for media files</li>
+<li>lossless - data is compressed into less size, but can be precisely restored back</li>
+<li>done with gzip, brotly etc on build OR serve step
+<ul>
+<li>doing on build will result in slower build times, but lower server resources usage and higher compression</li>
+<li>you can even do both, but it might be not really useful</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>minification - reduce file size, by removing unnecessary data(whitespaces, long variable names etc), while keeping code valid
+<ul>
+<li>common for JS and CSS, but can be used with other files, like HTML etc</li>
+<li>as a good practice, library author should provide minified <code dir="auto">.min.js</code> file</li>
+<li>done on build step with some tools(pick most popular one ;) )</li>
+</ul>
+</li>
+<li>bundling and splitting code - we can pack together or split or JS code to load all at once, or by some chunks
+<ul>
+<li>about:
+<ul>
+<li>module - encapsulated part of program</li>
+<li>bundle - modules packed together, after compilations</li>
+<li>bundle splitting - breaking bundles into separate parts, for better caching, isolate publishing, deferred downloads</li>
+<li>chunk - part of splitted bundle
+<ul>
+<li>it is important to have always request parts be in base chunk and other are packed together with ranking of needability</li>
+<li>all related code should be bundled together</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>pros/cons:
+<ul>
+<li>larger chunks will take less total space</li>
+<li>smaller chunks will be better cached</li>
+<li>if action results in another chunk loading, actions will take longer time than it should</li>
+</ul>
+</li>
+<li>all in all, recommended size is around 10 chunks, but you can break some heavy dependencies or parts of an app into separate chunks
+<ul>
+<li>it is considered best practice to move 3d-party dependencies into separate chunks</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>import on visibility - pattern to defer load of some data, to point when it becomes visible
+<ul>
+<li>it can be done to static files like images, API calls(infinite scroll) or even parts of bundle via some libs(<code dir="auto">react-lazyload</code>,<code dir="auto">react-loadable-visibility</code>) or hand rolled
+<ul>
+<li>all of it is based on <code dir="auto">IntersectionObserver API</code></li>
+</ul>
+</li>
+<li>don’t forget about tradeoff, that now user needs to wait until something is loaded</li>
+</ul>
+</li>
+<li>prefetch - pattern to fetch some data in background, that might be used in future(result in near instant interactions with “non-loaded” data)
+<ul>
+<li>ways to achieve:
+<ul>
+<li>HTML: <code dir="auto">&#x3C;link rel="prefetch"></code></li>
+<li>HTTP: <code dir="auto">Link: &#x3C;/js/chat-widget.js>; rel=prefetch</code></li>
+<li>Service Workers</li>
+<li>some custom solution with bundlers</li>
+</ul>
+</li>
+<li>don’t over prefetch, it may cause slowdowns, only do when user will most likely need that data
+<ul>
+<li>a good rule of thumb is to disable prefetch(if possible) for low tier devices</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
