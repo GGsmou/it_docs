@@ -841,6 +841,146 @@ There are list of JS specific or classical(with modifications) patterns</p>
 </li>
 </ul>
 </li>
+<li>import on interaction - some heavy parts of an app(often 3-d party) can be loaded async, when user interacts with component, that depends on it
+<ul>
+<li>if we initially load resource, it will block the thread, so we can make it load in deferred way, BUT it will slow down interaction with this component, so don’t overuse this technique</li>
+<li>ways to do:
+<ul>
+<li>Eager - default way to load right away</li>
+<li>lazy on route navigation</li>
+<li>lazy on click
+<ul>
+<li>this is good alternative to SSR, which can lead to poor experience of page loaded, but not yet intractable, WICH won’t happen to lazy click, because we can interact with page, it just takes a bit longer to download smth
+<ul>
+<li>note that more complex technique includes tracking user clicks and replaying them, when JS is loaded+inited</li>
+<li>we can also start loading on hover, but it maybe more resource draining</li>
+</ul>
+</li>
+<li>by doing it async, data that needed by the components will also fetched in async</li>
+</ul>
+</li>
+<li>lazy on scroll into view</li>
+<li>prefetch - load after main thread, when idle</li>
+<li>preload - load as soon as possible</li>
+</ul>
+<hr>
+<ul>
+<li>for your code it is better to do prefetch
+<ul>
+<li>exception is cases, where user can click on something, before it is prefetched</li>
+</ul>
+</li>
+<li>with 3-d party code you can do it in any point of time</li>
+</ul>
+</li>
+<li>good technique to utilize is some facade component, that acts as placeholder with bare functionality of original code, that loaded in async manner
+<ul>
+<li>example:
+<ul>
+<li>video player can be facaded with image and play button and when user clicks, it goes into loading state and replaced by actual player</li>
+<li>login button that loads SDK separately</li>
+<li>chat button that waits until users needs to chat</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>how to implement:
+<ul>
+<li>dynamic async import in JS
+<ul>
+<li>alternative is to dynamically inject JS <code dir="auto">&#x3C;script></code> into page</li>
+</ul>
+</li>
+<li><code dir="auto">Suspense</code> + <code dir="auto">lazy</code> in React</li>
+<li>to break bundle itself proper bundler config is needed</li>
+</ul>
+</li>
+<li>one more technique is to replace embedded code with some static(generated progressively or on build time based on some data) with link to more interactable version</li>
+</ul>
+</li>
+<li>optimize your loading sequence - app performance and WebVitas passage is heavily influenced by how/when we load files
+<ul>
+<li>what can cause poor loading times:
+<ul>
+<li>requesting resources in wrong order(web vitals are estimated in specific order)</li>
+<li>underutilizing CPU/Network
+<ul>
+<li>example: if loading files in parallel, CPU will start processing JS much later, then doing it sequentially</li>
+</ul>
+</li>
+<li>heavy 3-d party libs</li>
+<li>resource optimization
+<ul>
+<li>inlining CSS, bundling&#x26;splitting JS, several image sizes(depending on platform, low-quality placeholders), removing dead code
+<ul>
+<li>JS can also have additional problems with: poor written modules that can’t be tree-shaked, unneeded ES5&#x26;Polyfilling</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>what can be done:
+<ul>
+<li>inline critical CSS for better FCP OR at least serve it from same origin as HTML with preload
+<ul>
+<li>for 3d-party CSS you can create a proxy</li>
+<li>don’t over-inline, because it causes slower HTML parsing and disables caching</li>
+<li>fonts should be requested as soon as possible, with <code dir="auto">preconnect</code>
+<ul>
+<li>most common solution is to provide font-fallback, but be careful with jumping layouts</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>for images use low-quality placeholders, with same visual size, but lower resolution(be careful with making it too low and not trigger LCP)
+<ul>
+<li>if image is not visible, use lazy loading</li>
+</ul>
+</li>
+<li>for JS:
+<ul>
+<li>be careful with sync 3P scripts</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>tree shaking - process of removing any unused code from bundle
+<ul>
+<li>unused code means code that don’t used anywhere else or parts of code with no side effects</li>
+<li>usually done automatically be bundling system, but can be tricky in some cases
+<ul>
+<li>general process of doing is to parse code into AST and travers it to determine</li>
+</ul>
+</li>
+<li>EDGE CASES:
+<ul>
+<li>only ESM modules can be tree shaken</li>
+<li>when module is imported it is executed and if such execution contains any side effects(global css or scope modifications etc) it won’t be shaken</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>preload - <code dir="auto">&#x3C;link rel="preload" /></code> allows to prioritize load of one resource over others, no mater where it is located in document
+<ul>
+<li>such resource might block any other load, so be careful of overusing it
+<ul>
+<li>still it can be a great way to load critical resources upfront + in parallel, if done like so: <code dir="auto">&#x3C;link rel="preload" href="emoji-picker.js" as="script" /> &#x3C;script src="emoji-picker.js" async /></code></li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>HTTP preload header has higher priority over script tag</li>
+<li>font is best candidate for preloads</li>
+<li>img preload has lowest priority</li>
+<li>be careful with preloading script, that is a part of dependent(not preloaded) script</li>
+<li>server need to server preloaded content with priority too</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <h2 id="you-dont-know-js-book">You don’t know JS book</h2>
 <blockquote>

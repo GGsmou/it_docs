@@ -34,10 +34,25 @@ RAIL(response, animation, idle, load) - focuses on UX aka performance perceived 
 PRPL(push, render, pre-cache, lazy-load) - focuses on minimizing time for initial load
 - similar to RAIL model, it focuses of perceived performance, but in network side
 
-- push - prioritize crucial resources first
+- push - prioritize crucial resources first, with locating servers as close to user(use CDN)
+	- it is sub-optimal to make many requests for each resources
+		- when using HTTP/1.1 always use `keep-alive` to reduce TCP handshakes
+		- if possible(if not you can still create HTTP2 optimized setup and use it when possible) you can use HTTP/2, which allows to:
+			- batch several requests into one
+			- use bi-directional TCP for each batch(in 1.1 you have pool of only 6 opened TCP connections)
+				- not that making a pool bigger can slow down low end devices
+			- server push, meaning when requesting main HTML, server can push additional resources with it(this resources are put in cache)
+				- be careful with it, because pushed resourced aren't cached via HTTP, so caching with service workers is needed
+				- remember that browser cache have limits, so some pushed resources might be ignored
+		- use `preload` for most critical resources
 - render - start render as soon as possible, even if something non-important is still loading
-- pre-cache - cache most of needed resources
+- pre-cache - cache most of needed resources(lower server usage, faster load times, better offline experience(service workers with custom cache are needed))
+	- break bundle to small, more cacheable parts
+		- changes to app will result in partial cache invalidation
+		- such bundles is easier to defer
+		- remember that no-bundle is an option(BUT FOR SMALL APPS)
 - lazy-load - defer load of resources, that out of view
+	- service workers are good fit here, because they can load and cache in background additional resources, after main page has loaded
 
 ## CSS optimization
 Big amount of `var()` can cause problems, so you can change vanilla var to preprocessed var from SaaS(or smth else)

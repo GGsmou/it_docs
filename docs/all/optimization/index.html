@@ -78,16 +78,52 @@
 <p>similar to RAIL model, it focuses of perceived performance, but in network side</p>
 </li>
 <li>
-<p>push - prioritize crucial resources first</p>
+<p>push - prioritize crucial resources first, with locating servers as close to user(use CDN)</p>
+<ul>
+<li>it is sub-optimal to make many requests for each resources
+<ul>
+<li>when using HTTP/1.1 always use <code dir="auto">keep-alive</code> to reduce TCP handshakes</li>
+<li>if possible(if not you can still create HTTP2 optimized setup and use it when possible) you can use HTTP/2, which allows to:
+<ul>
+<li>batch several requests into one</li>
+<li>use bi-directional TCP for each batch(in 1.1 you have pool of only 6 opened TCP connections)
+<ul>
+<li>not that making a pool bigger can slow down low end devices</li>
+</ul>
+</li>
+<li>server push, meaning when requesting main HTML, server can push additional resources with it(this resources are put in cache)
+<ul>
+<li>be careful with it, because pushed resourced aren’t cached via HTTP, so caching with service workers is needed</li>
+<li>remember that browser cache have limits, so some pushed resources might be ignored</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>use <code dir="auto">preload</code> for most critical resources</li>
+</ul>
+</li>
+</ul>
 </li>
 <li>
 <p>render - start render as soon as possible, even if something non-important is still loading</p>
 </li>
 <li>
-<p>pre-cache - cache most of needed resources</p>
+<p>pre-cache - cache most of needed resources(lower server usage, faster load times, better offline experience(service workers with custom cache are needed))</p>
+<ul>
+<li>break bundle to small, more cacheable parts
+<ul>
+<li>changes to app will result in partial cache invalidation</li>
+<li>such bundles is easier to defer</li>
+<li>remember that no-bundle is an option(BUT FOR SMALL APPS)</li>
+</ul>
+</li>
+</ul>
 </li>
 <li>
 <p>lazy-load - defer load of resources, that out of view</p>
+<ul>
+<li>service workers are good fit here, because they can load and cache in background additional resources, after main page has loaded</li>
+</ul>
 </li>
 </ul>
 <h2 id="css-optimization">CSS optimization</h2>
