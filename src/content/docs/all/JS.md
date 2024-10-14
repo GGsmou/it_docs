@@ -544,6 +544,47 @@ There are list of JS specific or classical(with modifications) patterns
 		- img preload has lowest priority
 		- be careful with preloading script, that is a part of dependent(not preloaded) script
 		- server need to server preloaded content with priority too
+- optimize loading 3d-parties - there are set of best practices for loading external resources
+	- where slow-down comes from:
+		- calls to 3d-party server
+		- larger resources(bulky JS, unoptimized images etc)
+		- resource influences page in unpredictable way
+		- blocking behavior included into resource
+	- to find pain points use Lighthouse, WPT and Bundlephobia
+	- ways to fix:
+		- remove resource OR replace with lightweight alternative
+		- optimize how/when resources are loaded:
+			- async/defer for non-critical scripts
+				- note that it will lower browser priority for resource
+				- it may be good to even defer some scripts to the point, when page becomes interactive
+			- establish early connections to required origins using resource hints for critical scripts, fonts, CSS, images
+				- lower time for getting resource by dns-prefetch or preconnect(includes dns-prefetch)
+			- lazy load non critical or out-of-view resource
+				- use `loading` attribute with iframes
+				- use some lib or custom Observer API implementation to defer loading
+				- use facades(self written or 3d-party implementations) + load on interaction
+					- be careful with sizings and layout shifts
+			- self-host JS scripts and fonts to lower request trips(no need for TCP handshakes and DNS look-ups)
+				- it is also possible that 3d-party have poor caching or compressing
+				- great deal when using with HTTP/2
+				- consider using CDN as storage
+				- don't forget to update your resources from time to time
+			- use caching via service workers if possible
+				- enables better control over cache and offline mode
+				- lowers need to self-host
+			- don't use resources like Google Tags, reCaptcha etc, on pages, where they are not needed
+				- you can even defer their load, on pages where they are truly used
+				- with Google Tags you must not load it, when user denies Cookies
+	- there is a great implementation of `<Script>` component in Next.js, that gives you out of the box optimizations or some libs like Partytown, that do it in agnostic way
+- list virtualization / windowing - render only part of list/content and change this rendered part onScroll, rather then rendering full list at once
+	- all in all just use some lib to handle it, because it is quite tricky
+		- *and I just don't like the general UX with problems like `cmd+f` search, that related to it :/* 
+	- in its core creates one tall DOM element, that roughly the height of `elementHeight*numberOfElements` and small DOM element, that have scroll overflow and changes what elements are renderd
+		- this results in massive performance boost, when talking about ginormous 1k+ lists
+		- it is also possible, but less common, do windows for 2D layouts
+		- also great in combination with infinite scroll
+			- user won't lag himself, by scrolling to long
+	- there is more native approach with CSS's `content-visibility:auto`, that acts as optimization matter for out of view content, but it is still better to do virtualization for dynamic pages(it is just more efficient)
 
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.

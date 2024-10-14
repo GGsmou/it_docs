@@ -981,6 +981,92 @@ There are list of JS specific or classical(with modifications) patterns</p>
 </li>
 </ul>
 </li>
+<li>optimize loading 3d-parties - there are set of best practices for loading external resources
+<ul>
+<li>where slow-down comes from:
+<ul>
+<li>calls to 3d-party server</li>
+<li>larger resources(bulky JS, unoptimized images etc)</li>
+<li>resource influences page in unpredictable way</li>
+<li>blocking behavior included into resource</li>
+</ul>
+</li>
+<li>to find pain points use Lighthouse, WPT and Bundlephobia</li>
+<li>ways to fix:
+<ul>
+<li>remove resource OR replace with lightweight alternative</li>
+<li>optimize how/when resources are loaded:
+<ul>
+<li>async/defer for non-critical scripts
+<ul>
+<li>note that it will lower browser priority for resource</li>
+<li>it may be good to even defer some scripts to the point, when page becomes interactive</li>
+</ul>
+</li>
+<li>establish early connections to required origins using resource hints for critical scripts, fonts, CSS, images
+<ul>
+<li>lower time for getting resource by dns-prefetch or preconnect(includes dns-prefetch)</li>
+</ul>
+</li>
+<li>lazy load non critical or out-of-view resource
+<ul>
+<li>use <code dir="auto">loading</code> attribute with iframes</li>
+<li>use some lib or custom Observer API implementation to defer loading</li>
+<li>use facades(self written or 3d-party implementations) + load on interaction
+<ul>
+<li>be careful with sizings and layout shifts</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>self-host JS scripts and fonts to lower request trips(no need for TCP handshakes and DNS look-ups)
+<ul>
+<li>it is also possible that 3d-party have poor caching or compressing</li>
+<li>great deal when using with HTTP/2</li>
+<li>consider using CDN as storage</li>
+<li>don’t forget to update your resources from time to time</li>
+</ul>
+</li>
+<li>use caching via service workers if possible
+<ul>
+<li>enables better control over cache and offline mode</li>
+<li>lowers need to self-host</li>
+</ul>
+</li>
+<li>don’t use resources like Google Tags, reCaptcha etc, on pages, where they are not needed
+<ul>
+<li>you can even defer their load, on pages where they are truly used</li>
+<li>with Google Tags you must not load it, when user denies Cookies</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>there is a great implementation of <code dir="auto">&#x3C;Script></code> component in Next.js, that gives you out of the box optimizations or some libs like Partytown, that do it in agnostic way</li>
+</ul>
+</li>
+<li>list virtualization / windowing - render only part of list/content and change this rendered part onScroll, rather then rendering full list at once
+<ul>
+<li>all in all just use some lib to handle it, because it is quite tricky
+<ul>
+<li><em>and I just don’t like the general UX with problems like <code dir="auto">cmd+f</code> search, that related to it :/</em></li>
+</ul>
+</li>
+<li>in its core creates one tall DOM element, that roughly the height of <code dir="auto">elementHeight*numberOfElements</code> and small DOM element, that have scroll overflow and changes what elements are renderd
+<ul>
+<li>this results in massive performance boost, when talking about ginormous 1k+ lists</li>
+<li>it is also possible, but less common, do windows for 2D layouts</li>
+<li>also great in combination with infinite scroll
+<ul>
+<li>user won’t lag himself, by scrolling to long</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>there is more native approach with CSS’s <code dir="auto">content-visibility:auto</code>, that acts as optimization matter for out of view content, but it is still better to do virtualization for dynamic pages(it is just more efficient)</li>
+</ul>
+</li>
 </ul>
 <h2 id="you-dont-know-js-book">You don’t know JS book</h2>
 <blockquote>

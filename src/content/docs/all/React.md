@@ -1,6 +1,31 @@
 ---
 title: React
 ---
+## Overview
+All in all React is open-source library(or not ;) ) for building user interfaces with JS components
+
+In it's core react "thinks" about UI in terms of *components*, aka modular functions, that take in *props* to configure and may have some changing *state* 
+
+Terms:
+- React - rendering library
+- ReactDOM - package for DOM+Server rendering
+- JSX - HTML in JS syntax extension for JS
+	- compiles into valid JS(implementation is compiler specific tho)
+- Redux - global state manager
+- Hooks - functions that can manipulate and interact with components
+- ReactNative - package for building cross platform with React
+- Webpack + Create React App or Vite - bundle and build systems for JS
+- Next.JS - meta-framework for easier work with React
+- Component - main building block in React
+	- there is no pages in React, only components with-in components
+	- component should be a reusable peace
+	- we can do components with **functions** and classes
+	- components have props, that are just some values that passed in HTML-like manner from top
+		- prop acts as blueprint
+		- prop can't be changed from inside
+	- component have state, that can be changed, thus making component re-render(change it's visual, corresponding to it's state)
+
+To think in react way is to break large parts into small single-responsibility components, that are hold together by layout components
 
 ## React functional components (FC)
 It is good approach to look at FC as pure function that takes in some args and return picture(landing)
@@ -239,6 +264,20 @@ uses class approach:
 - connects entities as graphs
 
 base idea that we subscribe to some changes and handle them
+
+## Rendering patterns
+#### Client Side Rendering (CSR)
+Send bare-bones HTML container with large JS, that will render-out needed HTML, that depends on fetched data
+
+Good for building single page apps(SPAs), that creates similar experience to native apps, while keeping everything in web
+- still, can be a pain in the ass, while doing some basic web things(routing, page titles, SEO etc)
+	- but if you conquer all of that, it will be great responsive UX(and DX too, for example client-server separation)
+		- BUT, duplication and lots of mapping may arrive, so consider adding BFF layer
+- very slow when talking about initial load, but fast for in-between loads
+	- strive for less then 200kb initial JS
+		- but to be real, be ready for ~2 seconds of initial load
+	- note that it also slower in fetching data, because of longer trips to server
+	- also can be slow on low-end devices
 
 ## Established UI patterns with React
 It is important to layer and modularize complex apps, to keep them readable and easy to change
