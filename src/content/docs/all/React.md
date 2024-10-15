@@ -27,6 +27,43 @@ Terms:
 
 To think in react way is to break large parts into small single-responsibility components, that are hold together by layout components
 
+Basic patterns:
+- compound - created set of related components that work with each other share state etc
+	- examples: select, button group etc
+	- recommendations:
+		- use `Context` to share state
+			- alternative approach is to do children mapping+cloning, so we can aggregate inner state props into our children component
+				- cloning is done via `React.cloneElement`, that shallow merges passed props into component
+				- be careful with children mapping, because we no longer would have and option to nest children
+		- define one main component and export it + make other components accessible as properties of main component
+			- establishes relationship between this components
+		- use Components over configurations
+			- Component is first-citizen in React
+	- pros: all state is encapsulated, no need to import each child separately
+- hoc - create component, that will add some existing(auth, styling, access control, state injection etc) functionality to passed in component
+	- we can do hoc in different ways:
+		- `const Comp = ...; export const hocedComp = hoc(Comp)` 
+			- good for pre-creating set of components
+		- `export const HocComp = ...; ...return <HocComp><Comp /></HocComp />` 
+			- good for composing components on-fly
+	- generally HOCs are great for composing components, but it is more common practice to use hooks for most cases
+		- basically with HOC we keep logic in one place and with hooks we inject logic into component
+			- HOC use-cases: component can work with/without HOC, nesting logic is required
+			- hooks use-cases: behavior need to be altered by each component, behavior is not spread throughout the app
+		- note, to manipulate component as an element, we can use ref
+			- for example add some event listeners
+		- be careful with HOCs in general:
+			- they can lead to code that hard to maintain/understand
+			- props naming collision
+
+Why hooks:
+- easier to inject functionality
+	- no wrapper hell
+- no need to refactor from function to class + deal with classes details like `bind`, `this`, `construct` 
+- less spaghetti code in lifecycle methods
+- easier to share logic
+- code is easier to test
+
 ## React functional components (FC)
 It is good approach to look at FC as pure function that takes in some args and return picture(landing)
 
@@ -278,6 +315,19 @@ Good for building single page apps(SPAs), that creates similar experience to nat
 		- but to be real, be ready for ~2 seconds of initial load
 	- note that it also slower in fetching data, because of longer trips to server
 	- also can be slow on low-end devices
+
+#### Selective Hydration
+Something like island hydration in React world
+In its core done by streaming HTML to frontend and partially hydrating it, while keeping slow components in suspension state and sending them later
+- this way we don't need to wait for full render of a tree
+
+#### Server Components
+Experimental react feature, that lowers JS bundle size and reduces hydration time, with additional optimization to user
+- also can reduce network times for data fetching
+
+Done by building component into some intermediate state(on build or on fetch) and serving this intermediate components to client, where they can be converted to DOM
+- it is possible to preserve state between refetches of components
+- it might be possible to auto chunk main bundle on pre import basis
 
 ## Established UI patterns with React
 It is important to layer and modularize complex apps, to keep them readable and easy to change
