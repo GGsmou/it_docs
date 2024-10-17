@@ -55,6 +55,14 @@ Basic patterns:
 		- be careful with HOCs in general:
 			- they can lead to code that hard to maintain/understand
 			- props naming collision
+- presentational/container component - way to do separation of concerns is react, by separating logic(working with data, state management, etc) into parent component(or even hook) and rendering(done via dum, ideally stateless components)
+	- pros: separation of concerns, reusability, mockless tests for dum components
+- render props - pass a function that returns a JSX as a prop and call it to generate component inside other component
+	- similar to just passing in a component as a prop, but key difference that we can easily get some needed data by passing as a prop, instead of aggregating it via `React.cloneElement` 
+		- it is also possible to pass `children` like this
+		- pros: solves similar problems to HOC(reusability, sharing data), but avoids problems with props collisions, separation of concerns
+			- note that it won't be a performance problem with such style of passing component props
+		- cons: nesting(hooks might be sufficient for some cases)
 
 Why hooks:
 - easier to inject functionality
@@ -328,6 +336,14 @@ Experimental react feature, that lowers JS bundle size and reduces hydration tim
 Done by building component into some intermediate state(on build or on fetch) and serving this intermediate components to client, where they can be converted to DOM
 - it is possible to preserve state between refetches of components
 - it might be possible to auto chunk main bundle on pre import basis
+
+## Streaming SSR
+We can combine SSR, Hydration and streaming, to display data as soon as it gets rendered on server and hydrated by client
+- improves initial load for SSR app
+- it might drain server resources, so streaming should be pausable in order not to block whole server
+
+notes:
+- it might not work if page is built not in order(some later operations change initial `<head>` element or we do `renderToStaticMarkup` with `renderToString` inside of it for interactivity, or smth else)
 
 ## Established UI patterns with React
 It is important to layer and modularize complex apps, to keep them readable and easy to change
