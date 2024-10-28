@@ -1123,24 +1123,57 @@
 <li>Single Responsibility - method do one thing and incapsulates it
 <ul>
 <li>otherwise we get two coupled methods</li>
+<li>as one way of achieving this, you can break app into parts, that have single dependency and can be combined with one another
+<ul>
+<li>FE example: if you need to change BE integration, you change only this code, if you need to change design, you change only styles and markup</li>
 </ul>
 </li>
-<li>Open Closed - objects are open to extend, but closed to edit</li>
-<li>Liskov Substitution - children must implement all of parent’s functional, not creating errors or additional conditions
-<ul>
-<li>children can be used instead of parent</li>
+<li>examples of usage: layered architecture</li>
 </ul>
 </li>
-<li>Interface Segregation - don’t implement useless functional(make interfaces small)
+<li>Open/Closed - code can be only extended, but not changed
 <ul>
-<li>one big -> several small</li>
-<li>react example: big object as props -> several small properies</li>
+<li>more reasonable approach is to think in terms of interfaces here, where you can’t change interface, but implementation can be
+<ul>
+<li>Strategy pattern</li>
 </ul>
 </li>
-<li>Dependency Inversion - all connections are build on abstractions, that can’t depend on reallisation
+</ul>
+</li>
+<li>Liskov Substitution - children must implement all of parent’s functional, not creating errors, additional conditions or change in behavior(example: clean up)
 <ul>
-<li>abstractions can’t depend on details</li>
-<li>abstractions have unified naming</li>
+<li>e.g. children can be used instead of parent</li>
+<li>it is also valid to remember about principle, when changing interface</li>
+</ul>
+</li>
+<li>Interface Segregation - think how your interface will be consumed and used later, keep it small and abstract
+<ul>
+<li>one big &#x3C; several small
+<ul>
+<li>react example: big object as props &#x3C; several small properies</li>
+</ul>
+</li>
+<li>example:
+<ul>
+<li>if you have email integration, do it via MessagingService(not EmailService or just with integration library)
+<ul>
+<li>it is easier to refactor and work with such codebase</li>
+</ul>
+</li>
+<li>if your EmailService do OTP and News, break into into two separate once, so both of them have single responsibility and can be changed independently</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Dependency Inversion - think in terms of interfaces first, how they communicate and used, don’t depend on behavior/implementation
+<ul>
+<li>keep unified naming for abstractions</li>
+<li>in real world achieved via DI:
+<ul>
+<li>manually passing dependency</li>
+<li>using some context or helper, that can auto-pass/bind dependency</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1185,23 +1218,53 @@
 <p>KISS - keep it simple and short principle in coding</p>
 <p>KISS ensures that system should be simple, clear and make complication if needed</p>
 <h2 id="grasp">GRASP</h2>
-<p>General Responsibility Assignment Software Patterns - group of 9 coding principles</p>
+<p>General Responsibility Assignment Software Patterns - group of 9 principles, that helps define responsibility for each part of a system</p>
 <ul>
-<li>Information expert - info should be assigned to class, that will use/need it the most</li>
-<li>Creator - principles to choose who must create objects
+<li>good in combination with SOLID</li>
+</ul>
+<p>In Software Architecture, responsibility is obligation:</p>
 <ul>
-<li>Creator pass/owns data related to obj</li>
-<li>Creator have many in common with obj</li>
-<li>Creator uses obj</li>
+<li>to do task:
+<ul>
+<li>perform object creation, calculations, data processing</li>
+<li>action coordination</li>
 </ul>
 </li>
-<li>Controller - combine small controllers into big one
+<li>to know information:
 <ul>
-<li>deleteUserController + createUserController = userController</li>
+<li>private/public data</li>
+<li>object references</li>
+</ul>
+</li>
+</ul>
+<p>Principles:</p>
+<ul>
+<li>Information expert - assign responsibility to class with most of information needed, to fulfill it</li>
+<li>Creator - to choose candidate, that should become creator, it must fulfill most of requirements:
+<ul>
+<li>Creator includes/aggregates object</li>
+<li>Creator own object</li>
+<li>Creator uses object</li>
+<li>Creator have most of data needed for object</li>
+</ul>
+</li>
+<li>Controller - define object orchestrator, that can take delegated Commands and perform some system-wide operations
+<ul>
+<li>candidates:
+<ul>
+<li>system/root object - object that represents system as is</li>
+<li>use-case object - object that represents scenario, in which operation occurs</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Low coupling - assign responsibilities, so coupling in code remains low
+<ul>
+<li>coupling - measurement of how much one part relates to another</li>
+<li>pros: low dependency == higher reusability + easy to change one class without changing other</li>
 </ul>
 </li>
 <li>Indirection - to avoid close coupling between classes add other class to handle it</li>
-<li>Low coupling: low dependency, higher reusability, easy to change one class without changing other</li>
 <li>High cohesion - similar to single responsibility + we should make classes packed(means: it must not have methods for other classes to use or useless methods for himself)
 <ul>
 <li>To achieve: break big classes/interfaces to small</li>

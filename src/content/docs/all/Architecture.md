@@ -531,15 +531,27 @@ Principles(not rules) for program creation
 
 - Single Responsibility - method do one thing and incapsulates it
 	- otherwise we get two coupled methods
-- Open Closed - objects are open to extend, but closed to edit
-- Liskov Substitution - children must implement all of parent's functional, not creating errors or additional conditions
-	- children can be used instead of parent
-- Interface Segregation - don't implement useless functional(make interfaces small)
-	- one big -> several small
-	- react example: big object as props -> several small properies
-- Dependency Inversion - all connections are build on abstractions, that can't depend on reallisation
-	- abstractions can't depend on details
-	- abstractions have unified naming
+	- as one way of achieving this, you can break app into parts, that have single dependency and can be combined with one another
+		- FE example: if you need to change BE integration, you change only this code, if you need to change design, you change only styles and markup
+	- examples of usage: layered architecture
+- Open/Closed - code can be only extended, but not changed
+	- more reasonable approach is to think in terms of interfaces here, where you can't change interface, but implementation can be
+		- Strategy pattern
+- Liskov Substitution - children must implement all of parent's functional, not creating errors, additional conditions or change in behavior(example: clean up)
+	- e.g. children can be used instead of parent
+	- it is also valid to remember about principle, when changing interface
+- Interface Segregation - think how your interface will be consumed and used later, keep it small and abstract
+	- one big < several small
+		- react example: big object as props < several small properies
+	- example:
+		- if you have email integration, do it via MessagingService(not EmailService or just with integration library)
+			- it is easier to refactor and work with such codebase
+		- if your EmailService do OTP and News, break into into two separate once, so both of them have single responsibility and can be changed independently
+- Dependency Inversion - think in terms of interfaces first, how they communicate and used, don't depend on behavior/implementation
+	- keep unified naming for abstractions
+	- in real world achieved via DI:
+		- manually passing dependency
+		- using some context or helper, that can auto-pass/bind dependency
 
 ## OOP
 Object-oriented programing - model, that organizes program as objects
@@ -573,17 +585,32 @@ KISS - keep it simple and short principle in coding
 KISS ensures that system should be simple, clear and make complication if needed
 
 ## GRASP
-General Responsibility Assignment Software Patterns - group of 9 coding principles
+General Responsibility Assignment Software Patterns - group of 9 principles, that helps define responsibility for each part of a system
+- good in combination with SOLID
 
-- Information expert - info should be assigned to class, that will use/need it the most
-- Creator - principles to choose who must create objects
-	- Creator pass/owns data related to obj
-	- Creator have many in common with obj
-	- Creator uses obj
-- Controller - combine small controllers into big one
-	- deleteUserController + createUserController = userController
+In Software Architecture, responsibility is obligation:
+- to do task:
+	- perform object creation, calculations, data processing
+	- action coordination
+- to know information:
+	- private/public data
+	- object references
+
+Principles:
+- Information expert - assign responsibility to class with most of information needed, to fulfill it
+- Creator - to choose candidate, that should become creator, it must fulfill most of requirements:
+	- Creator includes/aggregates object
+	- Creator own object
+	- Creator uses object
+	- Creator have most of data needed for object
+- Controller - define object orchestrator, that can take delegated Commands and perform some system-wide operations
+	- candidates:
+		- system/root object - object that represents system as is
+		- use-case object - object that represents scenario, in which operation occurs
+- Low coupling - assign responsibilities, so coupling in code remains low
+	- coupling - measurement of how much one part relates to another
+	- pros: low dependency == higher reusability + easy to change one class without changing other
 - Indirection - to avoid close coupling between classes add other class to handle it
-- Low coupling: low dependency, higher reusability, easy to change one class without changing other
 - High cohesion - similar to single responsibility + we should make classes packed(means: it must not have methods for other classes to use or useless methods for himself)
 	- To achieve: break big classes/interfaces to small
 - Polymorphism - same as in OOP
