@@ -528,15 +528,30 @@ Refactoring Technique is step by step guide on solving some problem. It can have
 
 ## SOLID
 Principles(not rules) for program creation
+- note: applying SOLID beforehand is premature optimization, as said in refactoring, develop via Pain-Driven Development, where you refactor something, when it is painful to work with it
 
-- Single Responsibility - method do one thing and incapsulates it
+- Single Responsibility - method do one thing and incapsulates it AKA module has only one reason to change
 	- otherwise we get two coupled methods
 	- as one way of achieving this, you can break app into parts, that have single dependency and can be combined with one another
+		- basically module encapsulates one responsibility and delegates other
+			- to validate your code ask: "what are responsibilities AND what are reasons to change for this code?" and if you will have "and", you should consider refactoring
 		- FE example: if you need to change BE integration, you change only this code, if you need to change design, you change only styles and markup
 	- examples of usage: layered architecture
+	- pros: lowers coupling and boosts cohesion, helps with separation of concerns(in it's core principle of least knowledge)
+	- note that it bloats code, so it can be harder to understand and unnecessary on low scale, but must have for bigger systems
+		- it also affects performance, but when talking about higher level systems, like micro-services
+	- don't overuse it and do 1 method classes, this will complicate code in unneeded manner
 - Open/Closed - code can be only extended, but not changed
-	- more reasonable approach is to think in terms of interfaces here, where you can't change interface, but implementation can be
+	- software is changing a lot, but this changes should be easy to perform, so more reasonable approach is to think in terms of interfaces, where you can't change interface, but implementation can
 		- Strategy pattern
+			- Plugin Architecture can be build via Strategy, where system knows only about itself and about interfaces, it needs, and all functionality comes from Single Responsibility plugins, that knows nothing about system and only fulfills interface, can be easily changed and modified
+	- this makes code: Stable(no changes to consumers), Flexible(easy to extend one part, without affection another one)
+	- there can be some reasons, including most obvious bugs, to modify code
+	- don't overcomplicate code, but rather try to predict fragile places and introduce Protected Variations to it
+		- if you can't predict, do incremental changes and optimize as needed
+		- abstraction level can be different depending on situation
+	- how to in real code:
+		- introduce parameters, that can be a point of extension, Inheritance(be aware of tight coupling), Composition, Strategy, DI
 - Liskov Substitution - children must implement all of parent's functional, not creating errors, additional conditions or change in behavior(example: clean up)
 	- e.g. children can be used instead of parent
 	- it is also valid to remember about principle, when changing interface
@@ -610,12 +625,24 @@ Principles:
 - Low coupling - assign responsibilities, so coupling in code remains low
 	- coupling - measurement of how much one part relates to another
 	- pros: low dependency == higher reusability + easy to change one class without changing other
-- Indirection - to avoid close coupling between classes add other class to handle it
-- High cohesion - similar to single responsibility + we should make classes packed(means: it must not have methods for other classes to use or useless methods for himself)
-	- To achieve: break big classes/interfaces to small
-- Polymorphism - same as in OOP
-- Protected variations - create elements based on abstracts interfaces to avoid dealing with different variations
-- Pure fabrication - it is good practice to create classes that don't have representation but serve to make system more maintainable
+- Indirection - to avoid close coupling between classes add other class(Mediator) to handle it
+	- remember that by introducing mediators we loose in overall understanding of a system, so don't overuse it
+- High cohesion -  assign responsibilities, so cohesion in code remains high
+	- cohesion - measurement of how much responsibilities of an object are related
+	- to achieve:
+		- keep only related responsibilities inside one object
+			- remove useless methods, or methods that used only externally
+		- break big classes/interfaces to small
+- Polymorphism - if we have similar & related behaviors, that diverge by type, use polymorphic operations to work with them
+	- this can be viewed as OOP's polymorphism with base class and inheritance, BUT in GRASP's opinion it is done via Strategy pattern, by creating shared interface and different implementations, that plugged in
+- Protected variations - identify weak points, possible variations and instabilities in your code and change them in order to maintain ease-of-change
+	- it is key metric in code quality
+	- achieved by:
+		- Open/Closed, GoF, Encapsulation, Law of Demetre(principle of leas knowledge, where object knows and interacts only with close "friends"), Mediator, Event-driven Architecture etc
+		- iterative development(do, identify weak parts, refactor on small scale, scale-up, repeat)
+- Pure fabrication - if you are having functionality, that can't be assigned to any entity, without violation of Cohesion/Coupling, create separate functional entity to do the job
+	- basically we aren't introducing Cohesion, because we keeping this functionality separate AND Coupling remains low, because other objects are bound to functionality only by interface
+	- if talking from Domain Driven Design perspective, it is called as Domain Service
 
 ## GOF
 Gangs of Four - book about 23 design patterns
