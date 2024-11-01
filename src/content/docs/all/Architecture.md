@@ -555,14 +555,14 @@ Principles(not rules) for program creation
 - Liskov Substitution - children must implement all of parent's functional, not creating errors, additional conditions or change in behavior(example: clean up)
 	- e.g. children can be used instead of parent
 	- it is also valid to remember about principle, when changing interface
-- Interface Segregation - think how your interface will be consumed and used later, keep it small and abstract
+- Interface Segregation - think how your interface will be consumed and used later, keep it small and abstract. Another explanation of this principle is that class can't be forced to implement some methods(again, keep interfaces small and abstract)
 	- one big < several small
-		- react example: big object as props < several small properies
+		- react example: big object as props < several small properties
 	- example:
 		- if you have email integration, do it via MessagingService(not EmailService or just with integration library)
 			- it is easier to refactor and work with such codebase
 		- if your EmailService do OTP and News, break into into two separate once, so both of them have single responsibility and can be changed independently
-- Dependency Inversion - think in terms of interfaces first, how they communicate and used, don't depend on behavior/implementation
+- Dependency Inversion - think in terms of interfaces first, how they communicate and used, don't depend on behavior/implementation. In another worlds, classes should communicate via high-level abstractions, where high-level modules don't depend on low-level once
 	- keep unified naming for abstractions
 	- in real world achieved via DI:
 		- manually passing dependency
@@ -964,7 +964,65 @@ const areas = [cirle1, square1, circle1].map(AreaCalc.visit);
 	- notes: remember about RAM, caretaker should track owner's lifecycle to remove old mementos, JS and other "bad-boys" can't guarantee that memento is private, Prototype is simpler analog for Memento(but it also can be used only with simple objects)
 	- use-cases: undoable operations, direct access to object will violate it's encapsulation, need separate history maintenance
 
----
+## Layer Client-Side Architecture
+*I think I have written about this one, but I couldn't find it, so here we go again* 
+
+A guide to build flexible, testable and scalable architecture for web(React) app
+
+#### Basis
+- MVC(model view controller) - pattern to split/layer the app, when working with UI
+	- model - data and logic
+	- view - rendering
+	- controller - react to user events, by taking actions with model
+	- in a nutshell: user sees view, user interacts with controller, controller changes model, model changes view
+	- it is core for modern web-dev(View - FE, Model - BE, Controller - API)
+- MVP(model, view, presenter) - MVC deviation for FE apps
+	- view - rendering
+	- presenter - layer between view and model
+	- model - data and logic
+	- in a nutshell: view is updated by presenter and passes user events to it, presenter updates model and reacts to model's changes
+- problem: MVC&MVP are too generic, mainly because of "M" with too many responsibilities, so better architecture is needed
+	- most common use-cases:
+		- state management
+		- network: fetching, optimistic updates, metadata(isLoading etc)
+		- logic: validation, interaction/app logic, domain logic
+		- authN & authR
+	- better architecture via restrictive framework OR general rules, that applies to written code
+- benefits from architecture:
+	- better communication
+	- ability to choose proper tools for each task
+	- separation of concerns
+	- where put what(logic, networking, state management)
+	- what need to be tested
+	- etc etc etc
+
+#### Basics 2.0
+This architecture is built upon industry knowledge, mainly adapted from BE
+
+As example, it was time, when server apps grow so much, that MVP wasn't sufficient enough, so principles like clean architecture(which, like many other, explain more what "M" should do) arrived, in it's core it break "M" into:
+- Infra - controllers, routes, DBs, caches, ORMs
+- Adapter - infra and third-party endpoints access
+- Application - features of an app in form of use-cases
+- Domain - models, events
+- basically we write core of an app in Domain and Application, create Infra and hook our app to it via Adapter
+
+Such layered architectures are hard, BUT:
+- what layer need what tools
+- concerns are separated
+- easy to find what need to be tested(main logic)
+- easy to mock or swap things
+
+So, we need analog, but not copy, of smth for FE
+As guideline, as a result we need to have an app that:
+- testable
+	- if you are doing unit tests, mocking and separation of concerns is a way to go
+	- write units, when you have many app logic or need to verify accuracy of operation
+	- write integration tests, when primary use-cases are observed via UI changed(your basic CRUDs)
+		- in such cases, view is an implementation detail, smth that not need to be tested
+- flexible
+	- changing libs/technologies is not common use-case(still nice to have), but changing view components is often the case and something that better be done without messing with app logic
+	- be careful with restricting developers too much or introducing poor DX, flexibility must be in architecture AND DX
+- maintainable
 
 ## Hook, useCase, Entity
 To split responsibilities for logic inside app(React) we can operate with two things:
