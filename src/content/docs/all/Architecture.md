@@ -622,6 +622,7 @@ Principles:
 	- candidates:
 		- system/root object - object that represents system as is
 		- use-case object - object that represents scenario, in which operation occurs
+	- examples: Mediator, Facade, "use-case" etc
 - Low coupling - assign responsibilities, so coupling in code remains low
 	- coupling - measurement of how much one part relates to another
 	- pros: low dependency == higher reusability + easy to change one class without changing other
@@ -1007,7 +1008,7 @@ As example, it was time, when server apps grow so much, that MVP wasn't sufficie
 - basically we write core of an app in Domain and Application, create Infra and hook our app to it via Adapter
 
 Such layered architectures are hard, BUT:
-- what layer need what tools
+- we know what layer need what tools
 - concerns are separated
 - easy to find what need to be tested(main logic)
 - easy to mock or swap things
@@ -1023,6 +1024,38 @@ As guideline, as a result we need to have an app that:
 	- changing libs/technologies is not common use-case(still nice to have), but changing view components is often the case and something that better be done without messing with app logic
 	- be careful with restricting developers too much or introducing poor DX, flexibility must be in architecture AND DX
 - maintainable
+
+#### Principles
+All in all, our goal to separate and structure our code
+
+###### Command Query Separation
+Separate logic of changing state from getting state
+- basically we have:
+	- command/mutation - changes state and might return result
+	- query - returns state
+- we are forced to reason about code into two paths, so responsibilities are de-coupled, risk of accidental state problems reduced, easier testing, easier cache invalidation(invalidate on mutation only)
+- to keep maintainable file structure you can use co-location(like GRASP for file storage, where we place related files as close as possible)
+
+###### Separation of Concerns
+Enforce logical boundaries between parts of an app
+- it is not only about separating class from class, but also about working with similar logic by the same principles(delete, activate, deactivate should "look" the same)
+	- basically think about how-to do a job, place it onto appropriate layer, make a job do only what it supposed to do
+
+###### Slices
+How place feature into layered app? Imagine it as vertical line, that slice through layers and have functionality in each one
+
+It greatly reduces time to think about code(choose tools etc), because now you have kind of matrix to each peace of a feature
+
+#### Layers
+- view
+	- presentation components - render ui + create user events
+		- component here treated as implementation detail of feature
+		- component is volatile(changed a lot), so it makes sense to keep them as dependencies(set of components in library)
+		- there might be a problem with components that rely on outside data, because now you need to hook into queries and mutations
+			- you need to keep this logic close, BUT not intertwine with component as is, add some middle layer, that reduces risk of large migrations and also can keep some additional reusable logic
+				- this layer can be called as `use-case` 
+		- when testing presentation components, we need to test agains UI logic and not how component looks
+			- we can unit-test components in UI lib tho, but it is a separate story
 
 ## Hook, useCase, Entity
 To split responsibilities for logic inside app(React) we can operate with two things:
