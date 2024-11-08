@@ -1054,8 +1054,48 @@ It greatly reduces time to think about code(choose tools etc), because now you h
 		- there might be a problem with components that rely on outside data, because now you need to hook into queries and mutations
 			- you need to keep this logic close, BUT not intertwine with component as is, add some middle layer, that reduces risk of large migrations and also can keep some additional reusable logic
 				- this layer can be called as `use-case` 
-		- when testing presentation components, we need to test agains UI logic and not how component looks
-			- we can unit-test components in UI lib tho, but it is a separate story
+		- when testing presentation components, we need to test agains UI logic(behavior) and not how component looks
+			- we can unit-test components in UI lib tho, but it is a separate story, for testing the behavior Integration testing is a way to go
+	- ui logic - view behavior, local state
+		- view behavior is basically about some conditional logic(show this/that, call this/that)
+		- STATE TYPES:
+			- local state - some single component related state, that often can be extracted to hook
+			- shared state - some state that shared between several components, that should be abstracted out to some store/context to keep components independent
+				- sometimes it doesn't make much scenes to put state of closely related components in a store
+			- remote state - some state outside our app, that queried and saved locally, with global access to it
+			- meta state - state often used to describes remote state(async operations process)
+			- router state - state of browsers URL
+- container/controller - glue layer between view and model, that often represented as single Page
+	- after hooks container components lost part of their functionality, but it is still useful as "glue" layer to manage several components, work with some shared logic/state, manage features
+	- in its core we can call container as another component, but it will bluer the line of who takes what responsibility
+	- note, such components should have small amount or even no logic, just take smth from model and pass it to actual components
+		- so we can even avoid testing them, or tests can be pretty lightweight
+- model
+	- interaction layer - part of model that interacts with our app(container), aka the behavior of model
+		- it is responsible for logic and decision making
+			- like validation, mapping, shared logic, global rules, aggregation, auth, logging, complex rendering logic, metadata
+		- basically we call each part of interaction layer a use-case, that can be just a proxy to mutation/query OR have some logic to it
+		- it is pretty easy to test such use-cases, with "Given-When-Then" tests
+		- interaction layer includes shared behavior - behavior that used by any part of an app and includes hight-level rules of interactions in app
+			- includes: auth, logging, domain models, constants, utils etc
+	- infrastructure
+		- networking and data fetching - API interactions and meta-state changes
+			- responsibilities: know about every service, create responses, marshal data/errors, report meta-state
+		- global state management
+			- responsibilities: store data in-cache, update cache, provide places to hook into to observe updates
+			- in this place we make copy of remote state into our global state, with caching layer
+				- it is also possible to do mixing of client global state and remote global state in cache
+			- global store should be implemented as facade, meaning we have data in it, but it can be accessed via some layer
+		- notes:
+			- it is kinda ok to mix global state management and networking into 1 thing, to make it easier to work with
+	- ---
+	- approaches to write a model:
+		- plain react hooks
+		- state machine that hooked into hooks
+		- vanilla JS with observers and notification mechanism to connect to react
+#### Conclusion
+All in all, when building for scale you must layer your app in one way of another, BUT you always will loose in DX(onboarding, speed etc)
+- key note here, that you must loose in DX only when it is required by app's complexity AND not introduce complexity just because
 
 ## Hook, useCase, Entity
 To split responsibilities for logic inside app(React) we can operate with two things:
