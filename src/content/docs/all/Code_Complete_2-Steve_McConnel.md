@@ -1,4 +1,7 @@
-*notes for Code Complete book (2nd edition) by Steve McConnel* 
+---
+title: Notes of "Code Complete 2nd edition" by Steve McConnel
+---
+*notes of Code Complete book (2nd edition) by Steve McConnel* 
 *this could by a part of Architecture note, but it is already kinda big :)* 
 
 ## Preface
