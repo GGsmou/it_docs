@@ -19,6 +19,7 @@ title: IT
 - [TS](TS.md)
 - [Design](Design.md)
 - [Code_Snippets](Code_Snippets.md)
+- [Code_Complete_2-Steve_McConnel](Code_Complete_2-Steve_McConnel.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist

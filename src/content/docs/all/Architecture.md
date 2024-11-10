@@ -1136,6 +1136,52 @@ Useful monads:
 it makes sense to incorporate such abstractions to avoid dirty code and make it composable
 - so it is note useful to pack and 3 lines later unpack a monad
 
+## Stable Dependency Principle
+Every system has stable and volatile dependencies
+- stable dependency - some high-level policy or just dependency that found it's role in architecture, all problems in it were addressed and it has little reasons to change
+	- examples:
+		- language constructs
+		- domain models, events, constants
+		- BE to FE specification
+- volatile dependency - some low-level detail or new dependency, that wasn't stabilized yet
+	- it is ok to have such components, but we need to have little direct dependency on them, to prevent destabilization of stable dependencies
+	- examples:
+		- front-end in general
+			- mostly it is about styles, layouts, tags, but behavior also shifts(still, when writing tests, behavior is number 1 thing to test)
+		- components with no single responsibility, because it has a lot reasons to change
+
+## Colocation
+> Place code as close to where it's relevant as possible
+> Things that change together should be located as close as reasonable.
+
+Good codebase should be understandable from outside(not only by codeowners and maintainers), there are some techniques of achieving this and one of them is colocation
+
+comments
+- as a general rule of thumb, you should right comments to explain something unusual in your code
+- usually we place comments as close to code as possible, to ensure that:
+	- comments stay mostly in sync
+	- no need to context switch to read a comment
+	- less risk of missing some comment, that written somewhere else
+with this example you can see basically all advantages of proper code colocation in your system
+
+examples of colocation:
+- HTML template is always near logic(as separate file, near some JS file, or combined in form of JSX)
+- CSS can be placed right near HTML, that it is used for OR even done as css-in-js
+- tests(units) should be placed near the module they are testing
+	- we are talking about files here, BUT it is kinda possible to do it in scope of one file(don't think it is a great idea, but might be cool to implement)
+- state is better to be placed as close to view as possible(because of maintainability and also optimization(less of a tree changes, when state is updated))
+- utils - sometimes it is ok not to move reusable function to garbage `/utils` folder, because it is possible that one day it won't be used at all, but still left and maintained as part of codebase
+	- one approach is to keep this function inside file it is using, and separate only when needed, BUT in some nearest utils folder
+		- nearest meaning that mocks should have some utils, features should have utils, view should have some utils etc
+
+benefits:
+- all that described before
+- possibility to extract some group of nearby files(often placed in single folder) to separate package, lib or(for God sake) micro-frontend
+
+"exceptions":
+- if you need to write docs or integration tests for some chunk of an app, just place it in top folder, that contains that chunk
+- for e2e tests it is better to move them outside `src` at all, because they should not be changed by such implementation details
+
 ## Signals
 Based on observer pattern. Subject don't know about observer. Observer knows only that subject can change
 - Risk of infinite loops is present
