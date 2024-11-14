@@ -84,4 +84,62 @@ what can go wrong in planning:
 					- its like saying I want to live happily for 50 years of my life and party, than go to the gym(but you can live happily to 100 otherwise)
 
 as said, you need to know your software, to plan properly for it, so, here is guide
-- I am too lazy to note all of this, so just know that with more scale and criticalness, you need to do more planning, testing, archetecturing, inspections, formality etc
+- I am too lazy to note all of this, so just know that with more scale and criticalness, you need to do more planning, testing, architecturing, inspections, formality etc
+
+hand-in-hand with pre-panning comes iterative approach
+- basically we split whole project into chunks and after finishing each do improvements to whole system, taking in consideration new things
+- it is still important to have pre-planning, because it reduces cost and risks, but choosing to iterate over do whole thing sequential will add more reduction, as well as make every change come in portions(otherwise, after finishing the whole thing we need to invest some more time into improvements)
+	- it is impossible to do 100% iterative or sequential, BUT it is useful to either pre-plan most of things and don't deviate or pre-plan core stuff and mostly iterate
+		- pre-planing is great for stable & predictable system, with fixed requirements, that has little risk and will be hard to change downstream, OTHERWISE choose iteration
+
+problem definition is important part of planning, that defines what task are we solving
+- problem definition is foundation of what we are going to do, it can't define any solution or go too much in depth
+	- it is ok to go deeper, if topic of project requires it
+- usually it is done in user language
+- wrong definition will make you not solve problem at all
+
+requirements/specification - next step after problem definition, that defines what software required to do, without concrete solutions
+- it is easy way to define user needs, not how programer sees it
+- requirements is a way to resolve arguments on program scope
+- stable requirements ensure that project won't be changing in it's core
+	- it is a holy grail of SE, but it is not realistic, because with project development your and customer's understanding of it will change, SO you need to adapt to this changes:
+		- always stop and adjust if you requirement feel wrong
+		- explain cost of requirements change and turn them into "nice to have" or "will be done later" or "out of scope for now"
+			- still taking feedback is important, so create some procedures to take and implement it
+		- develop in cycles OR iterative approach
+		- kill project if it is out-of-hand
+		- evaluate is change of requirements is profitable to do
+- requirements to specify:
+	- system inputs/outputs(data, how to work with it, validations etc)
+	- external dependencies and ways to interact with them
+	- use-cases by users
+	- security
+	- performance
+	- reliability(consequences of failure, vital data, error handling, recovery)
+	- flexibility
+	- what need to be achieved and if we achieve is it enough to release
+	- can users understand and agree with requirements
+	- are we achieved tradeoffs between requirements
+	- do we have enough, but not too much details
+	- are requirements relevant, testable and what risk of each one changing
+	- what are unknowns
+	- is it reasonably possible to implement
+
+next step is planning the architecture - frame that holds overall details about whole system and done as some document
+- it acts as a structural guide to the system, that helps to independently maintain project by multiple dev. teams, while preserving quality
+- it must make development easy and understandable
+- architectural changes are pretty costly, but if you must do one, do it asap
+- when creating architecture it is important to consider many approaches and state why one has been chose over other
+	- such move will act as future guidance on things done as they are
+- architecture is based of components:
+	- program organization - broad system overview, that defines all parts of a system, assigns concrete roles to each of them and connects(direct/indirect relationship OR no connection at all) them together
+		- parts can differ in size from class to smth like Front-End in general
+		- principles of localization and least information(part A knows as little as possible about part B) are important here
+	- major class organization - similar to program organization, but in scope of classes, with such details as state changes, hierarchies, class organization etc etc
+		- specify only most important classes
+	- data design - describe how data is stored, accessed, all chosen data structures and table designs, present in system
+		- important principle is data encapsulation, where it can be accessed only be responsible system OR via some APIs, that this system provide
+	- business rules - state all rules/requirements and how they effect the system
+	- user interface - more detailed description(that already present in requirements) of UI part of a system
+		- modularization principle is a key, so we could change one interface to other, without changes to business logic or data
+	- security - explain details on how we deal with authN&authR, how data/error exposed to user, how we work with user input, encryption etc
