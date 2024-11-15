@@ -143,3 +143,37 @@ next step is planning the architecture - frame that holds overall details about 
 	- user interface - more detailed description(that already present in requirements) of UI part of a system
 		- modularization principle is a key, so we could change one interface to other, without changes to business logic or data
 	- security - explain details on how we deal with authN&authR, how data/error exposed to user, how we work with user input, encryption etc
+	- performance - if there are specific requirements for performance, architecture should state in what ways we are going to achieve them
+	- scalability - explicitly state that scalability is not a concern OR define how system is going to scale in different directions(users, DBs, services etc)
+	- interoperability - describe how resources are shared
+	- i18n + l10i - if talking about low level staff it is about how we encode strings and why, for UIs it is a lot bigger problem :|
+	- I/O - how to deal with it
+	- error handling - program consists not only from happy path, so it is important to state how we are working with errors, by answering this questions:
+		- what errors are recoverable and what not
+		- how notify user about errors
+		- how to log errors
+		- will we prevent errors(validation of input for example) OR deal with the(wrong input is accepted with failure in process)
+		- will error break the flow of program
+		- conventions on error messages&details
+		- how to handle errors
+		- who is responsible for validation and error handling
+		- how we work with errors(via built in instruments, lib or smth custom)
+		- how failure tolerance(basically in depth recoverability of system) will be done
+			- back-ups, algorithm/service swap if one that used is down or degrades, auto-restarts
+- feasibility - investigate(usually done with POCs) if system could be build in first place
+- prevent overengineering with stating the requirements
+- build/buy - investigate and state what can we use from open-source or buy and what need to be done in-house(with explanation how)
+	- other case that similar to this topic is reusability of parts from previously built architecture
+- change strategy - provide a ways for a project to be flexible and adapt on fly
+	- it is more about of finding volatile parts, that can change in your system(ex. data format, service integration) and provide a way to localize interactions with them, so change won't effect whole system
+- architecture must be understandable, easy to read and natural in a way it solves problems
+	- never state "we've always done it in this way"
+	- architecture should be done in right size
+	- it should provide multiple points of views
+	- it must make sense
+
+all in all prerequisites should take as much time as needed, with possibility of future improvements(that also take time and can be resolved by you OR with DRI of project)
+- tho, you need to start somewhere, so don't plan too much
+- the time you spend planning will always correlate with size and formality of project
+- be careful with not making/keeping prerequisites volatile, it is better to take time and develop them properly
+- architecture can be a separate sub-project of a project
