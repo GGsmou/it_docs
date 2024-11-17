@@ -177,3 +177,84 @@ all in all prerequisites should take as much time as needed, with possibility of
 - the time you spend planning will always correlate with size and formality of project
 - be careful with not making/keeping prerequisites volatile, it is better to take time and develop them properly
 - architecture can be a separate sub-project of a project
+
+#### Key Construction Decisions
+Chapter about how-to choose right instruments for your job, to successfully build software, that was planned in prev. chapter
+
+choosing programing language - important faze, because it will influence how you think about your problems, what steps you need to do, how your approach solutions
+- it is very important from optimization perspective etc, BUT choosing wrong tool will lead to more problems in development, because you will constantly fight chosen language
+- development team must be familiar with language of choice to be productive
+	- also big problem is writing in one language with mindset of another, this way you will have 0 benefits of chosen language and all problems of one from mind set
+		- *and also you will fight and hate chosen lang :)* 
+- high-level language brings speed, reliability, expressiveness and ease of hiring
+- certain languages is better in expressing and working with some problems more than other languages
+
+great large systems must have not only great architecture, but be consistent in details(naming, formatting, comments, file structures), otherwise you will end-up with semi structured mess, that requires more brain capacity to understand and maintain
+- this concept is called low-level integrity
+- it is important to state such details beforehand, because it is almost impossible to make ongoing system consistent without them in a first place
+
+always program "into" language, this means decide what you need first AND only than try to implement with existing tools
+- by doing things this way you can create much more complex things, that aren't restricted by the env you work with
+- if you env is too primitive for your needs, you can switch or expand it
+	- to expand: create conventions, standards, libs etc
+
+all-in-all, good practice is to incorporate other good practices into your programs :)
+here some of them, that wasn't mentioned:
+- define what procedures code should go through to be "merged into main"
+- is there place for pair programing in development flow?
+- decide what should be tested, in what form(unit, integration e2e etc), in what period(upfront, after been done), is there a place for manual testing and how to do it
+- define a set of tools(lang, programs, frameworks etc), that are needed to develop
+
+## Creating High-Quality Code
+#### Design
+Design is important part to think through before start coding, BUT it often skipped in architecture, because it contains plenty of low level details
+- it is possible to write detailed design, so coding will be done only mechanically, but mostly you will do some design with coding process
+
+problem with design is that requirements can shift, making design irrelevant OR after creating solving the problem, some unexpected part is revealed and design must be rethought
+- it is generally hard to find right solution, with enough details and so on and so on
+- finding right tradeoffs, priorities, restrictions - key to good design
+- basically it is open-ended question and non-deterministic problem
+- it emerges through design reviews, discussions, writing and reviewing code
+
+to write good design, you need to understand some concepts
+- complexity - project become more complex as it grows, this complexity will come from two sources: technical problems like managing tech stack etc, complexity of problem itself that need to be solved
+	- when project fails due to technical reasons, it is often the problem of complexity(no one can fully understand what's going on and how each change effects the system), SO it is important to manage complexity
+	- to manage complexity, you should break program into independent parts, that you can work with one by one, keeping scope tight and small
+		- *our brain is small, so don't force it to work with large context ;)* 
+		- so
+			- use single responsibility
+			- divide system to sub-systems
+			- work with domain problems and avoid low-level implementation details
+			- keep things abstract
+	- complexity rise for:
+		- complex solution - simple problem
+		- simple solution - hard problem
+		- wrong solution - any problem
+
+good design can be characterized as:
+- minimal complexity
+- ease of maintenance - when designing, imaging that someone will maintain your code
+- loose coupling
+- extensibility - change in one place won't effect other places
+- reusability
+- high fan-in - low level classes are highly re-usable through-out all codebase
+- low-to-medium fan-out - keep dependency list of a class small
+- portability - ease of migration to other stack
+- leanness - don't keep unneeded code in codebase
+	- it is great general advise when doing something, "don't finish when there is nothing more to add, finish when there is nothing more to remove"
+- stratification - each level of system must be independent from another one
+	- interfaces are great to tackle this problem
+- standard techniques - stick to default approaches, if possible
+
+levels of design
+- whole system
+- sub-systems and packages - how system is divided into parts and how those parts communicate
+	- key point is to keep connections as loosely coupled as possible, to preserve order and structure
+		- (loose->tight coupling) A interacts with B interface -> A shares classes and logic with B -> A classes inherit from B classes and vise versa
+		- keep an eye on cyclic dependencies, they are harmful to have
+	- common sub-systems:
+		- business rules - some set of rules, related to your program
+		- UI - set of one or more independent(from other parts and from each other) systems, that used to display data
+		- DB access - layer that hides details of querying the DB, usually some API level
+		- System dependencies - direct calls to system that your are working with(like OS) should be moved to separate sub-system, so it is easy to change envs
+			- often it is already done by libs, BUT this doesn't mean that you should spread your lib all over the place, maybe use some patter(like Strategy) to access abstract system via interface and some lib implementation can be passed in
