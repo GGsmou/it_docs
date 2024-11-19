@@ -258,3 +258,82 @@ levels of design
 		- DB access - layer that hides details of querying the DB, usually some API level
 		- System dependencies - direct calls to system that your are working with(like OS) should be moved to separate sub-system, so it is easy to change envs
 			- often it is already done by libs, BUT this doesn't mean that you should spread your lib all over the place, maybe use some patter(like Strategy) to access abstract system via interface and some lib implementation can be passed in
+	- can be skipped for small systems
+- classes - decompose all sub-system into classes, with defined interfaces and connections
+- routines - specify all private methods of class and how are they called
+	- often done mentally, while coding
+	- can influence level 3
+- inside the routines - describe logic of each routing
+	- often done mentally, while coding
+	- can include writing pseudocode, but not really necessary
+
+heuristics - ways to think about design, that act as guidance to it
+- design is non-deterministic, so instead of concrete steps we can use heuristics to do it
+- we are using heuristics as main way to hide complexity by: hiding details to reduce cognitive load, protecting variations
+	- variations can include: algorithms, types, structures, boolean flags
+- \---
+- identify real world objects - define set of real and synthetic objects, and iteratively add more details to each object OR build better general composition
+	- identify set of objects with data+methods
+		- identify only properties, relevant to the system, not for general object(ex. human can have different eyes color, but we don't care about it in LibraryApp)
+		- we can add synthetic properties, relevant to system, but not for real world
+	- answer what can be done to each one
+	- answer what each object can do to others
+		- inheritance and object nesting included here too
+	- define public/private parts of each object
+	- define object's public interface
+		- don't forget about protected one too
+- form consistent abstractions - use abstractions for higher levels of planning, to avoid unnecessary details, when talking about some concepts
+	- example: base classes with only public interface
+	- important to keep system easy to understand and operate with
+	- it is used on any design level
+- encapsulate implementation details - more restrictive abstraction variation, that forbids to look at any details, you only allowed to work with general picture
+- inherit if it makes things simpler - inheritance and polymorphism are keys to simpler systems, BUT don't overuse it, it increases systems coupling
+- Hide info(encapsulation) - basically an OOP's encapsulation, where you hide private properties of class inside of it
+	- in it's core it prevents usage of method, you marked as private, there for you can easily change it and do as little refactor as possible
+		- when talking about public API, you won't be able to change it at all, so don't overexpose things
+	- this is performing complexity hiding
+	- it might be useful to hide types this way, for example use some generic IdClass, that will expose possible operations with ID, but don't give out value and it's actual type to outside world
+	- ways to hide info:
+		- hard coded value -> constant
+		- extract UI and any interactions with it separately from BE and vise versa
+		- direct use of global data -> some getter/methods of accessing the data
+		- avoid circular dependencies
+		- avoid premature optimizations, that aren't needed, but reduce encapsulation
+	- always and always ask yourself: "Does this part need to be exposed?" or "What should I hide?" in all levels of design
+- identify areas that will likely change - it is about protected variation from GRASP, basically we striving to identify areas that can change and try to keep effect from change as low as possible
+	- to achieve:
+		- identify what can be changed(from requirements or by analyzing)
+		- encapsulate this part via some Class or other structure
+		- keep public interface of this structure stable, so it hides all volatile details
+	- what can be changed:
+		- business rules
+		- hardware(OS), software(libs) or similar to them dependencies
+		- input/output data format
+		- unstable or bad designed parts
+			- especially when migration from old approach, it is great to interact with it from one place inside system, so if smth goes wrong, you need to modify only this one part
+		- boolean status -> enum status
+			- also, when working with several states, it is great to hide logic of working with them inside respective class(this way `if (!error && statusCode == 200)` won't spread everywhere)
+		- hardcoded values -> constants
+	- if change is less likely, it can be more poorly isolated, BUT if it is not likely, but easy to account, it is always better to isolate
+		- ex: it is not reasonable to encapsulate React from your app, BUT maybe testing lib will be changed in future, so create a wrapper
+		- good unchangeable candidate is system's core
+- loose coupling - keep distant systems parts as least related as possible
+	- relationship must be loose, flexible, simple and detached from each other
+	- criteria:
+		- size - number of parameters, public methods, connections
+		- visibility - all actions must be understandable and easy to spot
+			- ex: mutation-query separation
+		- flexibility - ease of reusability and connectivity between parts
+			- ex: take several properties of an object as parameters and not whole object to make it easy to reuse function elsewhere
+	- kinds:
+		- data-parameter - all parameters passed inside are primitives
+		- object - one object is coupled to other object
+		- transitive - one object uses other object to get access to third object
+		- innerworkings - one object knows that other object has some logic to be performed before it can perform something else
+			- passing specific flags
+			- modifying global state
+			- calling specific methods
+			- module2 knows that it will get baseObject from module1, so it performs additional casting
+			- ---
+			- it is the worst way to couple things, because it will silently break after any change to logic
+			- basically try to build abstract communication between modules and avoid any details knowledge
