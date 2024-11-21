@@ -288,7 +288,7 @@ heuristics - ways to think about design, that act as guidance to it
 	- it is used on any design level
 - encapsulate implementation details - more restrictive abstraction variation, that forbids to look at any details, you only allowed to work with general picture
 - inherit if it makes things simpler - inheritance and polymorphism are keys to simpler systems, BUT don't overuse it, it increases systems coupling
-- Hide info(encapsulation) - basically an OOP's encapsulation, where you hide private properties of class inside of it
+- hide info(encapsulation) - basically an OOP's encapsulation, where you hide private properties of class inside of it
 	- in it's core it prevents usage of method, you marked as private, there for you can easily change it and do as little refactor as possible
 		- when talking about public API, you won't be able to change it at all, so don't overexpose things
 	- this is performing complexity hiding
@@ -337,3 +337,75 @@ heuristics - ways to think about design, that act as guidance to it
 			- ---
 			- it is the worst way to couple things, because it will silently break after any change to logic
 			- basically try to build abstract communication between modules and avoid any details knowledge
+- use common design pattern, like GoF
+	- benefits:
+		- common language with other devs
+			- great benefit is you can shuffle through options much faster, when discussing solutions
+		- ready made and tested solution for discovered problems
+			- it is more error prone
+			- can be evolved into more specific solution, for non-standard problem
+	- never force your code/thinking into patterns, such solution may not be valuable for your case
+		- shifting towards pattern can improve understandability, but never shift just for that
+	- never use pattern just to use it
+- other heuristics:
+	- high cohesion - how strongly related functionality of your class/method/module etc
+	- organize code in hierarchical manner - keep structure of an app from most abstracted thing(ex: page) to leas abstracted thing(ex: button and it's properties)
+		- great as layering technique and smth, that let's you achieve information hiding and abstraction
+	- formalize class contract - clear stating what, how and in what constraints class can do AND what can be done with it, makes process of creating, maintaining and using class more resilient
+	- assign responsibilities - always ask what this object must do
+	- design code for tests - reduce dependencies and responsibilities of each part of code, so it is easy to test it
+	- always consider what could go wrong
+	- choose when do to what in code - doing smth to early or upfront makes code easier, but less cohesioned and less flexible
+	- move logic to some predefined place - ex: don't inline calculations, place it inside class's method and call it like so, so it is easy to find and change it
+	- consider brute force if elegant solution is hard to achieve
+	- use diagrams
+	- keep design modular
+		- each module is black box, for abstraction reasons
+- \---
+- how to use heuristics:
+	- understand a problem
+		- restate a problem for better understanding
+		- consider working with part of the problem or with abstracted problem
+	- create a plan
+		- base it on previous plans
+		- base it on unknowns
+	- cary out with plan
+		- always check if you on the right way
+	- looking back
+		- always check if you solution is what actually needed for this problem
+	- all in all, try different approaches of thinking about the problem OR just take a break and come back later OR solve part of it and come back later with more info and knowledge
+
+design practices - some steps to produce great design
+- iterate - design couple of times, with new knowledge
+	- try different approaches: focus on low and high levels separately
+- divide and conquer - divide design into parts and work with them separately
+- work with Top-Down and Down-Top approaches
+	- Top-Down - start from most abstracted parts and add details
+		- it is easy for brain to work with generalities and small number of details
+		- start from abstract, decompose until it is easier to code, iterate until system is understandable
+		- benefits: it is easy to break big into small, no need to worry about details(that can change) on early steps
+	- Down-Top - start from smallest part of system and generalize
+		- some systems are so abstract, that it is hard to start, so try to focus on what the system need to do(in most simple representations as possible) and iterate from there
+		- hardware/system restrictions can be low-level details, that will shape overall picture, so also great way to start
+		- benefits: final system will be more compact, easy to find what can be reused
+		- problems: hard to use exclusively and can result in partial final design, you can start from the wrong place
+- experimental prototyping - if you are blocked by unknown parts, try to find them out with writing a minimum, throw away code, that will be used as base for completing the design
+	- please, don't do real development on this stage, just some testing
+	- always state clearly what are unknowns that need to be solved by prototype
+	- always write throw-away code
+		- if it is hard, don't use production language or choose garbage naming
+- collaborative design - always collaborate(formally and especially informally), when designing
+	- white boarding, coffee talk, pair programing, formal meetings, ADR/PRD/RFC, try to forget what did you do and later do self-review, forums
+	- creative approaches are the first what need to be done, but finalization is always must be formal
+- how to capture the design:
+	- in code: readme, comments, examples, docComments
+	- internal wiki(just a great tool overall)
+	- write, share and save summarize of large design decisions
+	- make a photos of whiteboards
+	- do charts, diagrams(UML) etc
+		- UML and similar solutions is great, because it has standard notations in it
+	- CRC cards
+
+> The more dogmatic you are about applying a design method, the fewer real-life problems you are going to solve
+
+#### Classes
