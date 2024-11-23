@@ -409,3 +409,49 @@ design practices - some steps to produce great design
 > The more dogmatic you are about applying a design method, the fewer real-life problems you are going to solve
 
 #### Classes
+Class is great tool for building encapsulation(this can be encapsulation of data+functionality OR just some service functionality, like helpers, with no related data)
+
+ADT(abstract data types) - collection of data and operations that operate on data
+- it is key term for building OOP style classes with good encapsulation and high cohesion and not just loosely related collections of data + operations
+- it defines, that we should treat data and operations in sync, with abstraction element(example: we aren't just adding entity to array, we adding customer to the orders queue)
+- benefits:
+	- we can hide implementation details(ex. types)
+	- encapsulation and localization of changes
+		- testing will be easier this way
+		- more error prone approach
+		- data is localized and always accessible
+	- we can create more understandable interface for our class
+		- self-documentation comes as a bonus
+	- no knowledge of low-level details is needed, when working with interface
+		- as said before, we don't treat list as list, we treat list as some real data collection, with specific operations bound to it
+		- note that you can layer ADTs, for example create custom ADT for Queue and then wrap it inside some AppointmentQueue ADT
+			- note that name AppointmentQueue includes "Queue", because it defines functionality, not an algorithm, it is a bad practice of exposing more details than needed, when using names like AppointmentFileStorage, because you can't reuse it as AppointmentCacheStorage, while it can have identical interface, but differ in implementation
+		- don't neglect creating small classes, it is easier to extend and the benefit of self-documentation is here
+	- polymorphism
+- how to work in non-OOP env(if you happen to be unlucky `:)`)
+	- create a manager wrapper, that can keep track of data, related to instance, via some id, passed as param
+		- alternative is to create one method, that will set currentlyInUse ADT, that will be shared by all other methods, so we need only one method to accept id and no one else
+			- note the problem of shared state
+	- manage data by user of ADT and pass it directly to ADT methods
+		- be careful not working with data in any other manner, because it breaks the encapsulation
+	- work with your ADT as with Singleton
+		- note the problem of shared state
+- why not classes?
+	- Class is ADT, but on steroids, like inheritance, polymorphism etc
+
+how create class interface
+- keep it abstract
+- keep high cohesion
+	- if it not cohesient enough, it must be consistent instead OR fixed
+- always make internal things private/protected
+	- be careful with inheritance here, you can try do smth like UserList extends List, BUT it can be dangerous, because now we state that UserList "is a" List and will expose all low level operations
+		- if it need no expose operations, overwrite them with more abstract once, it it not, better not to expose and do smth like UserList.#listInstance and delegate all work to this private instance
+			- Facade is great here, because we can expose only needed parts, change inner logic easily without breaking changes etc
+- keep it single purpose(employ operations can't be mixed with list operations)
+- check if you need an opposite operation(add - remove), BUT add only if it is needed
+- be careful with interfaces, that have operation that must be called in order
+	- it is unmaintainable, will be misused, need comments as explanations
+	- hide this details inside OR ensure clear errors(ex: invariant)
+- always recheck this list, when extending class
+
+how properly encapsulate

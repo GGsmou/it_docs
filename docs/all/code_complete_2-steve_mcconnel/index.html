@@ -753,4 +753,99 @@ here some of them, that wasn’t mentioned:</p>
 <blockquote>
 <p>The more dogmatic you are about applying a design method, the fewer real-life problems you are going to solve</p>
 </blockquote>
-<h4 id="classes">Classes</h4> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/cli/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">CLI</span> </span> </a> <a href="/it_docs/all/code_snippets/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Code_Snippets</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<h4 id="classes">Classes</h4>
+<p>Class is great tool for building encapsulation(this can be encapsulation of data+functionality OR just some service functionality, like helpers, with no related data)</p>
+<p>ADT(abstract data types) - collection of data and operations that operate on data</p>
+<ul>
+<li>it is key term for building OOP style classes with good encapsulation and high cohesion and not just loosely related collections of data + operations</li>
+<li>it defines, that we should treat data and operations in sync, with abstraction element(example: we aren’t just adding entity to array, we adding customer to the orders queue)</li>
+<li>benefits:
+<ul>
+<li>we can hide implementation details(ex. types)</li>
+<li>encapsulation and localization of changes
+<ul>
+<li>testing will be easier this way</li>
+<li>more error prone approach</li>
+<li>data is localized and always accessible</li>
+</ul>
+</li>
+<li>we can create more understandable interface for our class
+<ul>
+<li>self-documentation comes as a bonus</li>
+</ul>
+</li>
+<li>no knowledge of low-level details is needed, when working with interface
+<ul>
+<li>as said before, we don’t treat list as list, we treat list as some real data collection, with specific operations bound to it</li>
+<li>note that you can layer ADTs, for example create custom ADT for Queue and then wrap it inside some AppointmentQueue ADT
+<ul>
+<li>note that name AppointmentQueue includes “Queue”, because it defines functionality, not an algorithm, it is a bad practice of exposing more details than needed, when using names like AppointmentFileStorage, because you can’t reuse it as AppointmentCacheStorage, while it can have identical interface, but differ in implementation</li>
+</ul>
+</li>
+<li>don’t neglect creating small classes, it is easier to extend and the benefit of self-documentation is here</li>
+</ul>
+</li>
+<li>polymorphism</li>
+</ul>
+</li>
+<li>how to work in non-OOP env(if you happen to be unlucky <code dir="auto">:)</code>)
+<ul>
+<li>create a manager wrapper, that can keep track of data, related to instance, via some id, passed as param
+<ul>
+<li>alternative is to create one method, that will set currentlyInUse ADT, that will be shared by all other methods, so we need only one method to accept id and no one else
+<ul>
+<li>note the problem of shared state</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>manage data by user of ADT and pass it directly to ADT methods
+<ul>
+<li>be careful not working with data in any other manner, because it breaks the encapsulation</li>
+</ul>
+</li>
+<li>work with your ADT as with Singleton
+<ul>
+<li>note the problem of shared state</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>why not classes?
+<ul>
+<li>Class is ADT, but on steroids, like inheritance, polymorphism etc</li>
+</ul>
+</li>
+</ul>
+<p>how create class interface</p>
+<ul>
+<li>keep it abstract</li>
+<li>keep high cohesion
+<ul>
+<li>if it not cohesient enough, it must be consistent instead OR fixed</li>
+</ul>
+</li>
+<li>always make internal things private/protected
+<ul>
+<li>be careful with inheritance here, you can try do smth like UserList extends List, BUT it can be dangerous, because now we state that UserList “is a” List and will expose all low level operations
+<ul>
+<li>if it need no expose operations, overwrite them with more abstract once, it it not, better not to expose and do smth like UserList.#listInstance and delegate all work to this private instance
+<ul>
+<li>Facade is great here, because we can expose only needed parts, change inner logic easily without breaking changes etc</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>keep it single purpose(employ operations can’t be mixed with list operations)</li>
+<li>check if you need an opposite operation(add - remove), BUT add only if it is needed</li>
+<li>be careful with interfaces, that have operation that must be called in order
+<ul>
+<li>it is unmaintainable, will be misused, need comments as explanations</li>
+<li>hide this details inside OR ensure clear errors(ex: invariant)</li>
+</ul>
+</li>
+<li>always recheck this list, when extending class</li>
+</ul>
+<p>how properly encapsulate</p> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/cli/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">CLI</span> </span> </a> <a href="/it_docs/all/code_snippets/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Code_Snippets</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
