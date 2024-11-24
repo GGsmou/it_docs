@@ -454,4 +454,53 @@ how create class interface
 	- hide this details inside OR ensure clear errors(ex: invariant)
 - always recheck this list, when extending class
 
-how properly encapsulate
+how properly encapsulate - strongly related to concept of abstraction and helps preventing to even have possibility to look into details
+- always tend to make access stricter, even if you not sure
+	- remember about “Law of Demeter"
+- exposing getter+setter > exposing data field
+	- note that it can make classes more bloated, so be careful with this concept, BUT it makes code type independent, makes it easier to expand the behavior etc
+- avoid making assumptions about how class will be used
+- be careful with introducing two highly coupled classes
+	- State patter is one of possible exceptions
+- prioritize read+maintenance time over write time
+- don't introduce violation of semantic encapsulation, some examples:
+	- interface have optional props, BUT not passing this props results in error
+	- you know that `.initConnection` call can be avoided, because `.queryUser` operation will do it for you
+	- using not related constant `ANIMATION_TIME` in context of debouncing query, because they have same value of `250` 
+- make class complete, so there is no need to build upon it's functional
+- \---
+- all in all, when you need to look at the implementation, to work with class, consider that your encapsulation is broken
+	- it is generally better to ask code author to reimplement interface, then check implementation details of ask for explanation
+
+some common implementation and design issues within classes
+- if you have "has a" relationship, use Containment
+	- be careful with using private data field of Contained object inside a class
+		- if it is supported by your language
+		- it creates a discussed before "friend" classes
+	- be careful with introducing too many Containments(no matter if it is plain data type or complex, like object)
+	- generally, when you need control over your interface, use Containment, otherwise inheritance is valid option
+- if you have "is a" relationship, use Inheritance("is a" means some class is a more specialized version of it's parent)
+	- helps removing code duplication, but increases coupling, so be careful
+	- always ask yourself:
+		- will method have default implementation or will it be overwrited down the road
+			- basically we have: abstract method, implemented overridable method, implemented non-overridable method
+		- will field be accessible to child or not
+	- remember about Liskov substitution principle
+		- it avoids details leakage and problems with semantic encapsulation
+		- use composition, if you see yourself breaking LSP
+	- mark non inheritable class as "final"(if you lang supports it)
+	- if you don't need to inherit all method, use delegation instead, OR change inheritance tree
+	- don't reuse names of non-overridable fields in child class
+		- this breaks polymorphism
+	- tend moving common functionality as high in tree as possible
+	- be careful with singletons, they often can be confused with simple objects
+	- don't design ahead, creating base class, that has only one child, it increases complexity
+		- there might be need for future-proofing, but in general avoid it
+	- avoid deep inheritance
+		- too much complexity will be introduced
+	- polymorphism > type checking
+		- if talking about inheritance, type checking is still great for diffing different types
+	- private > protected, otherwise encapsulation is broken
+		- great way to introduce such child-parent connection is via some protected method, that acts as indirect access layer to private field, IF such connection is needed
+	- avoid multiple inheritance, to avoid mega complexity ;)
+		- it is appropriate for building independent, non expandable, mixins
