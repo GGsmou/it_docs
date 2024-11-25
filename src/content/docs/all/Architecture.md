@@ -1235,3 +1235,10 @@ Mutex is a pattern, that used to avoid race conditions and similar problems, whe
 (*JS example*) One of the way to "cook" it, is creating sharable `Promise`, that can be `hold` and `released`, so if one async operation is in progress, other will be locked, awaiting for the Promise, so:
 - removing race condition
 - queuing events
+
+## Domain Driven Design
+To reduce mental complexity in long run, it is important to use shared language
+- this language must be shared through you company(product, tech, non-tech, legal, compliance etc)
+- this language is related to domain, you are working in
+	- example: for University Management System we can't `delete` student, only `graduate` or `kick` him
+- achieved via global "Shared Language" document

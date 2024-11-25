@@ -504,3 +504,116 @@ some common implementation and design issues within classes
 		- great way to introduce such child-parent connection is via some protected method, that acts as indirect access layer to private field, IF such connection is needed
 	- avoid multiple inheritance, to avoid mega complexity ;)
 		- it is appropriate for building independent, non expandable, mixins
+- how to implement class properties
+	- minimize number of methods, BUT don't overdo it
+		- creating "super" classes is bad, BUT breaking and coupling them too much is even worst(and kinda pointless)
+	- make property or constructor private if needed
+		- private constructor is great thing to do, when creating Factory or Singleton
+	- be careful with introducing coupling between classes, where one class is too much dependent on other one
+	- be even more careful with indirect calls like so: `this.aObj.bObj.callMethod()` 
+	- initialize all properties of objects
+		- reduces type problems with partial object AND highlights places, where object is misused
+	- try to always deep-copy(often performance tradeoff is negligible, but complexity reduction is drastic, ESPECIALLY for smth like React)
+		- it is complex task for nested objects, BUT some libs or avoiding deep nesting is great strategy
+
+reasons to create class:
+- model real-world object - each real-world thing need one object with respective fields attached to it
+	- great for achieving DDD
+- model abstract object - it might be beneficial to abstract common things of real-world object into some abstract objects to enforce DRY or reusability
+	- non-deterministic process and can result in different abstractions for same problem
+- reduce complexity - hide any details inside an object, to make project easier to work with, understand, DRY, maintainable and correct
+- isolate complexity - create one thing in isolation and reuse it
+	- if you need to modify, fix, change it - only one place is effected
+- hide implementation details - hide types, external integrations, libs etc
+- isolate points of change
+- hide global data - create a StateManager object and expose data via methods, not directly
+- merge multiple variables into one object(if they are related)
+- create Controller class - work with points of control(DB connection, in-memory data etc) in one centralized place and way
+- create reusable code
+	- can be viewed as utils OR as code, that can be even shared between programs
+		- this way we can easily create "family" of programs, that have many similar parts
+			- it is often called a "platform" part of all codebase
+	- don't create reusable code, it it doesn't make much sense and adds complexity
+- \---
+- note: even if you don't have Classes, always modularize your app, BUT if you have, Class can be a part of some bigger module too
+- be careful with:
+	- god/super classes - too big classes, classes that interacts too deep with other classes, classes that know too much
+	- redundant classes - don't keep classes just because
+		- also class with no behavior MIGHT be redundant
+	- avoid behavior only classes
+		- detected if class is named as verb(`StringBuilder`)
+		- it is more often then not can be specialized and merged into dependent class
+
+other about classes:
+- always keep an eye on language specific staff(how it works, what common agreements/patterns exist)
+- it is beneficial to pack group of related classes intro packages
+	- if it custom build system, always enforce standards for private/public, code&project organization
+
+#### Routings
+Routing \== method/function, invocable for single purpose, in this section will be presented how create high quality once
+
+smells of routine:
+- poor naming
+- no self-documentation
+- inconsistent code style and unreadable layout
+- param modification is present
+- direct global data access
+- multi-purpose
+- no validation
+- magic numbers
+- unused vars/params
+- working with ref param as value param and vise versa
+- too many params
+- poor params order
+- poor params naming
+
+base goals of routine:
+- code readability
+- code reusability
+
+reasons to create routine:
+- reduce complexity (as you might expect `:)`)
+	- less duplication
+	- easier to change code
+	- no need to remember implementation details
+- introduce abstraction
+	- break routings into smaller once
+	- document code purpose
+- DRY
+	- fixes shotgun problem
+- subclasses extension - easier to override smth small and understandable
+- hide operations order (reduce complexity)
+- hide pointers (reduce complexity)
+- improve portability - any non-default feature/dependency can be broken to reusable routines
+- simplify boolean - create self-documentation to boolean operations, that are always hard to read
+	- or any operation to be fair
+	- we also have an opportunity to better structure operation itself
+- improve - any improvements are easier to make to one part of code and not all program
+
+ALWAYS tend for smaller routines, while it is beneficial sometimes to do otherwise, almost always breaking the code is good
+- also don't be ashamed of creating small or "stupid" routines
+- it might be, that small routine will grow eventually(validation etc), so small is good place to start
+
+how-to design routine:
+- cohesion is important here, it determines how closely related operations inside routine are
+	- routing, that performs multiple actions, will have low cohesion
+	- among everything else, it makes your code error-prone
+	- ways to achieving cohesion
+		- do only one thing (main way)
+		- perform operation sequentially close
+			- ex: I need compute date of birth, age and salary, SO it must be done in this order, not with salary in between
+				- to achieve you can structure your code in such way OR force `calcAge` use `getBirth` inside and don't accept as param
+		- don't place operation closely, that relate only to data, that provided to them from above
+			- it is better to initialize/receive data as close as possible to code, that it will be used by
+		- avoid direct execution of related functionality, rather delegate it
+			- ex: `Init` code may have may things inside of it, BUT if it delegates those things to other routings, rather then executing directly, it is ok
+				- we have cohesion by purpose this way
+	- what to avoid, so cohesion is high:
+		- don't combine calls in order, that have no need to be combined in first place
+			- ex: I need to get array of 3 values about user, so I will call 3 gets in a row here
+				- it rather be changed to getting all user data, OR some other way of destruction
+		- don't combine calls with boolean flags
+			- ex: if this I will do *some large part of code*, else *other large part* 
+				- better to split it into two separate actions
+				- if you need shared data, just access it from hire context, like class
+			- note: event handle OR command dispatcher is great pattern, that is exception here
