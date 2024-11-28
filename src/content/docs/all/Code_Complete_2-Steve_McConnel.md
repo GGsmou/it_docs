@@ -617,3 +617,167 @@ how-to design routine:
 				- better to split it into two separate actions
 				- if you need shared data, just access it from hire context, like class
 			- note: event handle OR command dispatcher is great pattern, that is exception here
+
+how-to name a routine:
+- use name that fully describes your routine
+	- if you notice `and`s in your names, this probably means, that this routine has too many responsibilities
+- be careful with too elastic names like `CalculateSmth, PerformSmth, DoSmth`, it is better avoid them
+	- exceptions are cases, like `HandleSmth`, when used in context of handling events
+	- if it is hard to pick other name, it is a clear signal that routine has too broad purpose, related to it
+- don't use numbers to differ routines, it will lead to indistinguishable functions
+- strive for clearness in a name, don't try to make it short
+	- good point is that routine can be bound to class, so `User.getReport()` has same meaning as `User.getUserReport()` and you can use shorter variation
+		- `getReport` - example of verb+object name type, that is great example of creating an understandable name
+		- `User.getUserReport` - is not only redundant in size, but it will break inheritance, example:
+			- `Check` overrides `printDocument` to "print checks", BUT naming `Check.printDocument` is stays the same, so it is confusing
+- use opposite naming in same format
+	- if we have `OpenFile`, we can't have `fClose` or `FileClose`, IT MUST BE `CloseFile` 
+- establish same conventions for common naming
+
+don't introduce too big routines...by amount of logic/data, length doesn't really matter
+
+how-to work with params:
+- establish consistent order of parameters, examples:
+	- sort by role: input, input + output, output
+	- sort by role C-style: output related, input
+	- onError callback goes first
+	- ---
+	- keep similar order between similar functions
+- if value can't be changed mark it as `readonly`, `const` or some other way, that ideally is backed-up by your language
+	- otherwise conventions are here to help
+- remove unused params
+	- linters are here for you, to enforce it
+- don't modify params directly
+	- this will make impossible to use them later in routine AND will require contextual knowledge about routine, when working with it
+	- this will make variable multi-purpose
+- add comments, invariants or asserts to state that parameter has additional requirements to it
+	- otherwise, handle this requirements inside routine(as validation step)
+- keep an eye on number of params:
+	- too many params result in harder to understand code
+	- passing too many params between routines result in high coupling
+		- if this routines are connected, put them into class and access data from-inside a class
+- how pass objects?
+	- first way - only requires fields from it
+	- second way - full object
+	- ideal middle ground - "it depends" on how routine works with object, if it coupled to object or connected, better to pass full object and keep it flexible, IF it just needs some data and it is not intentional for it to originate from same object, accept only 3 params
+	- indications of problem:
+		- passing non-complete objects, OR create objects in place, for routine itself
+		- frequently changing number of params, that could be accessed directly from object
+- always pass params of specified type, don't hope for a chance that it will work OR for compiler to save you
+
+procedure VS function
+- note: in modern languages it has only semantic meaning
+- procedure can't return anything, but still can take and change pointer values, SO it is used to perform actions
+	- can return status still, but it is debatable
+- function can return only one value, determined by it's name, and it is it's sole purpose
+	- notes:
+		- always return stated value(linter or compiler is here to help)
+		- never return pointer to local value, it will invalidate after function is completed
+- \---
+- does it makes much scenes for some TS dev to remember it? Can't say, it is a semantic things, so use it if necessary, BUT try not to overcomplicate things
+
+#### Defensive programing
+Create code, that can survive inappropriate usage, with proper behavior
+- this means we always assume, that data will be invalid and need to work with it accordingly
+- we can avoid checks, if they already done by compiler, linter etc, BUT it is not always that easy and additional help from us is important
+
+Basically, "garbage in == garbage out" out is bad strategy, it is better to result in some strict way: error, no response, compilation failure etc
+
+Basics of defense:
+- check data: number ranges, string sizes, format of data, SQL/HTML injections etc
+	- it always relevant for working with external data AND might be relevant on per function level
+- decide what is suitable to do AND do it
+- note: defense isn't first resort, when talking about routines, great design and abstraction is key, BUT it still can be useful there
+
+ways to defense:
+- assertion - perform runtime check, do nothing, if everything is ok OR throw error, if smth is wrong
+	- great for large problems to trace any issue OR avoid mess of recovering from state, that isn't possible in first place
+	- always document assertion meaning
+	- it is possible to remove assertions from compiled code, it their main goal is help in development
+		- some assertions are helpful to detect production errors too
+	- remember that assert is ment to be used, when dealign with critical, non-recoverable cases, it can't be used as error-handling flow, external data validation(internal is ok, because you in control of calling methods, thus you need to change code and assert is great way of checking it)
+		- basically assertion firing means, that smth is messed-up in code itself
+	- asserting is great way to verify contracts(postconditions and preconditions)
+	- it is not recommended, but possible to assert code AND then still add error handling block around it
+		- this way we still detect critical program state, BUT it will fail gracefully or even keep running
+			- if assertions aren't compiled, we won't have any errors, but this will result is safe flow inside of a program on prod, because data is verified
+		- great for large, long standing projects OR something, that aren't allowed to "just exit if everything is bad"
+- error-handling - if error is expected, you need to handle it, here is how:
+	- return neutral value - for bad param, return some "default" value(ex: `""`, `0`, `null`)
+	- ignore it - for corrupted video frame it is easier to ignore it and display next in the stream, that dealing with it
+	- return same value - related to previous example, if you have rapid stream of data, it might be ok to duplicate response, rather then dealing with broken frame
+	- assume closes legal value - if it is appropriate, use closes legal value(if you can't work with negative, "round" it to `0`)
+		- it is not always good idea to do so(statement is applicable to all other variants btw)
+	- log - used in combination with other, so we can prevent similar cases in future
+	- throw/return error - if it isn't responsibility of function, just break and notify function user about it(this may cascade, until responsible for handling won't "catch")
+		- try catching as close as possible, so you can easily handle and access details
+		- some centralized class can be used to handle errors, BUT it will couple all system to it, so use it with caution and do some DI to reduce coupling
+			- logging is somewhat part of such object
+		- if you don't have throw or return mechanisms in lang, create your own via returning custom statuses or setting them via pointers
+	- kill program - if it critical software, better to kill it, than assume smth or try to deal with error
+	- ---
+	- all in all, we have a trade-off between robustness(better some result, that nothing) and correctness(better no result, that somewhat incorrect)
+		- it is matter of requirements(architecture in first place) to decide, what we need to embrace more in our program
+		- it must be followed consistently
+- throw/return error (exceptions) in depth - if current part of code can't deal with error, it can `throw` it up the chain and hope, that someone can `catch` and deal with it
+	- use it wisely, otherwise, program WILL become a mess
+	- some use-cases:
+		- break program flow and notify(with propagation) higher parts, that somethings wrong
+	- when not to use:
+		- for cases that can be handled in simpler manner
+			- otherwise you break encapsulation and make program harder to understand
+				- basically, now you need to know implementation of code you are using and it is bad
+		- when something can be handled locally
+			- no need to break encapsulation
+		- when it break interface/abstraction of routing too much
+			- for example some low-level, implementation dependent, errors are leaked into outside
+			- if you need to throw, map error into highly abstract object and work with that
+	- advices:
+		- include as much info, that can help solve exception, as possible
+			- be careful from security perspective with it, it might be ok to expose some data for programers, but keep it abstract for user
+		- don't create empty catch block
+			- this is indicator of exception for no reason OR unhandled exception
+			- it you need to, at leas comment why OR better log that smth went wrong
+		- if type system don't allow stating that smth will throw, read the docs(or even code) and treat it appropriately
+		- enforce standard of what part of code and how should manage exceptions
+			- also some non-default ErrorObjects are possible, especially if you can throw anything
+				- it is easier to work with and create "infrastructure" around, like logging etc
+
+barricade approach - concept of dividing a program into parts, where each part will contain any error inside of it and prevent any spread into outside of it's boundaries
+- we state that some parts of program are responsible to work with untrusted data or any other source of error and have responsibility to validate and handle it, SO other parts can work with safe, "clean" data
+	- this way we encapsulate any validation in one place
+- we can have multiple layers of validation
+- validate data as close to "input" as possible
+- this way we can easily distinguish error-handling and assert use-cases
+	- assert inside "clean" zone, otherwise handle any errors
+
+debugging advices
+- dev version of program can be less optimized, less safe and more exposed to user then production
+	- if done correctly, it helps debugging a lot
+	- overall, don't fear of slowing down your dev env with some additional checks
+		- ex: react will re-render twice in dev, so it is easier to detect re-rendering anomalies
+- consider spending some time to create/integrate and learn debugging tools
+- use offensive programing - technique of making your program crash, log or behave less error prone, when in dev mode
+	- examples:
+		- assert will kill program in dev
+		- any unexpected case will kill program
+		- make problem worst(allocate more memory, do double re-renders) to make it noticeable
+- remove debug functional as much as possible
+	- make build system include/remove debug parts from code
+		- can be done with:
+			- preprocessors
+			- macros
+			- stubs: have two version of a function, one with functional, other - empty, so you will have minimal resource penalty on using it
+				- great, when you can't remove code completely, when building it
+			- smth more suitable for your lang
+	- if possible, create several switches for different debug levels
+		- now you can turn on/off different debug modes
+
+when going into prod, you mostly want your errors as silent as possible, so here advices on what should be removed on prod builds:
+- leave any critical checks, it is better to fail, that create wrong results
+- non-critical checks could be swapped from crashes to messages, logs etc
+	- if we can't not crash, except save any work in progress, that user is doing and then crash
+- some debug code can be left, so user can try to investigate OR somewhat mitigate the error
+- always attach logging/exporting errors
+- swap detailed error messages, to smth that not exposes too many details AND understandable for user
+	- additional data can be dumped into log files
