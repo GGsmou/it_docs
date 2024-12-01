@@ -781,3 +781,102 @@ when going into prod, you mostly want your errors as silent as possible, so here
 - always attach logging/exporting errors
 - swap detailed error messages, to smth that not exposes too many details AND understandable for user
 	- additional data can be dumped into log files
+
+#### Pseudocode programing process (PPP)
+Technique, used in class & routine design, that aims to reduce work and enhance quality
+- in it's core, a way of creating code via plain English, with some techniques, that make this process effective and such, that it results in good code later
+
+general steps in class creation:
+- create general class design, where you can describe public interface, abstraction level, what class will encapsulate etc
+- go in depth for each routine - things about what it will need, how it will interact with other routines etc
+- review + test(if you are already creating code)
+- \---
+- this is iterative process, where you can several times finish part(all even all of them) and iterate over
+
+general steps in routine creation:
+- design routine
+- check the design
+- code routine
+- review + test
+- \---
+- this is iterative process, where you can several times finish part(all even all of them) and iterate over
+- one of ways in approaching routine creation is PPP
+
+how to PPP in theory
+- precisely describe operations in natural language
+- don't bound to any concepts of language you are planning to use
+	- the key is to do as abstract design as possible, SO less describe a solution and rather intent
+		- general principle is thing if this pseudocode can be used as comment and not code itself
+- after general pseudocode is done, reiterate to lower-level of abstraction, so pseudocode can be translated into code
+- it is useful to develop som pseudo-syntax, when creating a pseudocode, for ease of understanding
+
+PPP benefits
+- great for creating low-level design
+	- acts as a layer between high-level design and actual coding, thus another possibility to iterate
+		- thus it is easier to change it, rather then do code again
+- easier to review then actual code
+	- no need to worry in programming related staff
+- can be reuses as comment(part of it at least)
+- helps to detect insufficient design
+
+how to PPP in practice (for routines)
+- note: we are talking about complex routines, this is too much effort for some simple getter/setter routine
+- each step is done in order, after creation of general class layout, for each routine
+	- re-iteration is key
+- design the routine
+	- check if routine is actually needed, stated in design and have at least general requirements
+	- define the problem it needs to solve in high-level
+		- can be skipped, if design is sufficient enough
+		- it should state: operations inside routine, inputs, outputs, preconditions, postconditions
+	- create a good name for it
+		- name must be clear and understandable
+	- check created solutions
+		- check public/company libs, standard lib etc and use part/whole it's functionality OR, at least, it's ideas
+			- existing algorithms is generally a great way to go
+	- things how routine will handle errors
+	- things about efficiency
+		- if efficiency not important - go hard on DX
+		- if efficiency is important - implement it, accordingly with design and requirements(what is more important, memory or speed etc)
+	- create general pseudocode + reiterate to make it more low-level(when reiterating decompose it as much as possible)
+		- always start with general comment, that will state the main purpose of routine
+		- then create pseudocode itself
+	- think about complex data manipulations (if any)
+		- define key data types, that will be in-use
+	- do self-review & external review of the pseudocode
+		- always aim to conceptual understanding of purpose of the routine
+- code the routine
+	- write general declaration + place general comment above it
+	- put pseudocode inside of a declaration
+	- write first and last statement
+	- fill middle of the routine by iterating over pseudocode
+	- clean-up unneeded comments + refactor code if needed
+		- move large, reusable chunks into separate routines(applying PPP)
+		- if chunk is large, but makes little scenes to move out, use PPP to work through it AND ONLY THEN do refactor
+- check the code - some errors can be found only after code has been fully written, SO perform addition check
+	- mentally execute the routine
+		- always understand role of each line of the code AND why it works
+			- otherwise you aren't really checking if everything is ok, only assuming
+	- ask for external review
+	- compile, lint, build, pre-process etc etc
+		- don't compile too early, there is a risk of not properly do mental execution and side-track into other, more trivial parts
+			- trivial, because it is easier to fix what machine has found, rather than understand everything by yourself
+		- general rules:
+			- make compiler as pickiest as it makes sense
+			- ALWAYS understand why warning has appeared and fix it
+				- otherwise you won't notice any warnings, because of their amount
+	- use debugger
+	- manually test
+		- if needed, you can write "scaffolds" - other dum routines, that will call your routine with test data
+	- if there are too many errors and problems - rewrite from scratch
+- clean up - perform checks, to see if routine has enough quality and can be used
+	- check: interface, design, variables & params, naming, layout, documentation, remove redundant comments
+
+alternatives:
+- TDD
+- Refactoring - write garbage code, iterate on it
+- Design by contract - create (post&pre)conditions for each routine and iterate from there
+
+notes:
+- overall, if you are stack, don't know where to start, what to do next, hacking around - use PPP or alternative
+- don't stop at first solution
+- class design and routine design are coupled processes, that can and will effect each other
