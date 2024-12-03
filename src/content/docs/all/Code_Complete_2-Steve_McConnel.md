@@ -880,3 +880,85 @@ notes:
 - overall, if you are stack, don't know where to start, what to do next, hacking around - use PPP or alternative
 - don't stop at first solution
 - class design and routine design are coupled processes, that can and will effect each other
+
+## Variables
+Using proper data-type is key in finding solution
+
+#### General issues with Variables
+###### How-to create variables
+declaration:
+- always declare variables, if language allows auto-declaration
+	- linters will help here
+	- also keep naming consistent, to avoid situations, where you try accessing non-existent `ID`, instead of declared `id` 
+
+initialization:
+- problems: var has no initial value, var has out-of-scope value, var has partial value(partial objects, uninitialized pointer)
+- good practices:
+	- always init on declaration
+	- declare, init and use as close as possible
+		- if your lang supports, enclose variable+usage in scope as much as possible
+		- basically, keep related actions together
+		- exception: global constants(or any non re-initializable data)
+	- use `const`, `readonly` and `final` as much as possible, to prevent unexpected things
+	- be careful with accumulators and counters
+		- also, if reinitialization is needed, don't forget to put it in loop too
+	- initialize routine variables inside routine + class data inside constructor
+		- always free/destruct inited data
+	- use strict linters, mods, compilers etc
+		- auto checkers for bad pointers is great tool too
+	- check params for validity(if non-valid data can be passed in)
+	- use recognizable filler values, if you initializing memory before-hand
+
+###### Scope
+One way of thinking about scope is thinking how many parts of you program know(has access) to some data
+
+Scope can be handled differently, depending on lang you are using, so here are some general advices on this topic:
+- keep variable declaration, initialization and usage as close as possible
+	- more error prone
+	- less context jumps, when working with code
+	- localized behavior is easier to refactor-out
+	- (this is one more reason to avoid any global state)
+	- advices:
+		- keep loop and related variables as close as possible
+		- use proper grouping, that minimizes "distance"
+			- sometimes, it will reveal that group can be refactored-out
+		- extract related functionality into separate function
+		- always tend to smaller scope(`private` first, local > global etc)
+
+always prefer small scope, as it results in code that easier to read an maintain
+
+###### Persistence (aka life time)
+examples:
+- block-scoped variable won't be accessible out of block
+- object in GC lang will be removed by GC, object in non-GC lang must be deleted by hand
+- global variables will live, as long as program is running
+- some data can live externally from the program, thus "forever"
+
+how-to deal with inconsistent persistence:
+- assert critical data for reasonability
+- set unreasonable value for non-used variables
+	- ex: set pointer to `null` 
+- always assume non-reasonable value, if not guaranteed otherwise
+
+###### Binding Time
+Point in time, when variable gets it's data assigned
+- later it happens == more flexibility you have, BUT more errors are possible
+
+examples:
+- hardcoding to some value:
+	- via magic numbers (binding at coding time)
+	- via named constant (binding at compile time)
+- creating function to get value
+	- binding on program load
+	- binding on object creation
+	- binding just in time(on each update loop)
+	- \---
+	- how function gets value can be changed via code or even at runtime, if needed
+
+overall:
+- use one variable for one purpose
+- create proper variable names
+- avoid temp variable as much as possible
+- avoid adding any hidden meaning
+	- ex: adding special values like: `-1` for "bad" value, adding different meaning for positive and negative ranges
+- always use all declared variables(use linters here)
