@@ -962,3 +962,98 @@ overall:
 - avoid adding any hidden meaning
 	- ex: adding special values like: `-1` for "bad" value, adding different meaning for positive and negative ranges
 - always use all declared variables(use linters here)
+
+#### Naming a variable
+Proper naming of anything in code is key for readable, understandable and maintainable code
+- it is great source of self documentation too
+- main goal of name is to fully describe what variable represents
+	- keep in mind, that name mustn't act as abbreviation, it should be understandable and clear
+	- keep it as specific as possible
+- avoid implementation details in names, use domain as source of inspiration
+	- deleteStudent -> expelStudent
+- using some common naming like: `T` or `i` is ok, but often it is better to give them more meaning(if you have multiple "i"s and "T"s)
+- some short names, like `i`, can state that variable is short lived and will be used only in some small scope, ex: loop
+- if you have namespaces, always specify from what namespace variable comes
+	- if you don't, standardized prefixes are great source of distinction
+- create/adopt naming standards, ex:
+	- where to place qualifiers: expenseTotal OR totalExpense
+	- where to place actions: handleDelete OR deleteHandler
+	- using opposite pairs: visible WILL ALWAYS be inverted to invisible (not nonVisible etc)
+- naming specific data:
+	- loops:
+		- if used inside loop, use: `i`, `k`, `j` 
+			- never use such names, outside of loop context, because it is a general convention
+		- if used outside loop, use proper naming with `count` or `index` part
+			- also required for long loops, nested loops etc
+	- statuses: avoid flags in favor of enums, booleans, names constants
+	- temps: don't use them, each var must have a meaning :)
+	- bools:
+		- agree on standard for naming them
+		- have names that can be understood as booleans
+			- error -> isError, errored
+		- some default booleans: success, done, error, found
+			- this defaults are just a base, you can customize them, give them more meaning etc
+		- use negative bools with caution
+			- avoid smth like: `if(!notIsErrored) {...}` 
+	- enums: if you lang won't prefix your enum names, prefix them by hand
+		- January -> Month_January
+	- global constants:
+		- if appropriate, keep them in ALL_CAPS format
+		- never describe their value in name, only meaning
+			- ex: `const FIVE: number = 5` is bad and give you nothing
+- always add structure and consistency to your project, by naming conventions
+	- even if they arbitrary
+	- use linters, if possible
+
+conventions(they might be useful to know and consider, but most often try keep your conventions as similar as possible to lang's you are using)
+- different styles, depending on type of a name: function, class, variable object, etc
+	- different cases
+		- be careful with case in-sensitive langs
+	- different key words, prefixes etc
+		- less readable in general
+	- different level of descriptiveness in naming
+		- `class Widget` BUT `longNameWidget: Widget` 
+		- names can be hard to come-up sometimes
+- identify: global vars, typedefs, class members, names constants, enums
+- state whether param can/can't be modified
+	- especially useful for langs like JS, where you pass everything by reference
+- use capitalization, underscores and dashed for better readability
+	- never mix several styles
+
+prefixes and abbreviation - great way to complicate your code-base :)
+- UDTA(user-defined type abbreviations) - bound to some specific type and don't correlate with language data types
+	- ex: fn - fontName, doc - document, wn - window etc
+	- abbreviation can be used in standalone way, as typedef
+- semantic prefixes - prefixes, that describe how variable is used
+	- ex: i - index, g - globa, t - type etc
+	- somewhat universal
+- \---
+- generally, can make code more compact and a bit easier to read, BUT overusing will cause drop in readability and impossible entrance barrier
+	- fast way of adding more context
+	- no problems with different naming `mx` or `max` or `maximum` 
+
+ways to make variables shorter(for readability reasons, never do it just for sake of doing)
+- remove needless worlds
+- use shorter synonyms
+- abbreviate
+	- some standard ways: use standard abbreviations(ex: `fs`), remove vowel, use first worlds of each letter, keep several letters of world, truncate some letters, remove suffixes etc
+	- note
+		- never change meaning
+		- don't make vars hard to read
+		- abbreviate consistently
+		- create pronounceable names
+		- document some specific abbreviations
+			- can be on project level, block level, file level etc
+
+what to keep an eye on:
+- confusing abbreviations
+- similar names(in general, by meaning, by sound)
+- avoid numbers in names
+- don't misspell names
+	- linters ;)
+	- alternately try avoiding this worlds, if possible, BUT...Eng is a mess, and it is impossible to spell anything, so don't worry
+- don't assign real meaning to capitalization
+	- ex: FI == first and fi == final
+- keep single natural language, with single dialect, for names
+	- preferably choose from:  British or American English
+- don't use reserved names by language itself
