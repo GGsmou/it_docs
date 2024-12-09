@@ -1057,3 +1057,93 @@ what to keep an eye on:
 - keep single natural language, with single dialect, for names
 	- preferably choose from:  British or American English
 - don't use reserved names by language itself
+
+#### Fundamental data types
+Fundamental DTs are basic building blocks for your program, so it is important to nail them
+
+###### Numbers
+- magic numbers -> named constants or global constants
+	- benefits: ease+reliability of refactoring, easier to understand, code is more reliable
+	- note: keeping 0 and 1 for incrementing or in loops is ok
+- anticipate devision by zero, when doing devision operations
+- convert types(ex: int -> float) explicitly, avoid uncertain auto-convertions
+	- applicable for comparisons, math operations etc
+	- compiler is here for you :)
+###### Integers
+- do division last
+	- benefits: avoid uncertainties(`7 / 10 * 10` may equal 0, because devision is casted to int)
+	- all-in-all, always use brackets to enforce math
+- anticipate overflow problems
+	- even if everything is fine for current values, think if it is possible for this, for example, id int to overflow 2^8 in future
+	- same goes for intermediate values, when doing math
+###### Floats
+- remember about precision problems(ex: `1/3 ≈ 0.3334`)
+	- when precision is required, it is often better to work with integers + 10^n separately
+	- if you still need to do any math with floats, try to do operations with sorted set of numbers(you will loose precision more often, with operations on numbers, that have great magnitude difference)
+	- same problem appears in comparison(sum of `0.1` x10 won't result in `1`)
+		- doing loose equal(with some fixed precision to check) is fine enough
+	- precision will appear in rounding too
+	- some more way to concur precision:
+		- use float with more precision
+		- use binary coded decimal
+		- use int64 + magnitude
+		- use ready-made solutions(standard-lib OR 3d-party lib)
+###### Chars+Strings
+- magic stings -> named constants OR global variables
+	- benefits: same as for magic numbers, i18n/L10n, memory(for some systems it is efficient to a-locate memory once and reference it)
+		- speaking of i18n/L10n, it is must have to decide on how to deal with them early on(where to store translations, how bake them into builds etc)
+- make explicit decision for Unicode usage, when dealing with non-UTF languages
+	- as light-weight alternative to UFT, consider ISO-8859(extended ASCI-2)
+- keep all strings in one format and do necessary mapping as close to point of change as possible
+- for some languages like C, where it is hard to work with high-level concept of strings use such approaches:
+	- add prefixes to diff arrayOfChars and pointers
+		- avoid pointers, if there is no memory constraints
+	- use standard operations to copy or compute strings
+	- be careful with string length(when a-locating memory, length must be 1 more then base)
+		- conventions are here to help
+	- initialize string with 0(zero terminator), to avoid endless strings
+###### Booleans
+- name booleans
+	- benefits: self-documenting code, ease of understanding
+- define custom booleans, if language doesn't have a built one
+	- often done by enum OR `0` and `1` 
+###### Enums
+Enum(enumerated type) - type that can allows to describe each member in plain English
+- use enums to add more readability, ease of understanding, ease of maintenance and reliability to code
+	- often great as params
+	- reliability can be achieved easily with linters
+- can be used as more descriptive or expandable(in future) booleans
+- always do exhaustive checks for enums in if/else or switch-case statements
+- you can enforce some standards for enums:
+	- state that first element is always invalid (applicable for string->number enum)
+	- state first and last elements explicitly, so you can loop easily through enum values (applicable for string->number enum)
+		- be careful with cases, where you can assign numbers not in order, so looping is impossible
+- global variables OR classes can be used as enum simulators (if you have no built-in once)
+	- if possible, try to make them type-safe
+###### Named constants
+Variables, that can be never re-assigned and represent some logical value
+(basically, we are putting some value into "parameter", that can might be changed later)
+- benefits: single point of change, clarity
+- always name any literals
+	- it might be useful  to even name your indexes(`i`)
+- name any specific data
+- simulate named constants, if needed
+	- try to enforce scopes too
+- always use named constant, if you have one, never mix literals and named constants
+###### Arrays
+Simplest structured data type. In it's simplest form can contain group of same-typed data, that can be indexed by numbers
+- always keep an eye on out-of-bounds problem
+- consider alternatives first(set, queue, stack) and only then array
+- name indexes meaningfully, when working with multidimensional arrays OR nested loops
+- use built-in length getters, instead of constants, if possible
+###### Custom types (Type Aliasing)
+If possible in your language, create custom types for places, where types might change(protected variations), so you could easily mitigate changes
+- ex: similar types like `int8` `int16` etc, strings/arrays with fixed length
+- you can do information hiding this way
+	- but remember to keep name abstracted from implementation details
+- you can create linter/compiler rules to enforce things like fixed length
+- you can create missing types this way
+- great way to achieve self-documented code
+- be VERY careful with redefining standard types
+	- it not prohibited for cases, like standardization, where you need to have same INT32 for different platforms
+- if you need more flexibility, use classes
