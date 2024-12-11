@@ -1147,3 +1147,87 @@ If possible in your language, create custom types for places, where types might 
 - be VERY careful with redefining standard types
 	- it not prohibited for cases, like standardization, where you need to have same INT32 for different platforms
 - if you need more flexibility, use classes
+
+#### Unusual data types
+A bit more about types, that aren't common in high-level languages
+
+###### Structure
+Data type, that built-up from other data
+- similar to class, but can have only public data fields
+	- that's why it less common then class, but has it's reasons to be used
+
+reasons to use:
+- clarity - group related data together
+- encapsulation of logic, simplicity and reliability - perform operations on group of related fields, rather then on bunch of variables
+	- in some languages you can copy structures like so: `newStruct = oldStruct`, or like so: `newStructu = {...oldStruct}` etc
+- simplification of parameter list
+	- note: don't group unrelated params, don't pass whole objects if only part is needed(basically we can encapsulate some data in routines, BUT in this case we do encapsulation from routine, so it will stay more generic)
+- transportability - by having less capabilities then class, it is possible do do serialization, transportation and deserialization of struct data
+
+###### Pointers
+Pointer gives you great power, BUT you must be careful with it
+- basically, pointer errors are number 1 problem for languages, that give access to them
+	- note: even if your lang doesn't have a pointers, things like passing objects by reference are still pointer dependent, SO such knowledge is useful
+- pointer operates on two pillars
+	- location in memory - pointer value is some value(often 32bit hex), that points to some region in memory
+	- knowledge about memory contents - memory is just a raw bytes, so pointer needs to associate location with data type, to interpret this raw bytes
+		- this interpretation is device, OS CPU etc based
+- pointer errors are different, because it is hard to locate it, reason been, pointer changes raw memory, thus wrong manipulation with it can cause all sorts of problems, that is hard to debug
+
+general tips - in general, try to predict errors via extra measures AND look for any symptoms of potentially existing errors to detect them ASAP
+- encapsulate pointer operations within function or class
+- declare and define pointers as close as possible
+- allocate and deallocate pointers in same scope
+	- even if not possible to do in same scope, do on same level(constructor - destructor, in sister routine etc)
+- add validity checkers(for pointer value, for value that pointer points to)
+	- can be done via getter/setter
+	- ex: if address is in range, between some predefined values
+	- alternative: fill existing memory with garbage to mark as freed
+- add "tag field" - when allocating struct in memory, add constant value field and check if it remains unchanged + corrupt it on pointer deallocation
+	- you could perform one check before deletion OR multiple, for ease of finding root cause
+- don't re-use pointer variables
+- pre-allocate some buffer memory, for cases of RAM-overflow, so you could save work and gracefully shut-down
+- set pointers to `null` after deleting, thus preventing any writes to freed(dangling) pointer
+	- note: reads are still possible
+	- if you add null checks, before deletion, this will also help you
+- create global dict of pointers and check if their exist, before deletion
+	- it is a global state, so meh :\
+- all this advices could be packed into some helper function/macro, to work with pointers
+	- this macro can have different behavior in dev/prod mods
+- just don't use pointers or langs with pointer ;)
+- in some langs like c++, we have references and pointers, where pointer could be changed, but reference is constant and will refer to object(it can only refer to object), after initialization
+	- const references allow to clearly state, that you will pass reference to read-only object
+		- unlike JS, C++ will always pass by value, meaning copies of object
+- some more advices: declare pointer type, don't cast one type to other
+
+###### Global Data
+Some data, that can be accessed by any part of the program(or shared between large parts of a program)
+- same as pointers, great power, great number of problems, SO it could have some benefits, but it is more a last resort thing OR a solution to specific problem(like cache)
+
+common problems:
+- modularity, single responsibility, maintainability, encapsulation, scalability etc is lost
+- side effects
+	- async too
+- aliasing by local variable
+- sharing data between thread
+- code isn't reusable anymore
+- testing and debugging problems
+
+reasons to use:
+- shared values
+	- sometimes it may be better to group parts that depend on value into class or module
+	- try to make var private first, it is hard to lower visibility later on
+- named constants or enum simulation
+- eliminate props drilling
+
+advices:
+- create getter+setter function for lower coupling and encapsulation in some way
+	- basically same reasons as for class getter/setter methods
+	- function can(and mostly should) be changed to classes, if you can, and now you have Storage Singleton with all you data, that somewhat encapsulated ;)
+		- if you can't, create some standards to enforce routines over direct access
+- group related data into some Classes, Structs etc
+- if there is a need, establish some mutex(or similar locking system), when working with global data
+- built domain abstractions on top of global data, avoid implementation details
+	- also keep abstraction level consistent
+- on scale, create a list of well-known and broadly used global data in program
+- don't use global vars for temp values
