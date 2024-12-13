@@ -1231,3 +1231,129 @@ advices:
 	- also keep abstraction level consistent
 - on scale, create a list of well-known and broadly used global data in program
 - don't use global vars for temp values
+
+## Statements
+Organization of statements is also important in achieving quality, readability, maintainability etc
+#### Organizing linear code
+- statements, that need to be executed in specific order
+	- key rule is to make data-flow and dependencies clear(it must be easy to understand why smth is done in such order, without need to know implementation or domain details)
+		- don't initialize data in non-appropriate functions
+		- state dependencies by names(ex: `init` in name is great signifier, that this function is required to be executed first)
+		- state dependencies via params list
+		- comment any uncertainties, if self-documenting code is not possible
+		- use assertions or throw errors for validating dependencies
+			- be careful with introducing complexity this way
+- statements, that can be executed in any order
+	- order can be any, because there is no dependencies, but you still should structure it, to keep readable and performant
+	- main principle is to keep related actions together
+		- by reordering, you may find that some group could be refactored-out into separate function
+	- keep code readable from top-to-bottom
+		- it is also important to avoid too much context switching, when code is read
+
+#### Organising conditionals
+Execution flow can be controlled in runtime via conditional structures(if-else, switch-case), so it is important to give them proper structure
+
+###### if-else
+- write normal path first OR, alternatively, error path first 
+	- if you doing early returns, error first is great, otherwise it more convenient to have normal path first(because you see "answer" earlier worry about errors if needed)
+	- try not to mix both paths
+	- note: this is just advices, if it lowers code readability, screw them
+- keep an eye on
+	- equality comparisons, especially for included/excluded cases
+	- accidental reversal of logic
+- don't write empty conditional blocks
+	- if needed, add comment, explaining why
+- test all conditional paths
+- simplify checks with named booleans or calls to named functions, that return boolean
+- sort multiple if-else statements by commonness
+	- same for switch-case
+- add assert to final else, if it not expected to be called
+	- same for `default` value in switch-case
+- use switch-case over multiple if-else statements
+
+###### switch-case
+- note: this construct may not be supported or implementation/capabilities may differ from lang to lang
+- for large switch-cases, it is great practice to organize them:
+	- alphabetic/numeric/etc order
+	- order by commonness
+	- order by normal first, error last
+		- or vise versa
+- keep code in each case short and simple
+	- if needed, extract code into function and call it from `case` 
+- if it is hard to write case value, it is a great indicator, that if-else should be chosen
+	- often mapping values to enum can be a good practice, that allow using switch-case
+- use default for real default, or for assertions, don't write last `case` as default
+	- self-documentation and error detection abilities are lost
+	- it is harder to add real default later
+- use default for error detection if not used
+	- if used, maybe rewrite it so default is checked separately, so you could always be sure, that you switch-case covers all cases(ex: all enum values)
+- keep an eye on always writing `break` for each case, except when logic is easy to understand
+	- ex of easy logic: `if A or B -> do smth; break;` 
+	- document any complex missing breaks, for better understanding of why
+- avoid nesting control structures OR any deep nesting :)
+
+#### Organizing loops
+Loops can be hard, so their organization is key
+
+- selecting a loop
+	- types: loop that will be executed pre-defined number of times, loop that will be executing until `break`, infinite loop, iterative loop(ex: `forEach`)
+	- control structure to break can be placed: at the begining, in the middle, at the end
+	- combination of this two factors will result in some loop structure(while, for, do-while etc), that comes with its trade-offs
+		- usually it is more reliable to choose iterative or fixed-size loops, but doing raw `while`(or `goto`) can be quite beneficial for some cases
+			- still, be careful with `goto` and other unusual or nested structures
+	- `for` loop
+		- choose this type when you need to setup loop once(usually for known number of iterations) and forgot about it
+		- doing additional controls or `index` manipulations is good sign to change to `while` loop
+	- `forEach` loop - choose over `for` loop, when your doing iterations over some data container(ex: array, linked list etc)
+- controlling the loop
+	- generally, keep it simple
+	- treat insides of the loop same as function(reader don't need to read all of loop's body to understand it, keep as much data outside of the loop as possible)
+	- entering
+		- enter from one point
+		- put initialization as close as possible to loop body
+		- keep proper loop type
+			- ex: don't do complicated calls inside `for` loop header, use `while` instead or at leas put those inits outside of header
+	- dealing with body
+		- always use `{}` for loop body, for readability reasons
+		- avoid empty loops, for readability reasons
+		- try to group control manipulations(breaks, variables change) at the end or start of loop body
+		- keep 1 loop per 1 task
+			- for efficiency reasons it can be disregarded, but it need to be readable non the least
+	- exiting
+		- think through how loop iterates
+			- after doing so, do debugger check, with stops at start, middle and end of the loop + additional checks in places of interest
+			- never debug with your guts, always find the reason problem occurred
+		- make termination conditions obvious
+			- main rule is to keep point of termination in one place
+		- don't kill loop by changing index value
+			- use `while` loop, on `break` controls
+		- don't reuse indexing value, outside of a loop
+			- better to create some boolean flag or similar variable, to keep track, for example, if loop finished without early break
+		- for critical loops, you can check if index is over some global limit of iterations AND IF SO, kill loop with error
+			- be careful with introducing inconsistencies and additional errors this way
+		- never leave infinite loops ;)
+		- exiting early
+			- don't introduce some flag values or additional if-else checks, when you need to simply `break` out of the loop
+				- reduces complexity and nesting
+			- be careful with nesting and any complicated code in loops, it can lead to unexpected exits or non-exits from the loop
+				- if you need to nest, better use labeled break points to clearly indicate from what part of code you are exiting
+			- look for too many breaks, it can be indicator of single responsibility violation
+			- group continue/break calls and place them at the top
+				- if you can't, this is a clear indicator that if-else might be more suitable
+			- note: by using break/continue you makes loop harder to understand, so do it with cautions
+- using loop variables
+	- use integers or booleans for controlling a loop
+	- use meaningful index names for nested loops, complex of just large loops
+		- make loops easier to read and understand, helps avoiding cross-talks of loop indexes
+	- keep as mush loop related data inside of a loop as possible
+		- same goes for index value
+		- note: some simple things like scoped index variable for `for` loop might not be scoped at all(depends on compiler implementation, language spec etc)
+- long loops
+	- keep them short. ;)
+	- limit nesting
+	- indicator of good loop is possibility to extract all it's body to function
+	- make long loops easy to understand
+
+other:
+- to write complex loops, that hard to think about, write them in: PPP, TDD, inside-out(start from one case, wrap it into loop, repeat)
+- always code into language, ex: take practices from FP and create some functional-like traversal methods for easier and safer array manipulations, without the need for actual loops
