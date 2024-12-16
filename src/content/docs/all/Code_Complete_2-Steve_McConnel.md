@@ -1357,3 +1357,47 @@ Loops can be hard, so their organization is key
 other:
 - to write complex loops, that hard to think about, write them in: PPP, TDD, inside-out(start from one case, wrap it into loop, repeat)
 - always code into language, ex: take practices from FP and create some functional-like traversal methods for easier and safer array manipulations, without the need for actual loops
+
+#### Unusual control structures
+Some control structures are non-universal, underpowered or have other problems, so they are "unusual", but still exist
+
+- multiple returns - structure to force break from routine and give back control to caller
+	- use to enhance readability, reduce nesting("early return")
+	- be careful with missing clean-up, making routine harder to read
+- recursion - routine do small part of whole problem and calls itself to repeat
+	- great for large problems, that can be decomposed to small once
+		- often the most elegant solution for set of algorithms, BUT for cases like `Fib` it just not efficient enough to go this way
+	- be careful with
+		- missing condition to break from recursion(always place it near the top of the function for safety)
+			- for complex conditions introduce max depth of recursion and break(`return` OR `throw`) from it
+				- max depth is also great to safely prevent any stack overflow
+		- stack overflow, because of deep recursion
+		- making solution hard to understand
+	- restrict recursion to one function, don't call other function, that will call original function back
+	- always create objects on the heap, to prevent fast stack overflow with auto objects
+- goto - structure, that allows "jumping" from one place of program to other via command
+	- often is prohibited and marked as bad practice, BUT it is still worth to discuss, because it kinda appears as multiple returns, named breaks, multiple loop returns, error handling
+	- arguments against:
+		- code is hard to format
+		- program is harder to optimize
+		- any non-linear code is hard to think about, BUT it can be powerful for some cases(async, throw/catch etc)
+	- arguments for:
+		- can lower duplication
+		- can make code faster
+		- overall, you don't need to avoid, most oftenly you just don't need to use it, because there is better alternatives
+	- appropriate examples:
+		- do early return with clean-up
+			- avoid duplication of clean-up code and just go to the end of the function to do clean-up and return
+			- for some cases it can be re-written to similar code, but often it results in complications, that not worse it
+				- note: you must use consistent approaches in your code base, don't mix try/finally and goto
+		- avoid code duplication
+			- often can be re-written to use helper function, BUT it is less effective resource-wise
+		- emulate control structure, that is missing in language
+			- emulate 1-to-1 as it should work
+		- efficiency improvement
+			- always measure and document this improvement
+	- notes:
+		- don't use too many gotos
+		- use all labels
+		- be careful with unreachable code
+		- use goto only to go forward
