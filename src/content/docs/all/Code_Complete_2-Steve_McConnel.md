@@ -1401,3 +1401,68 @@ Some control structures are non-universal, underpowered or have other problems, 
 		- use all labels
 		- be careful with unreachable code
 		- use goto only to go forward
+
+#### Table-Driven Methods
+Alternative method to logical statements, that allows to look-up any info via table scheme
+- can be great solution to avoid complex logical statements OR complex inheritance, BUT still more complex, than doing simple if-else/switch-case
+- example of great usage:
+	- you can change regexes or complicated char_code checks to determine what type of character you received(letter, number, other), by creating and pre-filing Map(look-up table), that has structure like `{char_code/string: "letter" | "number" | "other"}` 
+- overall data tends to be more flexible then code, so for cases, where you need to process large amounts of different types of somethings, you can describe how they need to be processed in table-driven format, load into program and execute logic, depending on the data
+
+main problems:
+- how look-up data - can be quite easy with indexed array for month OR tricky with large data-sets
+	- direct access - access value directly via some index, combination of indexes inside array/matrix
+		- if you don't have enough data or input can be out of range, you can deal with it in several ways:
+			- introduce placeholder data into table
+			- normalize input value to be in-range
+	- indexed access - similar to direct access, but instead of using array you use two arrays(main and look-up table), to account for data, that hard to normalize
+		- basically you create two arrays, one that densely stores main data and other, that will have small entries of just indexes(so it can have many empty spaces, but don't waste too much memory)
+		- advantages:
+			- indexes take less memory
+			- you can create several index arrays for single data set
+			- it creates layer, similar to getter method, so code becomes less coupled
+		- easier alternative might be to use Map, so you can use value directly as key, with no normalization
+	- stair-step access - in this case, key corresponds to upper-limit of some range, thus all data bellow it will result in some value
+		- be sure include/exclude boundary values consistently
+		- this way you don't need to do any normalization at all, just plug in boundary values and thats it
+		- to find needed value you will loop through all "stairs", so consider utilizing binary search here
+		- note: sometimes indexed access is better tradeoff of lower speed, higher memory usage
+- what to store - can be some plain value(enum, string, number etc), action(enum or string that can command what to do), reference to function to be executed
+
+other:
+- remember that data can be read from external source, thus you don't need to update code to change behavior
+- avoid direct index calculations, abstract it with functions/methods
+
+#### General Control Issues
+- boolean values - used to control flow of code
+	- always use defined true/false OR define them as variables/macros by hand
+	- coerce values to booleans explicitly
+		- *looking at JS* 
+		- still exclude redundant checks like: `if (a > b) == true`, they make code harder to read
+	- break several expressions to smaller one, with names, so it is easier to understand complicated logic
+	- move complicated boolean check into separate function
+		- it makes it reusable
+		- it gives it proper name, so it is easy to understand what it for, without understanding the implementation
+	- change logic/inheritance to look-up table, as discussed earlier
+	- form booleans positively as often, as possible
+		- flip variable name to avoid `!var` 
+		- flip order of if/else to avoid `if (!var)` 
+		- convert expressions to easier one, but logically equivalent
+			- ex: `!displayOK || !printerOK` == `!(displayOK && printerOK)` 
+			- theory: negate each operand, swap `and` and `or`, negate whole expression
+	- use parentheses for clarity
+		- it is also useful outside of boolean operations context, more clarity is always good
+	- don't account for lazy evaluation of booleans
+		- ex: `while (i < arr.length && arr[i] !== 1)` 
+			- this will result in error, if compiler evaluates both sides and only then do `&&` operation, SO better to avoid such code
+		- note: it might be general practice to use such features, so "it is what it is"
+			- ex: in react `var && <>{var.value}</>`, won't cause problems, because JS guarantees to lazy evaluate
+				- this is called short-circuited evaluation and it follows such logic:
+					- `v1 && v2`, if `v1` false -> result false, else -> result == `v2` 
+					- `v1 || v2`, if `v1` true -> result true, else -> result == `v2` 
+				- note again: some langs may have dedicated operators, that will always evaluate both sides (for some reason)
+					- like Java: `|` or `&` 
+	- write numeric operations in such way, that it is easy to map them onto number line
+		- examples:
+			- `min <= i && i <= max` 
+			- `i < min || max < i` 
