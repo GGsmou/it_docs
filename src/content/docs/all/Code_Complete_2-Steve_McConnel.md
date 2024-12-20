@@ -1466,3 +1466,95 @@ other:
 		- examples:
 			- `min <= i && i <= max` 
 			- `i < min || max < i` 
+	- working with zero - zero states many things(falsy, nullish, number etc), so it is important to clearly state what it means
+		- if used like boolean, operate with it as with boolean: `if (value)` 
+		- if used as number, operate with it as with number: `if (value !== 0)` 
+		- if used as string terminator, operate with it as with char: `if (*charPtr != '\0')` 
+		- if working with pointer, clearly compare with null: `if (ptr != null)` 
+	- common problems:
+		- be careful with mistyping `=` and `==` 
+		- know your language(generally good advice):
+			- distinguish: `==` and `===`, `==` and `.equals` etc
+- compound statements (blocks) - number of statements, that are grouped by, usually `{}` and treated as single statement(this can include shared scope and other groupings)
+	- main point here is to avoid conditions, without brackets, even if it is allowed by language, for sake of read-ability and extendability
+- null statements - statements, that do nothings
+	- can be met as empty conditional body, empty `case` etc
+		- it is often better avoid empty conditional body and move any logic inside of it, rather then working with side-effects
+- working with deep nesting
+	- deep nesting creates same issue as large functions or many context to keep in mind
+		- *typical problem with human-monkey brain, that can't handle too many things at once* 
+	- refactor-out deep nesting as much as possible, by:
+		- extract nested conditional statements with introducing additional checks
+			- this might result in more complicated checks overall
+		- add early returns
+		- use `if-elseif-else` structure
+		- use `switch/case` 
+		- leave deep nesting, but refactor-out inside of each block into separate function, so you can read decision making part OR execution part
+			- if nesting is too deep, you can refactor-out checks too
+		- use OOP's polymorphism
+		- use table-driven method
+		- use status variable
+		- use exceptions
+	- always have a good reason for "why you need deep nesting", if not reason - refactor this code
+
+note:
+- poorly done control structures is clear source of complexity in your program, always tend to linear, top->bottom programs, without avoiding too much "jumping"
+	- overall, complexity can be measured by counting decision points(ex: each keyword(`if`, `and`, `or` etc) used == +1 point), THIS NOT MEANS, that you have to do counting all the time, it is just some reference point, when you can't describe why you "feel" that code is complex
+		- this metric can only be used for control complexity, BUT it also can be combined with other measurements, to decide on global complexity, like: how many vars you use, how many params, how many lines of code etc
+
+## Code Improvements
+#### Software quality in general 
+Software quality can be viewed from two perspectives:
+- user side(external):
+	- correctness(how well system built)
+	- usability(UX, learning curve)
+	- efficiency(system resources)
+	- reliability
+	- integrity(authN, authR, concurrent operations handling)
+	- adaptability
+	- accuracy(how well system do it's job)
+	- robustness(performance under stress)
+- programer side(internal)
+	- *all mentioned above* 
+	- maintainability
+	- flexibility
+	- portability
+	- reusability(how easily you could extract and re-use parts of a system)
+	- readability
+	- testability
+	- understandability(on both high and low levels)
+- aspects if internal side directly effect corresponding aspects of external side, so it is as(if not more) important
+- some aspect can interact with each other(by hurting or helping)
+
+techniques to improve quality:
+- set explicit objectives, that clearly state what qualities you aim to achieve
+	- objectives must be achievable and somewhat stable
+- keep quality as priority on culture and process level
+- ensure proper QA step from engineer first and only after by QA-team member
+	- left-shift development technique
+- review process(code review, customer review, audit, informal forms of review, external forms of review etc)
+	- look at it as "gate", that can be passed, if software is "good enough" at this point, to continue moving forward
+- assuring quality, while developing:
+	- control how changes made - any unexpected or uncontrolled changes will result in destabilization of quality
+	- always quantify and measure quality aspects
+		- statistics is a key ;)
+	- prototyping
+		- overall one of the bests methods of requirements development
+- use multiple techniques - overall, each technique helps detecting some portion of defects, but combining them(several type of reviews, QA, AQA, unit testing etc) will give you great results
+	- some methods can be better for particular tasks and programs
+	- some methods cost more per defect, so smaller companies should evaluate each of them, before applying
+		- note that some methods can find defect faster, thus increasing their value, even if they are more expensive per defect
+		- note that some methods can detect only symptoms of defect, so you need to invest into finding cause
+	- the most effective combination to consider:
+		- formal review on all development steps(architecture, doc, code etc)
+		- modeling/prototyping
+		- testing(more different types == better)
+	- defect finding should be as strict as possible at the beginning of the project(errors at the start have higher cost) and gradually decrease to some point, where it stays to the rest of a project
+
+general principle of software quality - by improving quality you can lower development cost
+- means, that to be more productive, you must spent less time re-writing code
+	- sometimes you can see this in action, when engineer write so little code per day, but still busy and productive(because he invests time into improving quality, working on requirements, architecture, testing etc)
+	- improving quality reduces not only refactors, BUT ALSO debugging and associated activities(which is pretty expensive)
+	- it always a game of higher upfront cost, but lower downstream
+		- from this point, quality is free
+
