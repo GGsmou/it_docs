@@ -1558,3 +1558,96 @@ general principle of software quality - by improving quality you can lower devel
 	- it always a game of higher upfront cost, but lower downstream
 		- from this point, quality is free
 
+#### Collaborative Development
+Sharing code with other is one of the ways to reduce errors
+
+- overview - all in all, collaborative development is process of sharing code creating with other devs, in order to tackle "blind spots" in code
+	- as other quality improving techniques, this works best in synergy with others, BUT it is far more effective, when used alone, compared to other techniques
+	- this technique shows great cost reduction benefit(yes, you need more devs in a team, but the overall time spent to develop and debug is much less, compared to solo development)
+	- also, by introducing collaboration, you can tackle non-testable problems, like quality
+	- by knowing that your work will be reviewed, you tend to do it better
+	- knowledge sharing - it is easy to enforce coding standards, as part of review, as well as share new ones
+		- also makes personal grows easier, because such reviews are source of grows
+			- newcomer can commit their changes and study at the same time
+		- any review is cultivator of code improvements in general
+	- code improvements, achieved by:
+		- multiple sources of knowledge
+		- tribal knowledge is spread among group, so less impact of someone leaving
+		- more devs can work on code at the same time
+- note: collaborative techniques can be also applied to any stage of program creation
+
+pair programing - coding is done in pairs of two, one person writes code, other tries to spot weaknesses
+- advices:
+	- enforce coding standards first to prevent stylistic arguments
+	- "watcher" must be active too
+	- don't force it, it should bring effectiveness to development process
+		- you can try variations, like live-review, pair design etc
+	- rotate pairs to spread knowledge more
+	- keep partners matching(fast with fast, slow with slow), BUT skill-levels can differ(it will be even more beneficial, to have skill-gap for some cases)
+		- also don't partner people, who don't go along
+	- make somebody owner of task, don't share ownership
+- benefits:
+	- development done faster, with less stress, with less errors
+	- code is better
+	- mentoring, boosting culture, co-ownership
+
+formal inspections - large review of program
+- differs from just a review:
+	- weak areas have the most attention
+	- focus on defects detection
+	- all participants have distinct role
+		- moderator - person with knowledge in program's area, that have enough experience in such inspections
+		- author - acts as an overview to project and can explain only minor details
+		- reviewer - person, that will closely work with code, main objective is to find defects
+		- scribe - person, taking notes
+		- management - can't take part in review, BUT can access results
+			- be careful not to introduce pressure on tech team
+		- ---
+		- keep number of people low, but not lower then 3
+		- keep one role per person
+	- author can't moderate inspection
+	- participants have experience of doing such inspections
+	- inspection is documented
+	- inspection has several steps
+		- planning
+		- overview - remember, code must speak for itself
+		- preparation - each reviewer has specific, uniq goals assigned to them
+		- final meeting - don't discuss solutions, keep it somewhat short
+		- final report - include data(number of problems found, time spent etc)
+		- rework
+		- follow-up - moderator organizes second inspection round OR just performs checks on each error from the list
+		- ---
+		- if you need to modify steps, always measure, if inspection became more effective
+	- focus on improving code AND not assaulting author (same as general reviews)
+	- author must consider all points from review, BUT it ultimately has a veto on all of them
+
+walk-throughs - loose term, including formal/informal discussion about design or code in groups of 2+ people
+- common attributes:
+	- it can be moderated and should be noted
+	- focus on technical issues and error detection
+	- preparation step can be present
+	- usually short
+	- way to share knowledge, including senior -> junior
+	- flexible
+	- no management
+- if you can't justify holding a meeting, it is better to investigate solo
+- benefits:
+	- can involve large amount of people in several short walk-throughs
+	- easier and faster then inspection
+		- can be great starting point for some people, BUT overall inspection is better practice
+
+code reading - read code and comment on it's quality issues
+- done in three steps: several people read code independently with noting problems, meeting with author is held, author fixes code
+	- on meeting, focus on problems
+	- meeting is optional
+- benefits:
+	- no need for large meeting or meeting at all
+	- no need to manage people
+	- most work done in async manner
+
+notes:
+- let people choose preferable ways to collaborate
+- each way has set of tread-offs, that can be beneficial, depending on requirements
+
+#### Testing by Developers
+
