@@ -3128,4 +3128,255 @@ here some of them, that wasn’t mentioned:</p>
 <li>let people choose preferable ways to collaborate</li>
 <li>each way has set of tread-offs, that can be beneficial, depending on requirements</li>
 </ul>
-<h4 id="testing-by-developers">Testing by Developers</h4> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/cli/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">CLI</span> </span> </a> <a href="/it_docs/all/code_snippets/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Code_Snippets</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<h4 id="testing-by-developers">Testing by Developers</h4>
+<p>types:</p>
+<ul>
+<li>unit - testing small component in isolation</li>
+<li>component testing - testing larger component in isolation</li>
+<li>integration testing - testing multiple components and their integration with each other</li>
+<li>regression testing - repetitive execution of same tests in order to find new problems after changes</li>
+<li>system testing AKA e2e - testing whole system at once</li>
+<li><em>and many more, that most often done by someone else, not devs</em></li>
+</ul>
+<p>more types:</p>
+<ul>
+<li>black-box - testing, without knowing implementation details</li>
+<li>white-box - testing, with knowing implementation details (focus of this chapter)</li>
+</ul>
+<p>testing is not as efficient as collaborative development, BUT it plays huge role in keeping quality non the less, BUT devs don’t like tests, and here some reasons why:</p>
+<ul>
+<li>goal of tests is to break software</li>
+<li>having tests can’t guarantee perfection of software, because tests can be bad by themselves</li>
+<li>writing more tests won’t make software better, if just results in better measurements of quality</li>
+<li>you must believe, that your software have errors, otherwise you will have lower chance in finding them</li>
+</ul>
+<p>results of testing:</p>
+<ul>
+<li>testing describes reliability of software by itself</li>
+<li>testing helps finding weak points and tackle it on scale(reviews, design, etc)</li>
+</ul>
+<p>notes:</p>
+<ul>
+<li>good code coverage != good tests and indication of quality</li>
+<li>when testing something, start from smallest unit of code(often function) first</li>
+<li>white-box is great way to fully test your code, BUT as dev you will always have same blind-spots, as when writing code, so black-box is great second step to consider</li>
+</ul>
+<p>recommended approach:</p>
+<ul>
+<li>test relevant requirements</li>
+<li>test relevant design points</li>
+<li>test data-flow and code execution flow</li>
+<li>consider creating a checklist with common errors</li>
+<li>it is generally more efficient to test-first, because:
+<ul>
+<li>you will guarantee testing</li>
+<li>you will find more errors AND correct them easily</li>
+<li>you will have better code, because you introduce a guaranteed step of thinking about requirements/design AND not just about code itself
+<ul>
+<li>this way you expose poor requirements, that can be corrected before-hand</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>limitations:</p>
+<ul>
+<li>devs tend to write “clean tests” more then dirty
+<ul>
+<li>clean test - test that focuses on happy pass</li>
+<li>dirty test - test that focuses on any possible pass, that test subject can perform</li>
+</ul>
+</li>
+<li>devs subjective view of coverage is higher then actual one
+<ul>
+<li>part of it comes from devs trying to achieve specific coverage(ex: statement), but need to achieve branch coverage, meaning to cover every path the code can follow</li>
+</ul>
+</li>
+<li>---</li>
+<li>this limitations is just a reminder, that you need to introduce other variations of quality control, except testing</li>
+</ul>
+<p>advices:</p>
+<ul>
+<li>it is impossible to test all inputs/outputs, because of combinatorics and math, so you need to focus on testing different possibilities, THAT will form whole picture and cover all variations</li>
+<li>cover all flows of data/code, that program can take
+<ul>
+<li>CODE FLOW
+<ul>
+<li>it doesn’t mean, that number of tests must be exactly the same as number of paths, BUT it at least must be equal</li>
+<li>if number of paths goes crazy, it is signal of bad routine</li>
+</ul>
+</li>
+<li>DATA FLOW
+<ul>
+<li>before writing test, look at code and try finding anomalies, like non-used data, data defined twice, data used after definition etc</li>
+<li>focus on testing combinations of possible data values and their interactions(ex: if <code dir="auto">a</code> is false, then <code dir="auto">b</code> is true, then result is…)</li>
+</ul>
+</li>
+<li>focus on code flow first and then introduces missed cases for proper testing of data flow</li>
+</ul>
+</li>
+<li>error guessing - try to predict possible errors in tests
+<ul>
+<li>works great in combination of tracking previous common errors</li>
+</ul>
+</li>
+<li>tests boundary problems OR “off by one” problem
+<ul>
+<li>ex: when testing <code dir="auto">if a &#x3C; MAX</code>, you need to check 3 values for <code dir="auto">a</code>: <code dir="auto">less then MAX</code>, <code dir="auto">MAX</code>, <code dir="auto">more then MAX</code></li>
+<li>sub-type of that is testing compound boundaries, meaning checking all possibilities, that can arrive from working with data-set
+<ul>
+<li>ex: we need to sum array if int8 numbers and output int32 result, so code need to handle overflows AND at least one test must represent this handling</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>test for bad data:
+<ul>
+<li>no data</li>
+<li>too much data</li>
+<li>invalid data(wrong type etc)</li>
+<li>improper data(wrong size etc)</li>
+<li>uninitialized data</li>
+</ul>
+</li>
+<li>test for good data:
+<ul>
+<li>expected data</li>
+<li>smallest possible data (ex: how code handles empty arrays)</li>
+<li>largest possible data</li>
+<li>old data, that must be compatible with new code
+<ul>
+<li>often the case in regression testing</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>use data, that easy to operate one, to avoid bugs in tests
+<ul>
+<li>ex: <code dir="auto">1234567 * 2</code> is harder to operate then <code dir="auto">2000000 * 2</code></li>
+</ul>
+</li>
+</ul>
+<p>typical errors:</p>
+<ul>
+<li>errors aren’t spread evenly through the code
+<ul>
+<li>this means that some routines will be more defective then others, thus requiring more focus, to prevent time loss for debugging on scale of all program</li>
+<li>it is often beneficial to rewrite such routines from ground up</li>
+<li>it is often beneficial to conquer defective areas first</li>
+</ul>
+</li>
+<li>error classification
+<ul>
+<li>many errors come from poor requirements OR poor understanding of requirements
+<ul>
+<li>by writing good requirements and building their understanding you can avoid errors that hard to deal with</li>
+</ul>
+</li>
+<li>most errors come from developer, not instruments he uses
+<ul>
+<li>if instrument has strange behavior to you, this most often means, that you didn’t read the docs ;)</li>
+</ul>
+</li>
+<li>typos is huge source of errors, SO use linters etc</li>
+</ul>
+<hr>
+<ul>
+<li>classify errors, measurements and statistics is a key</li>
+</ul>
+</li>
+<li>larger projects will have more errors come from requirements/design</li>
+<li>errors in test(flakiness, incorrect data, incorrect test execution etc) - the most painful of problems
+<ul>
+<li>check your tests - develop tests as carefully, as you develop code</li>
+<li>plan your tests cases, when developing</li>
+<li>reuse your tests, for writing newer version
+<ul>
+<li>this way you don’t write through-away code</li>
+</ul>
+</li>
+<li>create testing frameworks, this way you can avoid duplication, same mistakes etc</li>
+</ul>
+</li>
+</ul>
+<p>testing tools - ideas on what tools can make testing easier and can be created in house OR bought OR used from open-source</p>
+<ul>
+<li>create scaffolds for each test
+<ul>
+<li>scaffold - some helper object, that makes test easier and can emulate some behavior in controlled manner</li>
+<li>includes
+<ul>
+<li>mocks, stubs</li>
+<li>drivers - class, that creates interfaces for tested part of code</li>
+</ul>
+</li>
+<li>advantages:
+<ul>
+<li>remove problem of integration with other parts of a system</li>
+<li>mocks and drivers can be re-used in multiple test</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>use some tools for building/developing scaffolds</li>
+<li>write scaffold, so they can be self-tested OR create separate tests for them, if they include many logic</li>
+<li>reuse actual logic in scaffolds, if possible</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>output diffs of expected and actual results</li>
+<li>consider using random data generation to detect unpredictable errors
+<ul>
+<li>make generation flexible and well though, to really detect problems and not just falsely reassure yourself</li>
+</ul>
+</li>
+<li>use some coverage monitoring</li>
+<li>include logging into your program</li>
+<li>use debugger and do step by step walk-through your code</li>
+<li>system perturbers - set of tools, that helps detecting rear anomalies in code, by modifying underlying system or code
+<ul>
+<li>fill memory with placeholder data</li>
+<li>memory shaking - rearrange memory on fly</li>
+<li>selective memory failing - simulate low memory or similar conditions</li>
+<li>memory-access checkers - tools that can detect problematic pointers</li>
+<li>mutation testing - tests that modify code in breaking manner and check if tests are failing</li>
+</ul>
+</li>
+<li>error databases - DB of existing and historical errors</li>
+</ul>
+<p>improvements to your testing - some recommendations to do, that can be modified to your needs, if modifications has been proven effective</p>
+<ul>
+<li>prioritize and plan for testing from beginning</li>
+<li>retest(regression testing) - run old tests, before applying new
+<ul>
+<li>also run full scope of tests, after each change, not only for area of changes</li>
+</ul>
+</li>
+<li>automate your tests
+<ul>
+<li>lower change of been wrong, compared to manual test</li>
+<li>easier to reuse and reproduce</li>
+<li>possible to run as often as needed
+<ul>
+<li>result, errors detected as early as possible</li>
+</ul>
+</li>
+<li>make possible to detect most of problems, for large changes</li>
+</ul>
+</li>
+</ul>
+<p>keep testing records - data is key, so keep at as much as possible</p>
+<ul>
+<li>describe problem</li>
+<li>describe how to reproduce it</li>
+<li>describe solutions</li>
+<li>any relevant details and defects</li>
+<li>severity</li>
+<li>origin (step of construction)</li>
+<li>classification</li>
+<li>affected parts of program</li>
+<li>numbers: lines of code affected, hours to find, hours to fix</li>
+<li>---</li>
+<li>such records can be on company scale, or personal, as an act of self-reflection and improvement</li>
+</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/cli/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">CLI</span> </span> </a> <a href="/it_docs/all/code_snippets/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Code_Snippets</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

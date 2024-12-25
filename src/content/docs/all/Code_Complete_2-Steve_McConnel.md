@@ -1650,4 +1650,152 @@ notes:
 - each way has set of tread-offs, that can be beneficial, depending on requirements
 
 #### Testing by Developers
+types:
+- unit - testing small component in isolation
+- component testing - testing larger component in isolation
+- integration testing - testing multiple components and their integration with each other
+- regression testing - repetitive execution of same tests in order to find new problems after changes
+- system testing AKA e2e - testing whole system at once
+- *and many more, that most often done by someone else, not devs* 
 
+more types:
+- black-box - testing, without knowing implementation details
+- white-box - testing, with knowing implementation details (focus of this chapter)
+
+testing is not as efficient as collaborative development, BUT it plays huge role in keeping quality non the less, BUT devs don't like tests, and here some reasons why:
+- goal of tests is to break software
+- having tests can't guarantee perfection of software, because tests can be bad by themselves
+- writing more tests won't make software better, if just results in better measurements of quality
+- you must believe, that your software have errors, otherwise you will have lower chance in finding them
+
+results of testing:
+- testing describes reliability of software by itself
+- testing helps finding weak points and tackle it on scale(reviews, design, etc)
+
+notes:
+- good code coverage != good tests and indication of quality
+- when testing something, start from smallest unit of code(often function) first
+- white-box is great way to fully test your code, BUT as dev you will always have same blind-spots, as when writing code, so black-box is great second step to consider
+
+recommended approach:
+- test relevant requirements
+- test relevant design points
+- test data-flow and code execution flow
+- consider creating a checklist with common errors
+- it is generally more efficient to test-first, because:
+	- you will guarantee testing
+	- you will find more errors AND correct them easily
+	- you will have better code, because you introduce a guaranteed step of thinking about requirements/design AND not just about code itself
+		- this way you expose poor requirements, that can be corrected before-hand
+
+limitations:
+- devs tend to write "clean tests" more then dirty
+	- clean test - test that focuses on happy pass
+	- dirty test - test that focuses on any possible pass, that test subject can perform
+- devs subjective view of coverage is higher then actual one
+	- part of it comes from devs trying to achieve specific coverage(ex: statement), but need to achieve branch coverage, meaning to cover every path the code can follow
+- \---
+- this limitations is just a reminder, that you need to introduce other variations of quality control, except testing
+
+advices:
+- it is impossible to test all inputs/outputs, because of combinatorics and math, so you need to focus on testing different possibilities, THAT will form whole picture and cover all variations
+- cover all flows of data/code, that program can take
+	- CODE FLOW
+		- it doesn't mean, that number of tests must be exactly the same as number of paths, BUT it at least must be equal
+		- if number of paths goes crazy, it is signal of bad routine
+	- DATA FLOW
+		- before writing test, look at code and try finding anomalies, like non-used data, data defined twice, data used after definition etc
+		- focus on testing combinations of possible data values and their interactions(ex: if `a` is false, then `b` is true, then result is...)
+	- focus on code flow first and then introduces missed cases for proper testing of data flow
+- error guessing - try to predict possible errors in tests
+	- works great in combination of tracking previous common errors
+- tests boundary problems OR "off by one" problem
+	- ex: when testing `if a < MAX`, you need to check 3 values for `a`: `less then MAX`, `MAX`, `more then MAX` 
+	- sub-type of that is testing compound boundaries, meaning checking all possibilities, that can arrive from working with data-set
+		- ex: we need to sum array if int8 numbers and output int32 result, so code need to handle overflows AND at least one test must represent this handling
+- test for bad data:
+	- no data
+	- too much data
+	- invalid data(wrong type etc)
+	- improper data(wrong size etc)
+	- uninitialized data
+- test for good data:
+	- expected data
+	- smallest possible data (ex: how code handles empty arrays)
+	- largest possible data
+	- old data, that must be compatible with new code
+		- often the case in regression testing
+- use data, that easy to operate one, to avoid bugs in tests
+	- ex: `1234567 * 2` is harder to operate then `2000000 * 2` 
+
+typical errors:
+- errors aren't spread evenly through the code
+	- this means that some routines will be more defective then others, thus requiring more focus, to prevent time loss for debugging on scale of all program
+	- it is often beneficial to rewrite such routines from ground up
+	- it is often beneficial to conquer defective areas first
+- error classification
+	- many errors come from poor requirements OR poor understanding of requirements
+		- by writing good requirements and building their understanding you can avoid errors that hard to deal with
+	- most errors come from developer, not instruments he uses
+		- if instrument has strange behavior to you, this most often means, that you didn't read the docs ;)
+	- typos is huge source of errors, SO use linters etc
+	- ---
+	- classify errors, measurements and statistics is a key
+- larger projects will have more errors come from requirements/design
+- errors in test(flakiness, incorrect data, incorrect test execution etc) - the most painful of problems
+	- check your tests - develop tests as carefully, as you develop code
+	- plan your tests cases, when developing
+	- reuse your tests, for writing newer version
+		- this way you don't write through-away code
+	- create testing frameworks, this way you can avoid duplication, same mistakes etc
+
+testing tools - ideas on what tools can make testing easier and can be created in house OR bought OR used from open-source
+- create scaffolds for each test
+	- scaffold - some helper object, that makes test easier and can emulate some behavior in controlled manner
+	- includes
+		- mocks, stubs
+		- drivers - class, that creates interfaces for tested part of code
+	- advantages:
+		- remove problem of integration with other parts of a system
+		- mocks and drivers can be re-used in multiple test
+	- notes:
+		- use some tools for building/developing scaffolds
+		- write scaffold, so they can be self-tested OR create separate tests for them, if they include many logic
+		- reuse actual logic in scaffolds, if possible
+- output diffs of expected and actual results
+- consider using random data generation to detect unpredictable errors
+	- make generation flexible and well though, to really detect problems and not just falsely reassure yourself
+- use some coverage monitoring
+- include logging into your program
+- use debugger and do step by step walk-through your code
+- system perturbers - set of tools, that helps detecting rear anomalies in code, by modifying underlying system or code
+	- fill memory with placeholder data
+	- memory shaking - rearrange memory on fly
+	- selective memory failing - simulate low memory or similar conditions
+	- memory-access checkers - tools that can detect problematic pointers
+	- mutation testing - tests that modify code in breaking manner and check if tests are failing
+- error databases - DB of existing and historical errors
+
+improvements to your testing - some recommendations to do, that can be modified to your needs, if modifications has been proven effective
+- prioritize and plan for testing from beginning
+- retest(regression testing) - run old tests, before applying new
+	- also run full scope of tests, after each change, not only for area of changes
+- automate your tests
+	- lower change of been wrong, compared to manual test
+	- easier to reuse and reproduce
+	- possible to run as often as needed
+		- result, errors detected as early as possible
+	- make possible to detect most of problems, for large changes
+
+keep testing records - data is key, so keep at as much as possible
+- describe problem
+- describe how to reproduce it
+- describe solutions
+- any relevant details and defects
+- severity
+- origin (step of construction)
+- classification
+- affected parts of program
+- numbers: lines of code affected, hours to find, hours to fix
+- \---
+- such records can be on company scale, or personal, as an act of self-reflection and improvement
