@@ -2,18 +2,79 @@
 title: System_Design
 ---
 
+![](../../../assets/it_9.png) 
+
 ![](../../../assets/it_8.png) 
-
-## Common interview questions
-
 
 ## Redis
 - it stores cache in-memory, BUT have option to dump data into disk
 
 ## Interview
 - always start with understanding problem and gathering relevant details
-- define large parts of system and broadly APIs, define each part of a system in details, refine and repeat
+	- relevant details: why we need this system, what functional will be included into system, requirements(functional and non-functional)
+		- functional requirements - describe what tasks system must perform
+		- non-functional requirements - describe how and on what constrains system must perform
+	- when stating some requirement, explain why it is relevant
+- define system constrains and estimates:
+	- estimate priority (reads OR writes)
+	- estimate number of: request per second, needed storage, bandwidth used
+- define large parts of system and broadly APIs, define each part of a system in details, refine and repeat, memory(for caching purposes)
 - summarize the decisions with possible alternatives
+
+#### How to design
+###### URL Shortener
+- why we need it
+	- optimize link size
+	- hide original URLs (ex: affiliated links)
+	- track link performance
+- functional requirements
+	- given URL service must return short/custom alias for it
+	- when alias is accessed, user is redirected to original URL
+	- each alias must have expiration time, with possibility to override it
+- non-functional requirements
+	- high availability
+	- redirects must happen with minimal latency
+	- short links can't be predicted
+- extended requirements:
+	- performance tracking
+	- public REST API
+- assumptions and constraints
+	- New URLs - 200/s || URL redirections - 20K/s || Incoming data - 100KB/s || Outgoing data - 10MB/s || Storage for 5 years - 15TB || Memory for cache - 170GB
+- API
+	- Public API can be based on REST
+		- example of endpoint: alias, that will expose CREATE, PUT, DELETE, GET
+	- RateLimiting
+		- can be done per-customer, by API_DEV_KEY
+		- can be done per-api to prevent DDOS
+- DB Design
+	- notes:
+		- service is read heavy
+		- billion of records will be stored
+		- each record is small
+	- schema:
+		- user <- alias
+	- technologie: NoSQL
+		- reasons: low number of relationships, billion of records, easy to scale
+- Main algorithm variants:
+	- encode actual URL into SHA256(or similar) hash format + transform it to readable, fixed size string via Base64 + crop part of it
+		- 6 chars length is sufficient enough and will produce 64^6 variations
+		- problems:
+			- by slicing part of string repetition may occur - add shuffling to mitigate it
+			- same URLs will produce same aliases - add salting OR user metadata(performance impact)
+		- to mitigate uniqueness problem we need to add retries
+	- generate keys before-hand and store in DB, serve keys on demand
+		- benefits:
+			- easy, cheap and fast solutions, with no collision problems
+		- problems:
+			- concurrency
+				- move part of keys into memory and serve directly from there to avoid concurrency in-between slow calls to DB
+				- mutex OR synchronization is required
+			- single point of failure
+				- introduce replica
+- Additions:
+	- redirect is done via 302 (Redirect) response
+		- failing look-up should resolve into 404 OR redirect to default page
+	- we should allow custom aliases with more then 6 chars, BUT prevent too large strins
 
 ## API Design
 Describe how each part of the system works and why
@@ -100,6 +161,18 @@ Technique to evenly distribute traffic amount several machines
 benefits:
 - outage of single machine won't affect whole system too much
 
+#### API Gateway
+Technique to create single entry point to system, that can handle several functions:
+- authN + authR
+- caching
+- request transformation
+- rate limiting - limit number of requests per some amount of time
+	- usually done by tracking how much time elapsed from previous requests from same IP(or by signing each request with some other metadata)
+	- response from rate limiter can be either 429(too many request) OR requests can be held in some queue
+- reverse proxy
+- monitoring + logging
+- serverless functions
+
 #### Caching
 ###### Types
 in-memory - data stored in RAM, so there is no need to add network overhead, BUT this way cache can be only local
@@ -182,3 +255,22 @@ cache breakdown - cache breaks, thus all requests will miss and overload the sys
 
 stale cache - cache data is invalid, thus system operates on improper data
 - solution: add logging to catch this issues, use stable technologies and patterns to avoid caching problems
+
+## Other concepts
+#### Single Sign-On (SSO)
+Tech that allows for user to sign once and access all parts of the system after it
+- as benefit for devs, removes need to create separate authN flows per each app
+
+can be detected by redirect to separate login page
+
+implementation strategies:
+- sub-domain + cookies - straightforward way, done by hosting all apps under single domain, thus allowing all of them to share cookies
+	- benefits: easy to implement
+	- problems: limited by sub-domain, specific implementations will arrive on each consumer, depending on their technologies
+- separate auth service - create service that will be a single source of authN&authR truth
+	- implementation notes:
+		- based on token model(access + refresh), where token can be in JWT or some other hash format
+			- such token contains all info about user and can grant full or partial permission to system
+			- JWT (JSON Web Token) - format of encoding JSON into Base64 to transfer through net
+	- benefits: cross-platform, one service handles all user & auth management, broadly adopted standard, user permissions can be granted partially(it can also depend on application, you logged in)
+	- problems: it is hard to recover lost token so additional safety measures need to be implemented
