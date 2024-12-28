@@ -1799,3 +1799,102 @@ keep testing records - data is key, so keep at as much as possible
 - numbers: lines of code affected, hours to find, hours to fix
 - \---
 - such records can be on company scale, or personal, as an act of self-reflection and improvement
+
+#### Debugging
+Debugging - process of identifying root cause of an error + finding solution for it
+- it is one of largest time consumers of dev time
+- first goal is to prevent errors from appearing
+	- this means, that debugging should be last resort, firstly you need to have proper requirements, write quality code etc
+- second goal is to make debugging easy and fast
+	- it is important, because less experience correlates with higher debugging time and worse debugging result
+
+debugging helps:
+- learn better about program, you are working on
+	- this assumes, that you are trying and not just using trial&error method
+- learn about mistakes you make
+	- also take time to investigate & fix similar problems in other programs OR parts of current program
+- learn about code quality, from reading it
+	- if it is poor, take time to refactor it
+- learn how you debug
+	- always improve and learn new ways to debug faster
+- learn how you fix errors
+	- always try to fix problem from it's core AND not just "bandage" it
+
+ineffective approaches to debug:
+- guessing
+	- *it involves random console.log to find issue, which I don't agree on, as JS dev ;)* 
+- don't trying to understand a problem
+- using "easy" fix
+- blaming environment(libs, compiler etc)
+	- *again, as JS dev, can't agree on this either, after spending 5 hours of debugging lib's breaking changes, with 3 people simultaneously* 
+		- still it is last resort, try to find bug in your code first AND always assume that it is your error, not env's
+
+how to locate an error scientifically(gather data, form hypothesis, test hypothesis with experiment, repeat):
+- steps:
+	- stabilize error - make it repeatable, if it is not, it is some timing, pointer, async or similar flaky issue
+	- simplify error - find what might cause it, check each root-cause and discard irrelevant
+	- locate root-cause
+- tips for finding error:
+	- account for all information, available to you
+		- find more info if needed
+	- isolate potential causes and test them separately
+		- unit tests are great for this
+		- to make isolation faster, use binary search
+		- use comments, logging, debugger etc
+		- if you can't find anything, expand and then isolate again in different region
+	- use all tools, like debugger, memory checker, linter etc
+	- reproduce error in several ways AND find error by similar potential causes in each reproduction
+	- use negative approach, by checking what isn't causing an error
+	- create multiple hypotheses
+	- note things to try OR that was tried
+	- remember that function/class with errors, might have error again
+		- as stated before
+	- run old program and see if error is present
+		- use binary search for locating old errors
+	- look for common problems for current program OR for you
+	- talk to someone
+		- if can't, use Duck approach
+	- take a break
+	- limit time spending in "rush" debugging
+		- if easy way won't work for some time, take step back and do it properly
+- brute-force tips:
+	- re-write/re-design from scratch
+	- use picky linter rules
+	- use different envs OR create a replica of user's env
+- syntax error tips:
+	- don't trust line numbers from compiler(who would guess`:)`)
+		- if possible, try to figure-out why compiler couldn't pin-point the error
+	- don't trust compiler messages
+
+how to fix an error (this is often easy part of debugging, BUT even more important, because poor fix will lead to new errors)
+- understand the problem well
+	- it leads to fixing problem, NOT symptoms
+		- opposite strategy will lead to unmaintainable, unpredictable and buggy code
+	- don't change code randomly
+- understand the program/context around the problem
+- make sure that you found a real root-cause
+- ALWAYS test after fixes (manually and via AQA suits)
+	- all in all, just take your time to debug, don't rush it
+- make changes, so it is easy to revert them via version control
+	- main principle is to make 1 change at a time
+- add unit test, that resembles the problem to prevent it's reappearance
+- always look and fix possible similar defects
+
+psychological problems with debugging
+- people tend to see, what they expect, not the reality, thus leading to an error
+	- it is important to prevent this, by turning on meticulous and critical thinker, while debugging
+	- also it is important to write quality and well structured code
+		- try to write and look for similar names in variable, poor syntax(ex: no brackets for conditionals)
+	- try to check other problematic zones, other then you expect, THUS removing blind spot and stop been stuck
+
+debugging tools:
+- look for previous versions of source code + pay attention to diffs
+	- great for new errors
+- linter/compiler warnings
+	- choose as pickiest level as relevant to you
+	- treat warnings as errors
+	- enforce same compiler settings globally
+- performance profilers
+- tests
+- debuggers
+	- also consider using some debuggers, that won't alter program performance and run on system level
