@@ -74,7 +74,66 @@ title: System_Design
 - Additions:
 	- redirect is done via 302 (Redirect) response
 		- failing look-up should resolve into 404 OR redirect to default page
-	- we should allow custom aliases with more then 6 chars, BUT prevent too large strins
+	- we should allow custom aliases with more then 6 chars, BUT prevent too large strings
+- Partitioning - to allow storing billions of URLs we should partition data, some variations can be:
+	- alphabetic range base - can lead to unbalanced partitioning
+	- hashing - with consistent hashing algorithm, to make partitioning balanced
+- Cache
+	- tech: memcached OR redis
+	- how much: based on predictions it is enough to have one large machine, that will cache ~20% of URLs(hot URLs)
+		- but it is totally possible to have clusters of several machines
+	- LRU is great technique for high reads and storing only hot URLs
+	- if needed we can replicate our clusters
+		- each replica can populate itself independently via read-through approach
+- Load Balancing
+	- it needs to be placed between: Client-Server, Server-DB, Server-Cache
+- DB clean-up
+	- don't serve expired links to users
+	- freed key can be restored keyDB
+	- cleaning strategies:
+		- separate light-weight service, that runs in periods of low load and clean expired data in batches
+		- remove on read request
+- telemetry - can be implemented as separate service, with separate DB(for country, number of visits, user info, source of URL etc per-url) and be write focused(write-back technique)
+	- don't forget to clear telemetry after some period of URL expiration
+- it is possible to introduce user permissions per each URL
+
+###### CDN
+ - what is it - geographically distributed network of data-servers, that has main goal to deliver data fast and reliable
+	 - it caches content on edge servers(small server, that located as close as possible to client)
+- why we need it
+	- reduce network latency
+	- load balancing
+	- remove single point of failure
+- main components:
+	- client
+	- routing - distributes load, removes inactive sources from rotation, finds shortest route to the data
+	- API Gateway - rate limiting, DDOS protection etc
+	- proxy/edge services - serve content as close as possible to client
+		- here content is cached, to reduce number of requests to origin
+	- distribution system - sync content from main cluster with edge servers
+	- content optimization service - reduce size of data
+	- origin server - stores original content
+	- logging & monitoring
+	- management system - exposed part for user in form of public API (or web-app), that used for configuration, data management etc
+	- load balancing is placed between major nodes
+- caching
+	- push - when new content appears, it is pushed from origin to edge
+	- pull - cache is updated on demand
+- routing:
+	- how to find nearest proxy:
+		- network distance - shorter path + higher bandwidth == preferable proxy
+		- load - if edge is overloaded, request won't be routed here
+	- ways to implement:
+		- DNS redirect
+		- anycast - all proxies will have same IP, while Anycast system will choose the most preferable one
+		- client multiplexing - establish multiple connections and serve content from fastest
+		- HTTP redirects
+	- to achieve higher speeds and scalability, routing can be done in tree like shape, with more efficient nodes(one or several of them) placed in the middle between origin and edge
+- fault tolerance:
+	- if child fails - redirect client to other child
+	- if middle-man fails - redirect child to other middle man
+	- if origin fails - use replica OR, as last resort, serve content from middle-mans' caches
+- examples: Cloudflare, Cloudfront etc
 
 ## API Design
 Describe how each part of the system works and why
@@ -158,20 +217,31 @@ great for dealing with traffic and data amount grows
 #### Load Balancing
 Technique to evenly distribute traffic amount several machines
 
-benefits:
-- outage of single machine won't affect whole system too much
+use-cases:
+- traffic distribution
+- ensuring high availability by avoiding routing to inactive machines
+- session maintenance
+- SSL/encryption related operations
 
 #### API Gateway
 Technique to create single entry point to system, that can handle several functions:
 - authN + authR
 - caching
-- request transformation
+- request transformation + protocol transformation
 - rate limiting - limit number of requests per some amount of time
 	- usually done by tracking how much time elapsed from previous requests from same IP(or by signing each request with some other metadata)
 	- response from rate limiter can be either 429(too many request) OR requests can be held in some queue
-- reverse proxy
+- routing, versioning etc AKA reverse proxy
 - monitoring + logging
 - serverless functions
+
+problems to address:
+- single point of failure
+	- as any single entry point to the system
+	- to address: replicate and load balance
+- additional network overhead(risk of failing requests, requests take longer)
+- raise of system complexity and additional maintenance
+- security miss-configurations
 
 #### Caching
 ###### Types
@@ -274,3 +344,71 @@ implementation strategies:
 			- JWT (JSON Web Token) - format of encoding JSON into Base64 to transfer through net
 	- benefits: cross-platform, one service handles all user & auth management, broadly adopted standard, user permissions can be granted partially(it can also depend on application, you logged in)
 	- problems: it is hard to recover lost token so additional safety measures need to be implemented
+
+#### DB Design
+###### SQL(relational DB) vs NoSQL(non relational DB)
+Crucial point in DB design, is choosing what type of DB you need, based on your requirements and needs
+
+SQL - focus on data with relations and column+row mental model
+- have predefined schema
+- can be scaled vertically and horizontally
+- can be partitioned vertically and horizontally
+- stores data in form of a table, with primary and foreign keys
+- great for structured data, complex data, transactional data
+- design is rigid, SO any change will require migration
+- examples: PostgreSQL, MySQL
+
+NoSQL - focus on flexible and dynamic data, with loose relations
+- schema and types are dynamic
+- can be scaled vertically and horizontally
+- can be partitioned only horizontally
+- stores data in format of a: document, key-val, graph; basically we can choose the most suitable format for data
+- great for data like: documents, JSON
+- can be easily scaled-up OR down
+- data can't be accessed in complex manner AND data normalization may be needed
+	- this leads to different syntax per DB
+	- no need for complex migrations, structure can be changed with ease
+- can be great starting point, where requirements are loose and you need to change fast
+- examples: MongoDB, Casandra, Redis
+
+#### Proxy
+###### Forward Proxy vs Reverse Proxy
+Both proxies are important types and have distinct roles, main different comes from level of network operation
+
+forward proxy - interface that client uses to interact with system
+- use-cases: client anonymity(change client's IP to proxy's), caching, traffic control, logging, request/response transformation, authN&authR
+
+reverse proxy - facade for single/multiple servers
+- use-cases: server anonymity, caching, load balancing, DDOS protection, canary, request/response transformation, encryption/SSL management(offload servers)
+- examples: Nginx
+
+#### Serverless
+Model of building backend, where all responsibility for managing server(env and machine) is offloaded to provider, so there is only need to write application code, that will execute logic and interact with simple APIs, from provider
+- it is similar to Infra as a Service modal, BUT here you don't need to do any management of infra at all
+	- also you pay per request AND NOT per machine
+
+types:
+- function as service - execute specific function in isolation
+- backed as service - execute entire application
+
+use-cases(often short lived tasks):
+- API integrations
+- trigger based actions
+	- schedulers
+	- notification sender
+	- webhooks
+- automations
+- data-processing
+- backends (with low load on it)
+
+benefits:
+- auto-scaling, load balancing and other benefits are already done
+	- no need to manage any server infra, thus faster dev time
+- pay per request
+- language agnostic
+
+disadvantages:
+- you will go broke as your traffic grows ;)
+- can't execute for too long
+- additional delay to spin-up
+- vendor-lock
