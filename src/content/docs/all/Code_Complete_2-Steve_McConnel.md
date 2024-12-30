@@ -1898,3 +1898,55 @@ debugging tools:
 - tests
 - debuggers
 	- also consider using some debuggers, that won't alter program performance and run on system level
+
+#### Refactoring
+Even project with best requirements and design need refactoring, because code naturally evolves AND requirements might change eventually
+
+software evolution - every change can cause degradation OR evolution of original code base, thats why it is important to strive for fixes and changes, that will make program better
+- note that changes while construction can be done easily rather then in maintenance mode
+- always introduce future proof changes AND, when going to introduce some some change it is your obligation to make surrounding place cleaner, then it was before
+
+when to refactor(change code to be more maintainable, without behavioral modifications) AKA what "code smells" need to be addressed
+- code duplication
+- routing is too long (or other symptoms of bad modularity)
+- deep or hard to understand control structures
+- poor cohesion, high coupling, poor abstractions
+- too many params
+- multiple responsibilities per part of code
+- shotgun problem
+- parallel inheritance trees
+- overuse of primitive data types
+- code that has little functional
+- passing temp data from one place to other with no reason
+- middleman with no responsibility
+- encapsulation is broken
+	- part of it is presence of exposed setup/clean-up code
+- poor naming
+- GRASP, SOLID etc principles are violated
+- code that can be self-explained, BUT uses comments instead
+- global variables
+- code that might be reused, BUT impossible to extract in current state
+- code that was added just for "future proofing"
+	- it is better to keep program simple and extendable, rather then trying to predict future
+
+what to refactor
+- *this is basically coping what I have about refactoring in separate Architecture note, so read it there OR in original book ;)* 
+- missing info from notes:
+	- encapsulate downcasting - routine should return the most specific type of data it knows
+
+how refactor properly
+- save initial code
+- keep it small
+	- if you find more things to do, plan separate refactor for them
+	- if you find too many things to do, consider doing re-write, rather then refactor
+- make a list of steps to take OR that was taken
+- use linters
+- re-test
+- add new tests
+- always review, even for small changes
+- don't change the behavior
+- refactor parts you touch OR related to them
+- target error-prone OR complex parts first
+- separate dirty code and clean/refactored via some interface
+
+
