@@ -21,6 +21,10 @@ title: System_Design
 - define large parts of system and broadly APIs, define each part of a system in details, refine and repeat, memory(for caching purposes)
 - summarize the decisions with possible alternatives
 
+- when considering if improvements to system are needed remember about:
+	- any change need to be justified by statistics
+	- how much money will be spent AND earned after improvement
+
 #### How to design
 ###### URL Shortener
 - why we need it
@@ -371,6 +375,35 @@ NoSQL - focus on flexible and dynamic data, with loose relations
 - can be great starting point, where requirements are loose and you need to change fast
 - examples: MongoDB, Casandra, Redis
 
+###### DB indexing
+In general, index is a way to point to some information
+- DB index have similar function and enabled faster read queries, because engine don't need to scan full DB to find something, it can do scanning, based on indexes
+	- it acts as sort of metadata
+
+types:
+- clustered index - acts as primary keys for indexing
+	- changes order of data in DB
+		- data will can be stored as Balanced Binary Tree, thus enabling direct Binary Search on data
+	- can be only one per table
+- non clustered index - acts as additional/secondary index
+	- doesn't affect original data, BUT requires additional table to be stored, where it stores index + pointer to data location
+		- additional table can be stored as Balanced Binary Tree, thus enabling Binary Search on this metadata to find reference/pointer to original data
+	- can be several per table
+	- it is recommended to add indexes for most commonly used columns, when:
+		- filtering (`WHERE`)
+		- sorting (`ORDER BY`)
+		- grouping (`GROUP BY`)
+		- joining (`JOIN`)
+
+problems:
+- data modification queries are slower, because index sync is required
+
+alternatives to BBT:
+- hash (don't requires balancing, but won't work for range quires)
+- bitmap (great for read-heavy operations with small number of possible values)
+
+sparse indexes - refer to partial data storage, meaning we index only some chunk of data
+
 #### Proxy
 ###### Forward Proxy vs Reverse Proxy
 Both proxies are important types and have distinct roles, main different comes from level of network operation
@@ -412,3 +445,99 @@ disadvantages:
 - can't execute for too long
 - additional delay to spin-up
 - vendor-lock
+
+#### Authentication
+Authentication can be done in different ways, where each way have some use-case, specific benefits and constraints
+
+###### JWT (JSON Web Token)
+JWT is way to encode JSON into binary format, so it can be easily transported
+- it is not authentication technique by itself, BUT can be used to identify users in authN flow
+- additional public/private encryption and/or hashing can be added for safety
+- includes: expiration data, user info, issuer and additional metadata
+- flow:
+	- client provides credentials
+	- server creates JWT, stores and return it to client
+	- client saves it somewhere(commonly in cookie OR in-memory)
+	- client adds token as part of request(usually as some dedicated header), so server can receive+verify token and proceed with request
+- additionally:
+	- it is possible to have several tokens, for better UX
+		- session token - works as described above
+		- refresh token - used to generate new session token, without need to provide credentials
+- note: authR is managed separately and not a part of JWT
+
+###### OAuth
+It is a protocol, that enables authN & authR via/with third-party service(identity-provider)
+- use-cases:
+	- give granular access for third-party to your service
+		- ex: allow service to edit user's GoogleCalendar
+	- authenticate user into your service, based on data from identity-provider
+		- ex: Sign-in with Google
+		- this requires usage of OpenID Connect protocol
+		- for successful login identity-provider returns token, that can identify user in service
+- alternative: Federated Credential Management(FedCM) browser API
+
+###### SAML (Security Assertion Markup Language)
+XML-based standard of exchanging authN & authR data between parties
+- flow:
+	- client provides credentials
+	- server creates SAML assertion in XML format
+	- client can re-use this assertion to authorize requests from itself
+- common use-case: SSO
+
+#### Related Algorithms and Data Structures
+Consistent hashing - algorithm to evenly distribute data between multiple nodes
+- implementation: for each node assign range of hashes, hash each data and assign it to node that covers value in it's range
+	- additionally, it is possible to assign data and ranges to virtual nodes AND assign several virtual node to physical one, thus making down/up-scaling and data transfer easier
+- use-case: DB partitioning
+
+MapReduce - algorithm for processing large data sets in parallel, thus making it faster and reliable
+- implementation is broken into several steps:
+	- break all data into smaller chunks
+	- map each chunk in parallel (result is often some key-value pairs)
+	- merge and sort all chunks together
+	- reduce result, so all keys are merged into one and each value is included in final result (ex: each value is summed, multiplied etc)
+
+Distributed hash tables (DHT) - way to store data in key-value manner, so each pear of network can hold only part of data, thus systems becomes faster, easier to scale and more resilient in self-organization manner
+- allows to locate value by only querying small number of participant
+	- enabled by proper distribution algorithm
+- use-cases: p2p networks, CDN, distributed DB
+
+Bloom filters - algorithm to efficiently detect if data is present in some set, by hashing and using bit map arrays
+- can produce false-positive results, BUT with proper number of hashes and size of bit array, this rate is quite low, so can be tolerated, for large data-sets
+
+Two-phase commit - algorithm to ensure consistent transactions in distributed systems
+- flow:
+	- coordinator asks all nodes if they can commit
+		- if any answer is missing or "no", operation is aborted
+		- if all answers are yes, operation proceeded
+	- coordinator asks all nodes to commit
+	- each node commits and sends status
+		- if any answer is missing or "failure", coordinator asks all nodes to rollback
+		- if all answers are "success", coordinator informs all nodes that operation is successful
+- problems:
+	- higher latency
+	- single pointe of failure
+	- dead-lock
+
+Paxos - algorithm to ensure consistent values in distributed systems, with failure tolerance
+- flow:
+	- coordinator asks all nodes to remember some value
+		- if majority answered - operation proceeded, else - aborted
+	- coordinator asks all nodes to accept some value
+		- if majority accepted - value accepted
+
+Raft - algorithm to ensure consistent stream of values in distributed systems, with failure tolerance
+- flow:
+	- group of nodes elect the leader
+	- leader accepts the data and passed it to all nodes
+		- node can request data from leader too
+	- if leader fails, re-election happens
+
+Gossip - efficient algorithm to share data in p2p systems, with high failure tolerance
+- all data is transferred from node to it's closest neighbours, thus populating network
+	- it can be transferred on demand (pull) OR when new data arrives (push)
+
+- CAP theorem - theorem, that states, that distributed system can't achieve all characteristics simultaneously
+	- consistency - all nodes have same and up-to-date info
+	- availability - system is always responds
+	- tolerance - system is responds, even if part of it dies
