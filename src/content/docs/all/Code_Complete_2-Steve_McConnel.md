@@ -1949,4 +1949,52 @@ how refactor properly
 - target error-prone OR complex parts first
 - separate dirty code and clean/refactored via some interface
 
+#### Code Tuning
+Performance is not a critical issue anymore, it is generally less important then readable and maintainable code, BUT it can be important for some cases
+- performance consists not only from raw number, like speed, but it can also include how fast user can perform actions, how usable interface and other UX-related things
+	- this means that we must prioritize UX first, then DX and only then raw performance (generally speaking)
+- performance must be considered from several viewpoints:
+	- requirements - solve only problems, that need to be solved
+	- design - if performance is requirements, design software in performant way + state achievable+measurable goals in design
+		- this way you can estimate wether your system achieves requirements, programers know what to prioritize
+		- it is also important to set goals, that don't directly tackle performance, BUT help in achieving it, like: scalability, modularity etc
+	- class+function implementation - consider proper algorithms & data structures to meet design requirements
+	- OS interactions
+	- compilation - compiler optimizations OR proper build systems is your friend
+		- consider different compilers, their strengths and weaknesses
+		- compiler is tuned to work with "normal" code, so avoid premature optimizations, if needed measure and then optimize
+	- hardware - for in-house code it can be cheaper option to juts upgrade the machine
+	- code tuning - refers to small, refactoring, changes, that have slight improvement on performance AND if done in batches will have multiplication effect in performance improvement
+		- it is an art of itself, that makes you better programer, BUT it usually not the most efficient solution AND most certainly will cause DX decline
+		- one way to make it effective is to profile your program AND focus on problematic spots
+		- don't try to:
+			- reduce number of lines
+			- do weird compiler optimizations - they might break OR become less optimized after any change to compiler
+			- assume that change will be beneficial - always measure, better if done in several/all environment, that code will run + with different compiler configurations
+				- don't forget to measure precisely
+			- optimize as you go, because:
+				- you won't guess bottlenecks this way, measurements are needed
+				- global optimizations can be missed
+				- UX & DX will loose in priority
+		- notes:
+			- write correct program first
 
+common problematic places:
+- I/O or other system calls
+	- to mitigate: avoid such interactions, write/use light-weight alternatives
+- large memory usage, because of memory paging OR garbage collector related freezes
+- interpreted languages ;)
+- errors
+	- ex: debugger code in production, non deallocate memory, poor DB design, polling without timeouts etc
+
+remember: always measure each "improvement" iteratively AND revert it if there is little-to-no effect or degradation
+
+#### How to tune code
+- don't write redundant logic
+	- ex: `if (i < 3 && i < 5)` 
+- break from loops/functions if solution is found
+- order switch/case, if/else in order of most->leas frequent
+- try switch/case, if/else, table look-up AND compare which is faster
+- use cache
+- use lazy loading, laze evaluation and similar lazy techniques
+- do non-required operations outside of the loop
