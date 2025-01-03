@@ -1992,9 +1992,34 @@ remember: always measure each "improvement" iteratively AND revert it if there i
 #### How to tune code
 - don't write redundant logic
 	- ex: `if (i < 3 && i < 5)` 
-- break from loops/functions if solution is found
+- early break/return from loops/functions if solution is found
 - order switch/case, if/else in order of most->leas frequent
 - try switch/case, if/else, table look-up AND compare which is faster
 - use cache
 - use lazy loading, laze evaluation and similar lazy techniques
 - do non-required operations outside of the loop
+- combine identical loops into one
+- reduce number of checks in loop, by introducing sentinel value at the end
+	- sentinel value - value, that you are searching for, but it might not be present
+	- basically, instead of checking if we out of bounds, if value found and if current value is searched value, we just incrementing index, while current value != to searched and outside of a loop performs check: "are we at position of originaLength + 1", if so, value not found, otherwise value at index position
+	- be careful with overflows, going into infinite loops because of missing sentinel etc
+- place loop with less iterations to top level and with more iterations as nested inside of it
+- use cheaper operations: addition > multiplication, mult > exp, use binary operations etc
+	- this can refer to using fully equivalent operations too, like: `a^2 < b^2 == a < b` 
+- use cheaper types: int > float, int16 > int32, don't use JS ;) because here sometimes number becomes an object etc
+- avoid multidimensional structures or any deep nesting
+- avoid accessing properties/array elements OR making computations multiple times, assign needed value to variable
+- index data(by adding to main data-type OR by storing them nearby)
+	- index can also mean just storing any metadata, to avoid re-computations
+	- when talking about nearby storage, it can be more effective to manipulate int pointers and that change data, then jungling with large objects
+- pre-compute known values OR just any results in general(in form of look-up table, for example)
+	- also look for breaking calculation into parts and extract only one part, this is still beneficial
+	- you can even add build step that computes smth and put's it into code dynamically
+		- just an idea, generally it is painful to work with it ;)
+- use simpler routines to compute value
+	- this way you loose precision, BUT it can be valid tradeoff for some cases
+- avoid type cohesions(especially runtime)
+- instead of calling routine, inline it(in modern times have little to no sense)
+- consider recoding problematic places in faster/low-level language and hook into it
+	- note: write, test in general, test performance in high-level AND only then ***consider*** doing a re-write
+	- as starting pointe, compile code into lower language and optimize from there

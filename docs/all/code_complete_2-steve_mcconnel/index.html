@@ -3722,10 +3722,56 @@ here some of them, that wasn’t mentioned:</p>
 <li>ex: <code dir="auto">if (i &#x3C; 3 &#x26;&#x26; i &#x3C; 5)</code></li>
 </ul>
 </li>
-<li>break from loops/functions if solution is found</li>
+<li>early break/return from loops/functions if solution is found</li>
 <li>order switch/case, if/else in order of most->leas frequent</li>
 <li>try switch/case, if/else, table look-up AND compare which is faster</li>
 <li>use cache</li>
 <li>use lazy loading, laze evaluation and similar lazy techniques</li>
 <li>do non-required operations outside of the loop</li>
+<li>combine identical loops into one</li>
+<li>reduce number of checks in loop, by introducing sentinel value at the end
+<ul>
+<li>sentinel value - value, that you are searching for, but it might not be present</li>
+<li>basically, instead of checking if we out of bounds, if value found and if current value is searched value, we just incrementing index, while current value != to searched and outside of a loop performs check: “are we at position of originaLength + 1”, if so, value not found, otherwise value at index position</li>
+<li>be careful with overflows, going into infinite loops because of missing sentinel etc</li>
+</ul>
+</li>
+<li>place loop with less iterations to top level and with more iterations as nested inside of it</li>
+<li>use cheaper operations: addition > multiplication, mult > exp, use binary operations etc
+<ul>
+<li>this can refer to using fully equivalent operations too, like: <code dir="auto">a^2 &#x3C; b^2 == a &#x3C; b</code></li>
+</ul>
+</li>
+<li>use cheaper types: int > float, int16 > int32, don’t use JS ;) because here sometimes number becomes an object etc</li>
+<li>avoid multidimensional structures or any deep nesting</li>
+<li>avoid accessing properties/array elements OR making computations multiple times, assign needed value to variable</li>
+<li>index data(by adding to main data-type OR by storing them nearby)
+<ul>
+<li>index can also mean just storing any metadata, to avoid re-computations</li>
+<li>when talking about nearby storage, it can be more effective to manipulate int pointers and that change data, then jungling with large objects</li>
+</ul>
+</li>
+<li>pre-compute known values OR just any results in general(in form of look-up table, for example)
+<ul>
+<li>also look for breaking calculation into parts and extract only one part, this is still beneficial</li>
+<li>you can even add build step that computes smth and put’s it into code dynamically
+<ul>
+<li>just an idea, generally it is painful to work with it ;)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>use simpler routines to compute value
+<ul>
+<li>this way you loose precision, BUT it can be valid tradeoff for some cases</li>
+</ul>
+</li>
+<li>avoid type cohesions(especially runtime)</li>
+<li>instead of calling routine, inline it(in modern times have little to no sense)</li>
+<li>consider recoding problematic places in faster/low-level language and hook into it
+<ul>
+<li>note: write, test in general, test performance in high-level AND only then <em><strong>consider</strong></em> doing a re-write</li>
+<li>as starting pointe, compile code into lower language and optimize from there</li>
+</ul>
+</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/cli/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">CLI</span> </span> </a> <a href="/it_docs/all/code_snippets/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Code_Snippets</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
