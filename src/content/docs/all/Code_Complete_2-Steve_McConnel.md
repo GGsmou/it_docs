@@ -2023,3 +2023,116 @@ remember: always measure each "improvement" iteratively AND revert it if there i
 - consider recoding problematic places in faster/low-level language and hook into it
 	- note: write, test in general, test performance in high-level AND only then ***consider*** doing a re-write
 	- as starting pointe, compile code into lower language and optimize from there
+
+#### Size and construction
+Projects can't be scaled linearly, because any increase in size leads to more problems(number of errors, communication problems etc), more preparation and more steps, that need to be taken
+- BUT, this also means, that smaller projects don't require all "steps", that large one, so you can move faster
+
+number of communication paths grows multiplicatively, proportionally to the square root of participants in project (from network theory), SO people management and communication network reduction is required
+- fixing this, avoids communication errors and time-overhead
+- how-to-fix: documentation, management layers
+
+with size increase single programer contributes less to overall value, thus organization takes important role in success of project
+
+grows of project leads to additional activities, which lead to decrease in construction time, because documentation, architecture and design takes the lead, BUT construction isn't loosing overall quality ;)
+
+rofly we can describe such sizes:
+- program - some program, that is manly used by it's developer only
+- product - some program, that is widely used
+- system product - group of products, that interact
+- \---
+- if developer has more experience working with program, he won't properly estimate product, because size change results in non-proportional time required change
+	- to mitigate such errors, account that:
+		- construction will take proportionally more time
+		- other activities will non-proportionally take more time
+		- final product will require more polishing, that large it's size
+
+overall, carefully choose what methodologies you need to enforce, to keep development fast, but successful
+- usually try starting small and then scale-up
+
+#### Managing construction
+Managing is hard, been managed is not easier, it is important to understand how to do it and why something the way it is
+
+###### Setting standards
+> Programmers tend to view managers as being at a lower level of technical evolution
+
+- as quote implies, well respected architect OR just senior person with enough knowledge should set standards, so team of programers will stick to them
+- standards are important thing in achieving quality
+- choose what is best suited: strict rules, flexible guidelines, suggestions, examples
+- to force standards:
+	- pair programing
+	- code reviews
+		- it is important to include senior programer in this process, at least for important changes
+	- mentorship
+	- reward improvements
+		- reward only worthy improvements
+		- reward must be desired
+	- hire people, with proper values
+	- find inspiration in methodologies(Agile, Extreme Programing etc) OR in outside experience(other companies, OpenSource)
+
+###### Managing changes
+- don't assign multiple tasks per one chunk of code to avoid merge conflicts
+- keep an eye on what is in-development
+	- it will remove problems, when feature is developed and thrown away, because requirements/landscape has changed, BUT it wasn't aborted in-time
+	- it will make movement towards final goal smoother and easier
+- !!! don't micro-manage !!!
+- enforce systematic changes via processes
+	- collect changes into batches, evaluate and estimate and prioritize each change, do them systematically
+		- don't implement changes as you go, because you might do easier and less important once
+		- "estimate" part is important, must be done properly and clearly communicated, because fast estimates lead to bad changes
+	- no process leads to missing terms, wrong planning estimates and poor product quality, BUT too much process will slow down development
+- remember, large change often equal design/requirements flaw, so they need to be re-done first
+- use CI/CD + version control to keep steady and proper flow of changes
+	- also standardize build tools and configurations(including creating standard version of system, that can be loaded from image into each dev's machine)
+- back-up
+	- don't leave valuable data as one copy, even if it is in cloud
+	- test your back-ups
+	- archive and preserve historical data
+
+###### Estimating & Scheduling
+Estimate, think twice, re-estimate, add room for an error
+
+general approaches:
+- use software & algorithms
+- have outside expert
+- held estimate walk-through meeting
+- decompose large parts to smaller peaces, so it is easier to estimate them
+- consider estimations from each team member
+	- especially from owners
+- use historical data & knowledge
+
+notes:
+- always consider optimistic and pessimistic variants
+- always define how specific you need to be
+- always add room for an error
+- always consider vacations and other non-related activities
+- there are many factors, that influence how close final result and estimation will be, as example: team motivation :/
+
+flow:
+- establish general objectives
+- plan free time for estimation process
+- define requirements
+	- pre-planning meeting may be required to do research on requirements
+- estimate at low details level
+- use different approaches, compare results, choose the most appropriate
+- re-visit and update your estimates
+	- this also will provide some control, so you will have higher chance of meeting estimates
+
+how to catch-up:
+- increase time
+- don't just hope
+- expand the team
+	- be careful, because you current team need to spend time onboarding newcomers + larger team == more complexity, HOWEVER, if project is decomposed enough, this may be pretty good solution
+- reduce the scope
+	- works great, if you have prioritized what needs to be done, on estimation step
+
+###### Measurements
+Always measure, some data is better then no data, BUT it must be at least somewhat good and useful
+- refine how you measure over time
+- make quantifiable measures
+- remember that people will focus more, on what's measured
+- some measurements can't lead to concrete decisions(ex: number of params in function), BUT they can reveal outliners
+- use tooling for measuring and analyzing
+- keep measurements standardized
+- start small and gradually expand data, that you are measuring
+- set goals on what and why you are measuring
