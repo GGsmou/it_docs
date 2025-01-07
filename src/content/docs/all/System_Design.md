@@ -6,9 +6,6 @@ title: System_Design
 
 ![](../../../assets/it_8.png) 
 
-## Redis
-- it stores cache in-memory, BUT have option to dump data into disk
-
 ## Interview
 - always start with understanding problem and gathering relevant details
 	- relevant details: why we need this system, what functional will be included into system, requirements(functional and non-functional)
@@ -541,3 +538,105 @@ Gossip - efficient algorithm to share data in p2p systems, with high failure tol
 	- consistency - all nodes have same and up-to-date info
 	- availability - system is always responds
 	- tolerance - system is responds, even if part of it dies
+
+#### Technologies
+###### Redis
+- it stores cache in-memory, BUT have option to dump data into disk
+
+###### Kafka
+Kafka is used for decoupling data source from target system by acting as intermediate layer, that stores and enables data consuming
+
+problems it solves:
+- unify data formats
+- unify transfer protocols
+- reduce complexity, make system more maintainable and resilient
+- allows handling high number of connections
+
+specs:
+- open source
+- used as framework for storing, reading and analyzing data streams
+- build to be horizontally scalable
+
+use-cases:
+- messaging - activity tracking -- (working with streams)
+- gather metrics, logs or any data from multiple sources
+- stream operations
+- big data
+
+concepts:
+- topic - temporal data storage
+- partitions - each topic can be configured to be auto partitioned
+- offset - ID, assigned per message, that relevant in scope of partition
+	- each message can be found with `topic+partition+offset` 
+- broker - separate servers, that store partitions
+	- group of brokers == cluster
+- replication - kafka can be configured to auto-replicate data to a given number of times
+	- separate partitions are replicated
+	- replicas will always be stored in other brokers
+	- replication is done via leader system, basically kafka has one leader, that performs read+write operations AND followers, that sync themselves with leader AND can become leader if original leader is failed
+- producer - kafka uses load-balancers, called producers, that perform writes to leader partition
+	- all data is pushed to end of the topic
+	- algorithm: locate all brokers with leader partitions, choose the least loaded one, append data
+		- it is possible to provide key, that will be used to choose partition manually
+			- note: same key will always result in same partition
+	- data can be synced in this way(each has different risk of data loss):
+		- no acknowledgment - producer pushes data without waiting for any response
+		- 1-acknowledgment - producer pushes data with waiting for leader response
+		- n-acknowledgment - producer pushes data with waiting for leader and n-1 replicas response
+- consumer - kafka uses load-balanced consumers, that read data from leader partition
+	- for better performance, consumers are packed in consumer groups, and read only portion of data from topic each(1 consumer per 1 partition)
+	- kafka maintain consumer offset - int number that points to last read data, so consumer won't return duplicates
+	- consuming stratagies:
+		- at most once - message better be lost, than duplicated
+			- offset is changed after message is received, rather then processed
+		- at least once - message can't be lost, but can be duplicated
+			- offset is changed after message is processed
+			- application must be idempotent
+		- exactly once - message can't be lost and can't be duplicated
+			- achieved via kafka-2-kafka streaming
+	- consumer connects to 1 broker first, receives info about cluster, connects to other brokers(if needed)
+- zookeeper - core software, that used to manage distributed system under the hood of kafka
+
+###### RabbitMQ
+For more robust and efficient service-to-service communications we can use Message Based communication, where each service interacts through a MessageBroker mediator
+- improves speed
+- reduces coupling of services
+- allows for load-balancing messages to consumers
+
+RabbitMQ is open-source MessageBroker
+- most popular way of using is with Advanced Message Queuing Protocol, that sends data in frames in custom binary format
+
+Concepts:
+- producer - writer to MessageBroker
+- consumer - reader from MessageBroker
+- queue - intermediate storage for messages
+- connection - RabbitMQ allows for TCP connections to it
+	- RabbitMQ establishes single connection, BUT it splits it into channels and uses them to send data
+- exchange - receives messages from producer and pushes them to 0-n queues
+	- exchange configured via rules, called bindings
+	- exchange do routing based on binding AND received route-keys(addresses)
+	- types:
+		- direct - route to queue, by provided key
+		- fanout - route to all queues, specified in binding
+		- topic - do wildcard match between binding and key
+		- header - route by data in message's header
+- users - each instance of RabbitMQ includes authN and authR built-in
+	- each instance can be broken into virtual once
+- acknowledgements - rabbit allows for loss free transfer via acknowledgement system(from consumer OR from exchange)
+	- acknowledgements can be batched
+- prefetching - rabbit allows to set sliding window, of how many messages can be sent over one channel, before acknowledgement is received
+	- too high will cause overflow, too low will slow down transfers
+
+best practices:
+- keep queue size limited
+	- too large queue results in high RAM
+	- RabbitMQ has preserving RAM mechanism of flushes to the disk, BUT it will degrade performance
+	- how-to:
+		- limit queue size OR add TTL
+			- results in messages loss
+		- make acknowledgements fast
+			- they can be done in async manner, BUT it will result in messages loss
+- multiplex TCP + limit TCP connections
+- keep connections long lived
+- if loss isn't and option, don't limit queue AND enforce acknowledgements
+- isolate consumer and producer with different connections, if done in single app

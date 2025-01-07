@@ -2136,3 +2136,128 @@ Always measure, some data is better then no data, BUT it must be at least somewh
 - keep measurements standardized
 - start small and gradually expand data, that you are measuring
 - set goals on what and why you are measuring
+
+###### Treat programers as people
+Software development is intense process, which need to be balanced by different things, to keep workers happy
+
+notes:
+- not all person's time spent on technical OR even project related activities
+- small amount of people will produce the most result
+	- this is true for all professions
+	- this partially comes from the fact, that difference in productivity, knowledge etc can be an order of magnitude between people
+	- this also represented in team efficiency, because good people cluster together
+	- \---
+	- overall, if it is possible to higher more expensive and professional person, it is better to do so
+- people will always have "religious issues"
+	- issues: IDE & utils, programing languages, naming, style, readability vs speed, practices etc
+	- if you need to enforce smth try:
+		- be gentle
+		- enforce via guidelines, not strictly
+		- enforce via tooling
+			- ex: developer writes code like he wants, BUT is still will be formatter
+		- explain whys
+		- enforce via making it beneficial to individual person
+		- ---
+		- generally try avoiding enforcing anythings non-important and focus on important stuff
+- make physical office a great place to be in
+	- ESPECIALLY IF YOU ARE FORCING OFFLINE-ONLY
+	- this results in emotional and productivity boost(from statistics and personal evaluation)
+
+###### Managing your manager
+When dealing with non-technical managers, it is important to do self-management, BUT in a way, that it comes from manager, that can be done:
+- plant an ideas on what you want to do
+- educate manager on what is the right way to do things
+	- it implies refusing to work in different way
+- don't destruct manager with implementation details, only with results
+- quit ;)
+
+#### Integration
+Process of combining several pieces(small and large) of program/system together
+
+in general - keep your program "stable" on each development step, ideally it should work, so it makes process and path clearer
+- it is often performed in-between of testing an system testing
+
+types:
+- phased - integrate all at once
+	- develop and test all classes -> integrate all classes -> test whole system
+	- problems:
+		- more error prone
+		- harder to debug
+		- possibility of classes not combining
+	- benefits:
+		- fast(great for small scale changes/programs)
+- incremental - integrate program in chunks
+	- develop and test system core -> (develop and test the chunk -> integrate chunk -> test integrated chunk) repeatable
+	- benefits:
+		- steady growth
+		- easier to iterate
+		- easier to debug
+			- errors is easier to locate
+			- errors aren't combined
+		- clear path of development
+		- clear progress
+		- moral boost :)
+		- testing done more in-depth
+		- work can be done in parallel
+
+strategies - some strategies can be not optimal for some projects
+- plan order - some components will depend on other, so proper order is key
+- top to bottom - write from top to bottom, stubbing the dependencies and changing stubs to real functional, when it's ready
+	- requirements:
+		- interfaces that specified in details
+	- benefits:
+		- design problems are exposed early
+		- creates visible work early
+		- no need to wait for detailed design to begin
+	- problems:
+		- pure approach leads to low-level problems to bubble up and affect higher level systems
+			- pay more attention at design and requirements steps
+		- slow, because stubs need to be developed too
+		- stubs will be a source of errors
+		- rigid
+			- breaking system to chunks AND doing each chunk top->bottom will be a better way (vertical-slice approach)
+		- some systems can have no defined "top"
+- bottom to top - write from bottom to top
+	- testing can be done with drivers, code can be ran via scaffolds, both of which can be replaced with actual implementation later 
+	- benefits:
+		- easier to find problems with interfaces
+	- problems:
+		- higher-level details can be discovered at last stages
+		- higher-level integration will be done at last stage, which can be generally harder to do, so more risks
+		- whole design must be done upfront, otherwise encapsulation will be broken
+		- \---
+		- slicing can mitigate this problems
+- sandwich - less rigid way, where you implement top level first, then go to bottom and then work with middle
+	- benefits:
+		- less rigid
+		- less stubs required
+- risk-oriented - hard parts first
+	- benefits:
+		- you can see early if project is possible or going in right direction
+- feature-oriented - system is sliced into features
+	- usually done from base features first
+	- benefits:
+		- little to no stubs, if features are independent
+		- easier to track progress
+		- software can be released with missing features, if needed
+		- great to work with OOP
+	- problems:
+		- large features will have less advantages of incremental integration
+			- recursive incremental integration can be done
+- t-shape - do top level, select main slice and do top-bottom, do the rest
+	- benefits:
+		- easier to find design problems
+
+daily build + smoke testing - merge changes as soon as possible, to keep system stable and reliable(ensures by testing)
+- benefits:
+	- easy to locate problems
+	- program is always stable
+	- highlights unknown unknowns
+- notes:
+	- enforce fixing broken merges as soon as possible (it should be strict, BUT flexible at the same time)
+	- tests can be not complete, BUT at least somewhat valuable
+		- they must evolve too
+	- automate this process
+	- it make time of one+ person to keep such builds stable
+	- code need to be tested, before merge
+	- don't stop this practice, even if there is a time pressure
