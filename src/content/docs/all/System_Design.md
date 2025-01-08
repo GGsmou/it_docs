@@ -22,6 +22,10 @@ title: System_Design
 	- any change need to be justified by statistics
 	- how much money will be spent AND earned after improvement
 
+all systems have several attributes, attached to them
+- prioritizing one attribute might negatively impact other
+	- ex: more security == less UX
+
 #### How to design
 ###### URL Shortener
 - why we need it
@@ -135,6 +139,65 @@ title: System_Design
 	- if middle-man fails - redirect child to other middle man
 	- if origin fails - use replica OR, as last resort, serve content from middle-mans' caches
 - examples: Cloudflare, Cloudfront etc
+
+###### Whatsapp (chat app)
+- requirements
+	- functional
+		- conversations - one to one, group
+		- acknowledgment - track message status
+		- sharing - sending files(images, videos, audios)
+		- chat storage - messages should be persistently stored, even if user is sent them, been offline
+		- notifications - new messages should result in notifications
+	- non-functional
+		- low latency
+		- messages order consistency
+		- availability (can be compromised, if it will increase consistency)
+		- security - done via e2e encryption, where only people, that chatting, can see the contents of messages
+		- scalability
+- high-level design
+	- userA establishes websocket connection with server, sends encrypted message to server, server acknowledges, server holds message until userB is online, server sends message to userB, userB acknowledges, server notifies userA that message is sent, userB reads, userB notifies server that message was read, server notifies userA that message was read
+	- data model design:
+		- users
+		- user_groups
+		- user_chats
+		- groups
+		- chats
+		- messages
+	- API:
+		- can be done via REST for broad support
+		- file upload can be done as two step process:
+			- upload file, receive URL
+			- share URL via message in specific format
+	- architecture: micro-services, because it is easy to scale and decouple
+- low-level design
+	- users connect to WebsocketService, through load-balancer
+		- mapping and management is done via WebsocketManagerService
+		- WebsocketManager is connected to Redis cluster to store any needed data
+	- all messages can be retrieved from MessageService, that is connected to some persistence-first DB, like Mnesia
+		- it exposes APIs to manipulate messages
+		- it has auto-purging of historical data
+		- messages will be retrieved and stored in encrypted format
+	- all file operations are done via FileService
+		- compression and encryption is done on device
+		- blob storage is used to store files
+		- each file is tracked via public id(for sharing) AND via private hash(to avoid duplicated data)
+		- frequently used files can be pushed to CDN
+	- group messages can be routed to specific GroupMessageService, that will route it to Kafka. GroupMessageService communicates with GroupService to retrieve info about each group participant and sends messages to each user
+		- GroupService will have SQL-based DB, for ease of working with relational data
+			- this DB can be replicated geographically
+			- Redis is needed as cache here
+- non-functional requirements achievement
+	- low latency
+		- CDN, geographical replication, caching
+	- messages order consistency
+		- FIFO queueing, acknowledgment mechanisms, persistence DB
+	- availability
+		- data replication, multiple load-balanced servers
+	- security
+		- e2e encryption
+	- scalability
+		- horizontal via micro-services
+
 
 ## API Design
 Describe how each part of the system works and why
@@ -538,6 +601,33 @@ Gossip - efficient algorithm to share data in p2p systems, with high failure tol
 	- consistency - all nodes have same and up-to-date info
 	- availability - system is always responds
 	- tolerance - system is responds, even if part of it dies
+
+#### Encryption
+###### Symmetric Encryption
+Method of using single key to encrypt/decrypt data
+- this key can be viewed as a password, that need to be known by two sides beforehand AND can be shared at any point
+
+###### Asymmetric Encryption
+Method of using pair of keys to encrypt/decrypt data
+- public key - used to encrypt data, can be shared
+- private key - used to decrypt data, stays with party, that created pair
+
+###### E2E Encryption
+Method that encrypts data, to prevent any access to it, when it is transferred from one user to other
+- it is encrypted on one side and can only be decrypted on other side
+
+how it is done:
+- based on asymmetric encryption
+- uses insurance system, that prevents man in the middle problem
+	- insurance is done via legitimate third-party authority, that embeds keys into certificates
+
+###### Transit Encryption
+Method that encrypts data, to prevent any access to it, when it is transferred, but overall systems includes middle man, that encrypt/decrypt data, before sending it to users
+
+how it is done:
+- based on asymmetric encryption
+- uses insurance system, that prevents man in the middle problem
+	- insurance is done via legitimate third-party authority, that embeds keys into certificates
 
 #### Technologies
 ###### Redis
