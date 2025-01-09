@@ -1,6 +1,9 @@
 ---
 title: System_Design
 ---
+> Scale when needed, not because you can or it is popular
+> *this applies using vertical scaling first, until it is too expensive OR impossible(bandwidth)* 
+
 
 ![](../../../assets/it_9.png) 
 

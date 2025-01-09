@@ -2261,3 +2261,78 @@ daily build + smoke testing - merge changes as soon as possible, to keep system 
 	- it make time of one+ person to keep such builds stable
 	- code need to be tested, before merge
 	- don't stop this practice, even if there is a time pressure
+
+#### Tooling in general
+- design tools
+	- commonly UML based
+	- some can generate code or do other fancy things
+- coding tools
+	- IDE and text editor
+	- multi-file editing and search replacement
+		- ex: grep + regex
+	- diffing between version of file
+	- version control system
+	- prettier
+	- auto-docs
+		- ex: JSdoc
+	- templates
+	- cross-reference
+	- class-hierarchy visualizer
+	- linters
+	- metrics generator
+		- ex: test coverage
+	- refactorers:
+		- refactoring tools, ex: multi-rename
+		- fast actions, ex: wrap with function etc
+		- translators from one lang to other
+- knowledge sharing(internal wiki)
+- code manipulators:
+	- compiler, linker, builder
+		- it is nice if builder can have caching system as optimization step, BUT it may be less performant for some cases
+		- builder can emulate pre-processing(but it shouldn't for the most part)
+	- libs
+	- code generators:
+		- CRUD builders
+		- AI
+	- pre-processing
+	- assembly generators
+		- > A first exposure to assembler is often a loss of innocence
+- debugging
+- testing
+- profilers
+- tooling sets(ex: UNIX)
+- custom tools
+	- creating custom tools is common thing programers do, and so companies tend to do also
+	- often it leads to software that needs more resources to be supported, BUT it is superior and cheaper, than other variants
+	- ex: project specific tooling, scripts, tuned version of available tooling
+
+new tools make developers move faster, BUT never remove need for devs
+> screw you ChatGPT ;)
+- note that every new tooling wave changes programing to unrecognizable state, BUT never killed it
+	- reason been, that real world is messy and hard, thus we need translators, that can communicate real problem to machine
+
+## Craftsmanship
+#### Layout & Style
+This topic discusses code beauty, aspect that doesn't effect code execution, BUT can improve read-ability and maintainability
+- it is pretty subjective topic ;)
+- this is part of "attention to details", that is important to do at the start AND will be hard to re-do later
+
+key point to good layout is laying down the code structure via spaces and indentation
+- it is done for humans, who would read your code in future and not for computers, that can interpret any syntax-correct code
+	- consistent structure makes brain understand code easier overall, thus some details aren't so important(like brackets positioning) over overall consistency
+		- be openminded in general :)
+
+good styles must be:
+- identify the structure of code
+- be consistent
+- be readable
+- modification of one line shouldn't trigger multi-line modifications
+- it is a benefit, if layout requires less lines to do smth
+
+techniques:
+- whitespaces
+	- grouping - keep relevant chunk of code, that represents one "thought" together
+	- blank lines - way to break groups
+	- indentation - statements, that subordinate to other statements, should be have `indentation + 1` 
+		- more then 4 indentations lowers readability
+- parentheses - use as much as needed, to avoid any uncertainties
