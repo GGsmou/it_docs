@@ -2327,12 +2327,44 @@ good styles must be:
 - be consistent
 - be readable
 - modification of one line shouldn't trigger multi-line modifications
+	- this is main reason why you should avoid "pretty" layouts, then add indentations to align comments, switch/cases etc
 - it is a benefit, if layout requires less lines to do smth
 
 techniques:
 - whitespaces
 	- grouping - keep relevant chunk of code, that represents one "thought" together
+		- this also opens more space for comments, that can describe group, if needed
 	- blank lines - way to break groups
 	- indentation - statements, that subordinate to other statements, should be have `indentation + 1` 
 		- more then 4 indentations lowers readability
+	- spaces - add them to show logical structure of expression OR just make it easier to read
 - parentheses - use as much as needed, to avoid any uncertainties
+- format single statement blocks consistently with other blocks, using brackets
+	- while it is possible to avoid them, it makes such code harder to stop via debugger, change or copy paste
+- break long expressions into multiple lines
+	- one place, where JS beats GO ;)
+- formatting goto
+	- don't use them :)
+	- to make labels more visible
+		- write them in caps
+		- add additional blanc lines and indentations around them
+	- to make `goto` more visible
+		- place it on separate line
+- don't be scared of breaking 80-char length of a row if it helps readability, BUT remember that long lines is harder to read by default and adding breaks with help reducing deep nesting(at some point there is not enough space)
+	- to break long statements do:
+		- signify that statement is incomplete
+			- ex: `const a = b && \n c` or `const a = b \n && c` 
+			- first example makes code modification error prone, while second makes stacking of expressions easier
+		- keep relevant things as close as possible
+			- ex: calling a function and passing an arguments
+		- add indentations to signify grouping
+		- note: for long statements it is ok to go one line per statement approach
+- avoid multiple statements per one line
+	- because:
+		- it is more standard way in general (the more standard a thing, the easier is to parse it)
+		- you don't need to parse code horizontally + vertically
+		- compiler hints and debugger break-points won't work
+		- such code easier to edit
+	- this also implies to using multiple side effects per line(ex: `fun(++a)`), because it is harder to understand AND different compilers can process this in different order
+	- also implies to one declaration per line
+		- add some logical ordering to variable declaration groups, if groups is relatively big
