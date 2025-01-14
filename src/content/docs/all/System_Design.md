@@ -18,8 +18,10 @@ title: System_Design
 - define system constrains and estimates:
 	- estimate priority (reads OR writes)
 	- estimate number of: request per second, needed storage, bandwidth used
-- define large parts of system and broadly APIs, define each part of a system in details, refine and repeat, memory(for caching purposes)
+- define large parts of system and broadly APIs, define each part of a system in details, refine and repeat
+- discuss bottlenecks and solutions
 - summarize the decisions with possible alternatives
+	- summarize the achievement of requirements
 
 - when considering if improvements to system are needed remember about:
 	- any change need to be justified by statistics
@@ -733,3 +735,114 @@ best practices:
 - keep connections long lived
 - if loss isn't and option, don't limit queue AND enforce acknowledgements
 - isolate consumer and producer with different connections, if done in single app
+
+#### 12 factors of scalable service
+- general requirements:
+	- building, starting etc of an app is done in declarative manner
+	- app is environment agnostic as much as possible
+	- app can be deployed in fast and continues manner
+	- app can be scaled without additional configurations
+	- grows of an app should be organic
+	- DX must be good
+###### Factors
+1. Codebase
+	1. all changes are tracked via VersionControl system
+	2. notes:
+		1. 1 codebase == 1 app
+		2. several codebases == several apps (can be a distributed system)
+		3. shared code should be factored to libs and used as dependency, NOT directly
+		4. 1 app can have many deployments: prod, env(s), local
+			1. deployments can be different version of an app
+2. Dependencies
+	1. all dependencies need to be explicit and isolated
+	2. implementations: system-wide, bundled into the app
+		1. for dependency to be explicit and isolated it must be stated in some config/manifesto AND bundled into the app
+			1. makes app easy to share AND all deployments uniform
+		2. package managers are common tool for dependency management
+	3. any "common" dependencies like curl should be bundled too, to be env agnostic
+3. Config
+	1. config must be a part of the environment
+		1. it can be accessed by an app from env OR it can be backed-in on the build step (if build is done in the env)
+		2. it can't be in the code, because it makes code differ per env
+	2. config is one of few parts that differ between each deployments
+	3. config includes:
+		1. addresses to connect to shared resources
+		2. credentials
+		3. environment specific knowledge, like: hostname etc
+	4. main goal is to make possible to open-source code and not leak any credentials
+		1. this implies usage of standard processes, like `.env` or similar systems, that prevent accidental leakage of credentials
+	5. grouping configs will make scaling harder
+		1. better way is to view each env as a thing on itself, that can be granularly controlled
+4. Backing Services
+	1. services can be
+		1. local - hosted on same machine
+		2. external - hosted over the net, on different machine
+	2. any dependency in form of service(DB, third-party API, queue service, email service etc) should be tread as external, to keep any dependency easily swappable
+		1. swap should be possible only by re-configuring envs
+5. Build, release, run
+	1. separate each stage of this process
+	2. build - transform written code into executable, by merging-in dependencies, optimizing, compiling etc
+		1. done by developers
+	3. release - combine builded version and envs, with possible movement of code from machine to machine
+		1. done by developers
+	4. run - execute released version
+		1. done automatically
+	5. benefits:
+		1. separation of concerns
+		2. impossibility to un-build program, that is running
+		3. possibility to re-use some step
+			1. ex: make several runs from one example, create multiple releases from build
+		4. possibility to rollback
+			1. to do this you must: label each release with id/timestamp, keep all releases immutable
+6. Processes
+	1. each instance of an app must be stateless
+	2. all data must be stored in separate shared backing service
+	3. any local state must be short lived
+		1. ex: cache, intermediate values of operation
+		2. reason: second request might be routed to separate process, process might fail, process might be re-ran
+7. Port binding
+	1. all access to the app must be done via dedicated, opened port, by HTTP(S) or similar protocol
+		1. the point is to make app easily accessible via single entrance point
+	2. this allows to use app as Backing Service or directly asses it
+8. Concurrency
+	1. scaling should be done via process model, where we have process formation, that tells us what types of processes do we have(ex: HTTP request handler, background task etc) and how much of each type we are running
+	2. this way we can easily extract some process type into own machine OR reliably expand functionality
+	3. process management should be done via standard APIs
+9. Disposability
+	1. keep startup-ups fast and shutdowns graceful
+	2. benefits:
+		1. any changes can be deployed fast
+		2. failed deployments can be re-deployed
+		3. service can be scaled in both directions easily
+		4. system can auto-scale
+		5. system is more reliable
+	3. notes:
+		1. for web-sockets of long-polling seamless re-connect mechanism must be implemented on client OTHER requests must be short-lived
+		2. for queue systems any unprocessed operations should be returned to queue
+		3. for lock-based systems locks must be released
+		4. incorporate sudden failure handlers to make unexpected shutdowns graceful-ish
+10. Dev/Prod parity
+	1. keep dev and prod as similar as possible
+	2. distinctions come from:
+		1. time - feature is developed locally for too long
+			1. use trunk based development
+		2. personnel - deployment is done via DevOps team
+			1. incorporate CI/CD
+			2. developer need to verify that production is working and `main` is stable
+		3. tools - different tools locally and on prod
+			1. bundle dependencies into an app OR make it easy to run light-weight variation of dependence outside of an app OR expose environment dependencies for local use
+				1. docker is often a great solution
+11. Logs
+	1. logging is important for monitoring
+	2. logs should be treated as stream of aggregated, time-ordered events
+		1. logs can't have beginning/end and often represented as txt with 1 log per line
+	3. logs must be collected from each process and backing service
+	4. app don't need to know about logs
+		1. general approach is to dump logs to `stdout` and make environment collect them to file, dump this files to some external storage etc
+			1. for local runs it is enough for dev to just see `stdout` 
+			2. external storage can be just archive OR some big-data service, that will allow to view trends, find specific events and add altering system, that will react to anomalies in logs
+12. Admin process
+	1. it must be possible to do admin/management activities directly on prod
+		1. ex: run scripts(ex: db migration), interact with live console
+	2. scripts should be shipped directly with app's code and can be treated as dependency
+	3. direct access can be done with tools like SSH
