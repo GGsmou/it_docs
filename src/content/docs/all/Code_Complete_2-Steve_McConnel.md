@@ -2368,3 +2368,79 @@ techniques:
 	- this also implies to using multiple side effects per line(ex: `fun(++a)`), because it is harder to understand AND different compilers can process this in different order
 	- also implies to one declaration per line
 		- add some logical ordering to variable declaration groups, if groups is relatively big
+- create conventions for representing class
+	- possible variation: global comment, constructor/destructor, public-protected-private data, public-protected-private methods
+- if one routine uses other place them in a way, that code can be read top->bottom
+	- if possible from language perspective
+- separate large groups of code clearly
+	- even better to use separate files, where each file is some module, often a treated as single class
+- working with files
+	- name file same as class it contains
+	- create conventions for file structure and stick to it
+		- possible variation: global comment, imports, constant definitions, macros, types, global variables, exported parts, non-exported parts
+- groups logically related code together
+
+#### Self-Documenting Code
+Documentation is important part of construction, BUT it must have reasonable requirements AND can be done in different ways
+
+- external - docs, that been kept separate from the code
+	- often somethings high-level
+	- variations:
+		- Unit Development Folder - internal docs, that developer writes to provide design decisions, that he has chosen, over the course of construction
+			- note that this decisions aren't documented elsewhere clearly
+		- Detailed Design Document - broad documentation, that includes low level design in routine/class levels
+			- can be done as collection of several UDFs OR all in-code comments OR collection of REAMEs OR it can be strict document
+- internal - docs, that kept inside the code, often can be code itself
+	- the most up-to-date and change resilient
+	- can be done as comments, as self-documented code etc
+	- *when to comment?* 
+		- avoid comments, that duplicate OR explain code
+		- good comment clarify code in high-level and abstract way
+			- BUT don't use comments as a way to "save" bad code, rewrite it ;)
+				- still, comment any tricky parts, that can't be rewritten
+		- good comment explain all the WHYs and bring justification to made decisions
+		- comments must be kept up-to date
+		- notes/TODOs are ok, BUT better be backed-up by some tasks or global intent
+	- types of comments:
+		- code repetition - bad, because it do nothing good
+		- explanation comment - bad, because we should refactor, rather then "save" the code
+		- markers - note from dev that work isn't done
+			- can be done via:
+				- breaking the linter/compiler in specific place
+				- adding specific characters to search for
+			- general recommendations is to use specific characters, that is easy to search company-wide + back-up comments with tasks
+		- summary - good enough as way to make reading faster, BUT will confuse people, if left outdated
+		- description - great, because it is easy to find an intent of author AND answer all the "WHYs"
+		- info that related to code - can't be expressed with the code, but related, so it is ok to keep it
+			- ex: links, copyright info, JSDocs, references etc
+	- how to comment:
+		- keep comment style simple enough
+			- it must be easy to change
+			- it must be consistent
+			- it must not consume too much time
+			- nice examples: use `//` for short stuff and `/**/` for long stuff
+		- understand your code fully, before commenting
+		- re-use pseudocode
+		- comment as you go
+		- don't forget to strip comments from release version, for non-compiled languages ;)
+	- techniques:
+		- single-line
+			- comment if line is hard
+			- comment if you need to know important info for future, like possible errors etc
+			- avoid comments at the end of the line
+				- reasoning:
+					- it is harder to read and maintain
+					- it is often not much to explain in single line
+					- it is impossible to make it long
+				- exceptions:
+					- data declarations
+					- end of a block
+			- avoid end-line comment for multiple lines
+		- paragraphs:
+			- keep a comment at a hight level, describe intent(why) and make it possible to summarize a comment into a function name
+		- general:
+			- don't comment for sake of it
+			- use comment to prepare the reader
+				- the main reason why we tend to place comments before the code
+			- avoid abbreviations
+			- establish structure(ex: main comment, subordinate comment) via indentations if needed
