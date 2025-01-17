@@ -284,13 +284,25 @@ To query data you generate and assign shard-keys per shard
 great for dealing with traffic and data amount grows
 
 #### Load Balancing
-Technique to evenly distribute traffic amount several machines
+Technique to evenly distribute traffic amount several machines for efficiency benefits
 
 use-cases:
 - traffic distribution
 - ensuring high availability by avoiding routing to inactive machines
 - session maintenance
 - SSL/encryption related operations
+
+general approach is to take request and pass it to other machine, based on some algorithm, where algorithm can be:
+- static - proxy requests, without consideration about current state of machines
+	- basically divide equally all requests
+	- easy to do, BUT will be less efficient, because some machines will become overloaded after some time
+- dynamic - proxy requests, based on health(availability, load) of each server
+	- poll each server from time to time to receive it's status and distribute load accordingly
+	- failover mechanism is needed, to reroute all requests from failed server to stable one
+	- harder to setup(each server must have endpoint to check it's health)
+	- sub-types: by connection, by location etc
+
+balancing can be used on the gateway to your system OR inside of it between servers and services
 
 #### API Gateway
 Technique to create single entry point to system, that can handle several functions:
@@ -636,7 +648,27 @@ how it is done:
 
 #### Technologies
 ###### Redis
-- it stores cache in-memory, BUT have option to dump data into disk
+Redis is remote, in-memory NoSQL key-value storage, that is used as cache or lightweight and fast DB
+- main goal is to reduce bottleneck of slow operations with DB or disks, by handling data in-memory
+
+possibilities:
+- in-memory cache
+- queuing
+- multiple data-types
+- Sentinel - separate system, that used to manage distributed system of Redis instances for resource optimization and sharing
+- Pub/Sub - separate system, that enables Streaming
+- persistence - enables taking snapshots of data in memory and dumping them on disk
+
+vs Memcached:
+- benefits:
+	- allows for more data-types
+	- enables more fine-tuning of cache
+- problems: higher complexity
+
+use-cases
+- DB caching
+- real-time analytics
+- location-based applications
 
 ###### Kafka
 Kafka is used for decoupling data source from target system by acting as intermediate layer, that stores and enables data consuming
@@ -735,6 +767,55 @@ best practices:
 - keep connections long lived
 - if loss isn't and option, don't limit queue AND enforce acknowledgements
 - isolate consumer and producer with different connections, if done in single app
+
+###### AWS Elasticsearch
+Service for large handling operations on large data, such as searching, analytics etc
+- can be self-hosted OR bought via AWS
+- great for searching for data AND meta-data
+
+In it's core Elasticsearch works on top of large number of shards(small isolated DBs), and creates a facade with simple interface to query and operate upon those shards
+- collection of relevant shards is an index
+- upon facade it introduces replication mechanism
+- highly performant, because utilizes indexes
+- could be used as single source of truth
+- have large number of data-types
+
+###### Docker
+Docker is software, that used to distribute other software
+- based on containers, where each container is self-contained piece, that provides environment to execute anything inside of it
+	- characteristics: light-weight, flexible in customization, standardized(allows for ease shipping), self-contained(ease of deployment)
+	- main focus is to isolate piece of software and it's dependencies, so it can consistently be ran in any env
+- based in concept of Virtual Machine, which means some isolated environment, that simulates anythings needed and can be ran on shared physical hardware with other VMs or even full OS
+	- done by creating isolated instances of custom software + OS inside of it, putting them into actual machine, that has light-weight OS and hypervisor, which is used for monitoring, logging, managing resources, action taking etc
+	- plain VM is slow, because it needs separate full OS and vendor locked, because it is dependent on hypervisor
+
+Docker combines VM and container approach, such as:
+- each container has all needed code and dependencies
+- software dependency is covered by using host's OS
+	- Container engine allows hooking into OS with minimal risk
+- concepts:
+	- Dockerfile - config with instructions to build DockerImage
+	- DockerImage - template, that contains everything needed and can be replicated into any number of DockerContainers
+		- each image is immutable
+	- DockerContainer - isolated container, that can be ran via DockerEngine
+
+optimization tricks:
+- cache is linear, so keep highly changing parts at the end of a Dockerfile
+- aim to execute building steps for libs once and cache the result
+
+###### Kubernetes
+System, that built upon docker and used to manage large number of docker containers in configuration+automation manner
+
+possibilities:
+- ensure resilience, by re-starting failed container (failover)
+	- also includes health-checks
+- scale containers up/down
+	- horizontal AND vertical
+- deploy large number of containers with some deployment patterns
+- automatic rollouts and rollbacks
+- hosting container
+	- load-balancing is included
+- environment, secrets management
 
 #### 12 factors of scalable service
 - general requirements:
@@ -846,3 +927,39 @@ best practices:
 		1. ex: run scripts(ex: db migration), interact with live console
 	2. scripts should be shipped directly with app's code and can be treated as dependency
 	3. direct access can be done with tools like SSH
+
+#### Synchronization Methods
+In system, where multiple operations can be done simultaneously, synchronization must be introduced
+
+###### Mutex
+Mutex is locking mechanisms, that provides ownership over some operation to single executor
+
+Common principle, is to have moderator(mutex object), that can be locked and "held" by some party, until task executes. Other parties will wait, until mutex is locked. After one party finishes operation unlock call is executed and next in line can acquire mutex
+
+- use-cases:
+	- locking resource usage (data integrity)
+	- locking operation execution (no race conditions)
+
+- potential problems:
+	- some queueing should be held by mutex object, to avoid keeping one party waiting for too long
+		- prioritization can be added, to make higher-priority threads go first
+		- it can drain CPU
+	- if mutex wasn't released, because process died, mutex won't unlock and drain resources
+
+how to deadlock yourself:
+- make thread wait for release, when he is who one holds
+
+###### Semaphore
+Mechanism of coordination between multiple threads, that based thread-thread communication, without strict ownership
+
+common principle is to have shared int value(>=0), that signifies how much threads can be used in a pool to operate on data. Each thread can Wait until value is >0, acquire slot by reducing value, do operation, increase value to release slot
+- pool manager need to give access to chunks of data per thread, to avoid sharing
+
+- benefits:
+	- multiple threads can work on shared resources
+	- flexible resource management
+
+problems:
+- risk of deadlock
+- prioritization problem by default
+- no modularity
