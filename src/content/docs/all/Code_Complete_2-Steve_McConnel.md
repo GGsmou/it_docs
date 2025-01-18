@@ -2438,9 +2438,100 @@ Documentation is important part of construction, BUT it must have reasonable req
 			- avoid end-line comment for multiple lines
 		- paragraphs:
 			- keep a comment at a hight level, describe intent(why) and make it possible to summarize a comment into a function name
+		- data declaration:
+			- comments for declared data can describe specifics, that name of var can't describe
+			- don't comment units, embed them into var name
+			- it is reasonable to comment allowed range of value, BUT it is even better to create getter/setter, that will control such range
+			- don't comment on limitations of data, assert them
+			- comment bit meaning, when working with bit data
+		- control structures:
+			- comment can explain purpose of control structure
+			- you might add comments, that clarify what bracket closes what control structure, to make nesting read easier
+				- BUT, it is often a clear sign of complex code, that NEED to be simplified
+		- commenting routines:
+			- as for other guidelines, keep header comments simple, otherwise devs won't create small routines, making code worse
+			- it is better to describe routine in general AND put details as close to actual code as possible
+			- add comments for parameters, BUT try to make params understandable in first place
+				- things like JSdoc is great alternative to just comments, because it is standardized way of creating documentation in code
+				- specify any uncertainties about each param, like: data limits, can it be mutated, assumptions, precision etc
+			- comment any changes to global data by routine
+			- refer source or algorithm, if it is complex
+			- re-use common keywords from JSdoc, like `@param`, `@throws` etc
+		- classes:
+			- in general, comment should provide overview of class
+				- it can be smth similar to routines, like limitation etc
+				- it can be some design notes
+			- don't comment about innerworkings in top comment, this breaks encapsulation
+				- if needed, place such comments near respective private routines
 		- general:
 			- don't comment for sake of it
 			- use comment to prepare the reader
 				- the main reason why we tend to place comments before the code
 			- avoid abbreviations
 			- establish structure(ex: main comment, subordinate comment) via indentations if needed
+
+#### Personal Character
+Programing is pure mental activity, so code is resemblance of author(individual OR team), thats why character has important role on final product
+
+> It is matter of personal character to be good in programing, that can't be externally forced
+
+been good isn't fully determined by intelligence, nobody can fully comprehend software, so it is important to keep everything as simple as possible, to work around our "monkey brain"
+- use conventions
+- reduce mental load
+- keep routines shorts
+- operate on domain, rather then implementation details
+- use cooperative programing techniques
+
+stay curious:
+- know and learn your tools
+- stay aware of new tech
+- stay aware of how to build process
+- learn new things through building small apps
+- prototype and plan beforehand
+- lear how to solve problems
+- study high-level design of other project (basically lear from other's experience)
+- ask other's to review your design and code with advises
+- read the docs, the books, the everything
+	- reading the docs and searching for new tools allows to not re-invent the wheel
+	- > Pat yourself on the back for reading this book.
+- join communities
+- always develop
+	- it is ok to be a beginner, it is a sign not to learn and grow
+
+be hones with yourself:
+- admit that you don't know everything
+- understand the problem and program
+- admit the problem
+- provide realistic reports and estimates
+	- it is not healthy for the project to say what manager wants to hear
+	- it is your job to bring correct estimates AND sell your ideas to management, BUT it is their work to decide is it worth the cost
+
+communicate with other programmer well, it include:
+- writing understandable and maintainable code
+- knowledge sharing
+- proper reviews
+- communication in general
+
+discipline:
+- any large project requires docs, guidelines and discipline in general
+- establish conventions for things that don't matter AND be creative in areas that matter the most
+
+laziness:
+- it can be manifested via:
+	- deferring unpleasant - generally bad and not beneficial
+	- doing unpleasant as fast as possible - good and makes your efficient, can be achieved by decomposing large unpleasant to smaller, more manageable once
+	- automating unpleasant - the most effective type, BUT don't automate smth, that won't give you time benefit, you will spend more time on automation
+- if someone looks busy, he might just do hustling(a-lot of purposeless motion), but not really been productive, look for it and avoid
+
+smth that doesn't matter much:
+- hustle
+- persistence - it can be good, but also can be bad
+	- it is bad when:
+		- you stuck on smth and don't want to try another approach
+		- you keep debugging, when it is better to set-out and have some rest
+		- overall, take break, if you fill frustrated
+- experience - experience is good, BUT if you don't learn anything new, you will become out-dated in fast programing world
+	- overall, relying on past experience is beneficial, BUT only for some extend
+	- try been objective
+	- don't feel as you earn that status and can stop developing
+- gonzo programming - recipe for failure, because your mental state decline rapidly, without rest, thus quality of your output
