@@ -2535,3 +2535,79 @@ smth that doesn't matter much:
 	- try been objective
 	- don't feel as you earn that status and can stop developing
 - gonzo programming - recipe for failure, because your mental state decline rapidly, without rest, thus quality of your output
+
+habits:
+- developing good habit is important, because most of work is done unconscious
+- it is important to fix bad habits as early as possible
+
+#### Themes in Craftsmanship
+conquer complexity - we have small brains, so our program must be easy to understand for them
+- break system to sub-system (layering)
+- abstract internal from external
+- don't expose any implementation details
+- avoid: global data, deep inheritance, deep nesting, complex control structures
+- create standards for: error handling, style, code conventions(don't make them too strict)
+- keep classes/functions single-responsibility and small
+- minimize number of params
+- give clear names
+
+develop processes - team development is hard, and it is important to make abilities of each programer to sum-up for great result, so creating construction process is key
+- develop stable enough requirements
+- develop process of feature/bug requests
+- focus on quality
+- don't optimize prematurely
+- develop process of writing and reviewing code
+
+focus on developing readable code, because you read often then you write
+> If you think you don’t need to make your code readable because no one else ever looks at it, make sure you’re not confusing cause and effect.
+
+don't program in language, program into it
+
+establish conventions - conventions is great for reducing complexity, because you will work with consistent code AND don't need to think about minor problems, because they was already thought through
+- conventions can be used for:
+	- creating consistent styling & handling of cases like: error handling, assertions, immutable data simulation etc
+	- making reviews faster
+	- fighting bad practices
+- don't add convention for sake of it
+
+domain driven design - reduces mental load in communication, because whole company operates with same terms AND makes creating abstractions easier
+- it is also about good design, where you focus on high-level concepts AND not low-level implementation details
+- levels:
+	- 0 - system-interaction layer
+	- 1 - language structures, aka primitive instruments, given by language
+	- 2 - low-level implementation structures, aka useful structures and algorithms in scope of a problem
+	- 3 - low-level domain terms, aka "glue" layer between implementation and domain, that can be viewed as number of building blocks
+	- 4 - high-level domain terms, aka actual domain problems, that solved via blocks from level-3 and result in code, that is readable by non-programers
+		- this level can't be changed by changing of OS or any other implementation details, BUT only by changes to design and domain
+	- ---
+	- this levels is levels from perspective of DDD, but they can be layered too, from perspective of layered architecture OR MVC model
+
+look for smells and warning things:
+- example: "this code looks tricky", too many errors in one place, too many problems with some part of code, people spending many time to debug, code is hard to test, code is hard to move to lib, shotgun problem, non-DRY, poor design, code that hard to understand
+- advices:
+	- make errors easy to find
+	- don't ignore lint/compiler warnings
+
+iterate
+- start small
+- explore and try alternatives
+- do iterations fast
+- re-iterate and improve
+	- first solution might work, BUT it won't be the best
+- do tuning and optimization on iterative way
+- treat each iteration stage as disposable AND only after approval start writing production-ready stuff
+
+notes:
+- always try new stuff, but keep a bit of dogmatism and don't assume that new always better then old
+	- still, always doubt old methods constantly, this is only way to improve them
+- try different methodologies
+	- be aware of trade-offs
+- constantly experiment
+	- when experimenting be open to any result, even if it is not aligned with your believes
+	- ex:
+		- try different low-level implementations during design
+		- try different languages/libs/approaches during construction
+		- try different tuning methods
+	- notes:
+		- collect data
+- don't fear making small mistakes(ex: during experiments), fear making large mistakes(ex: by using wrong methods during design)
