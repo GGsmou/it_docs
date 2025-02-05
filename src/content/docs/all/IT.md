@@ -20,6 +20,7 @@ title: IT
 - [Design](Design.md)
 - [Code_Snippets](Code_Snippets.md)
 - [Code_Complete_2-Steve_McConnel](Code_Complete_2-Steve_McConnel.md)
+- [Software_Engineering_at_Google-O'Reilly](Software_Engineering_at_Google-O'Reilly.md)
 - [System_Design](System_Design.md)
 
 ## Materials

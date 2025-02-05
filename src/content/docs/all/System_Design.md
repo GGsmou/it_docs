@@ -473,7 +473,7 @@ types:
 		- joining (`JOIN`)
 
 problems:
-- data modification queries are slower, because index sync is required
+- data modification queries are slower, because sync of indexing is required
 
 alternatives to BBT:
 - hash (don't requires balancing, but won't work for range quires)
