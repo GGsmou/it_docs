@@ -614,10 +614,10 @@ Gossip - efficient algorithm to share data in p2p systems, with high failure tol
 - all data is transferred from node to it's closest neighbours, thus populating network
 	- it can be transferred on demand (pull) OR when new data arrives (push)
 
-- CAP theorem - theorem, that states, that distributed system can't achieve all characteristics simultaneously
-	- consistency - all nodes have same and up-to-date info
-	- availability - system is always responds
-	- tolerance - system is responds, even if part of it dies
+CAP theorem - theorem, that states, that distributed system can't achieve all characteristics simultaneously
+- consistency - all nodes have same and up-to-date info
+- availability - system is always responds
+- tolerance - system is responds, even if part of it dies
 
 #### Encryption
 ###### Symmetric Encryption
@@ -963,3 +963,35 @@ problems:
 - risk of deadlock
 - prioritization problem by default
 - no modularity
+
+#### Blob Storage
+Blob storage is a type of storage, that is design to hold large amount of unstructured Blobs(Binary Large Object), that is basically data in any format, where each blob can be whole file(classical approach) OR part of file, that can be aggregated into whole file on demand
+
+characteristics:
+- has no structure
+- should be scalable and have large capacity
+- connectivity:
+	- via API for developers
+	- via CDN for users
+- types:
+	- hot - fast access, hight price (often based on SSD)
+	- cold - slow access, low price (often based on HDD)
+- data management:
+	- can include policies to evict data
+	- can have access managements
+	- can append metadata per blob
+
+vs other solutions:
+- file storage - has no structure OR hierarchy + doesn't operate with "file" abstraction + uses bucket abstraction to store data
+- block storage - designed as read-first + doesn't support fast random access operations
+
+common use-cases: file storage, log storage, CDN, media hosting, archiving
+
+#### Block Storage
+Block Storage is a type of storage, where data is broken and stored in fixed-size chunks(aka blocks), where each block has fixed address, so it is easily accessible
+
+properties:
+- data can be located easily, BUT has no structure as is
+- no metadata is allowed
+
+use-cases: OS, VM, DB, I/O heavy apps

@@ -102,3 +102,14 @@ Some decisions can't be based on measurements, because underlying things are unm
 
 Remember, that some decisions may backfire unexpectedly, ex: google built a distributed build system to speed-up build-times, SO engineers bloated dependency lists of their apps(because it is not too much slower anymore to add new stuff in)
 - policies and constraints was added later, to mitigate this problem
+
+To fork or not to fork
+- benefits: control over dependency, possibility to fine-tune to specific needs
+- problem: you now a maintainer, so scalability and sustainability suffers
+- general solutions:
+	- if it is short project - fork to move faster
+	- if it is timeless project, be careful with forks AND, if forking, keep interface same/similar
+
+###### Making mistakes
+It is ok to make wrong assumptions OR decision, it is bad not to admit them
+- even if decision is data-driven, data can change, so change in direction is needed too
