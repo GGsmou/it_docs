@@ -113,3 +113,130 @@ To fork or not to fork
 ###### Making mistakes
 It is ok to make wrong assumptions OR decision, it is bad not to admit them
 - even if decision is data-driven, data can change, so change in direction is needed too
+
+## Culture
+#### How to work on teams
+Software engineering is all about team work and collaboration, so it is important to build related processes well, BUT you need to align your behavior first and then try to "fix" others
+
+People problems:
+- insecurity - people don't like to share work in progress, because it might reveal smth bad about them
+	- it can also lead to stolen ideas
+	- hiding WiP code is harmful, because:
+		- you can't be sure, that you are on right track
+			- > Many eyes make sure your project stays relevant and on track
+		- knowledge sharing is non-existent
+		- it is impossible to get external help
+		- it blocks "shift left" / early detection of problems
+		- your project will die, if you stop working on it, because there is no other contributors
+			- that's why you need co-owners AND docs
+- genius problem - people want to be seen as geniuses/idols in there field
+	- you must remember, that always behind big names there is a group of talented people, that was organized by BigName, but we can't credit only leader of a group
+	- this can often lead to stealing credit for group work OR just been a jerk, which is bad and only sabotages development
+- socialization - if people placed in large groups, no one will speak, if people isolated, no on will speak
+- impatience - be patent with each others ;)
+
+main pillars of human interaction and collaborative work:
+- humility - you aren't center of universe or perfect in any sense, always improve
+- respect - treat people and their achievements with genuine care and appreciation
+- trust - trust that people competent AND can do work by themselfs
+- \---
+- this pillars are important, as prevention of complex situations in human relationships. It is a way to make messy humans to interact easier
+- why? such "small" things will make playing social game easier, thus creating strong relationships
+
+how to achieve pillars:
+- loose your ego, BUT leave self-respect
+- build team ego, by sharing accomplishments
+- don't try to be main character in the room, even if you owner of some secret knowledge
+- learn how give and take criticism:
+	- NEVER criticize personal stuff
+	- be constructive
+	- make criticism lead to changes
+	- be polite
+	- \---
+	- don't take criticism personally
+	- remember that you != your code
+
+failuers:
+- innovation and risk MIGHT and often WILL result in failure, AND it is ok
+	- but, remember to fail as early as possible
+- good way to make failure result in something is doing a postmortem(analysis of situation), BUT it must be good:
+	- don't be pointless
+	- don't be juts to excuse
+	- include explanation of what went wrong AND what is going to change
+		- this must be followed along
+	- common structure: summary, timeline, root cause, impact, action items and their owners to execute, actions items to prevent future problems, learned lesson
+
+notes:
+- it is ok to change your mind, BUT don't do it to often
+	- the best way it to listen, before acting, thus you won't discover and change too often in other's eyes
+- let others influence you AND you will be able to influence them
+- choose your battles wisely
+- don't be afraid to say "I don't know" OR "I made a mistake"
+	- you collab with your team, NOT compete
+- find a culture and work style fit
+	- ex: it you can't work remotely efficiently, just don't
+
+be googley:
+- be able to solve problems in hard and non-deterministic environments
+- value feedback
+- change status quo
+- put the user first
+- care about team
+- do the right things, even if it is hard
+
+#### Knowledge sharing
+Collectively, organization must always know domain better, than external people, BUT to achieve this org must have experts to have initial knowledge AND mechanisms to share it, such as:
+- culture of asking & answering questions
+- writing docs
+- knowledge sharing events
+- culture of learning
+- culture of admitting that you don't know smth
+
+challenges:
+- fear of been seen as stupid
+- knowledge fragmentation between teams, that leads to:
+	- incomplete general picture
+	- information duplication
+	- several ways of doing same thing
+- culture of "let me do this for you, because it is faster"
+	- results in single point of failure, where single person holds all the knowledge
+- parroting - people mimic behavior of other, without knowing the reason
+	- ex: using patterns, just because
+- graveyards - people afraid to touch some part of code OR practice, because it can lead to problems
+
+philosophy:
+- all people start as beginners
+- "I will do it for you" doesn't scale
+- single point of failure is always a problem
+- documentation scales well, BUT it must be maintained and can be not sufficient for edge-cases of learning
+	- docs help avoid tribal knowledge
+	- knowledge holders will still be needed, because they can point to right docs OR right person, actualize docs, help with edge-cases, BUT they can't be main point of information
+- learn continuously
+
+how to overcome challenges:
+- psychological safety
+	- embrace process of trial and error
+	- assign mentor per each newcomer(ideally mentor can't be a direct manager, tech lead or peer)
+		- mentor must have enough knowledge
+		- mentor is first person to ask, if you don't know smth
+	- facilitate asking questions AND will to answer them
+		- this is even more important in group context, so person won't be afraid to ask question AND someone will answer, without been attacked by other peers
+		- to do so:
+			- don't be surprised about question
+			- don't be biased towards person OR try to assault
+			- guide in proper direction
+			- be patient
+			- try help and not showing off
+			- establish discussion
+			- don't be pedantic
+			- don't interrupt ongoing discussion
+- always learn
+	- ask questions
+		- it is ok to struggle a bit, BUT don't be stuck for too long
+	- remember that you can't know everything
+		- seniority != know everything
+	- find environment to learn smth new
+	- figure out the context behind decisions/design/code etc, first ask why and dive deeper AND only then act
+		- you can't act on thing, if you don't know the reason why/if they are needed
+		- it doesn't mean that original thing is right
+		- document your reasoning
