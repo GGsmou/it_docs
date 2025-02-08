@@ -240,3 +240,91 @@ how to overcome challenges:
 		- you can't act on thing, if you don't know the reason why/if they are needed
 		- it doesn't mean that original thing is right
 		- document your reasoning
+
+###### Community knowledge sharing
+when you find smth new(in general OR from 1-1 session) write it down and share to community
+- this helps preserving knowledge
+
+there are several complementary strategies, when it comes to knowledge sharing in community:
+- group chat
+	- types: topic-based(have large audience), team-based(more specific topics can be discussed, safer for new people)
+	- benefits: you can get fast response for some question + other members can find new knowledge from there
+	- problems: have no structure and such knowledge hard to preserve
+- emailing list
+	- similar to group chat by benefits, BUT scalability problems can be mitigated, by archiving threads AND indexing them via wiki search engine
+	- problems: slower then chats, can be noisy
+	- notes:
+		- remember to refer final answer(if it is several messages, write a wrap-up)
+			- this prevents situations, where you don't know if thread is closed OR just frozen
+		- on personal basis, set-up filters and other automations to deal with email flow, BUT as company, restrict emails to send them to target group, not just "CC @everyone"
+- Q&A platform
+	- similar to emailing list, BUT with additional UI/UX benefits, such as: custom interface, "mark as answered" etc
+	- require additional set-up and maintenance
+
+there are several ways you can teach someone:
+- office hours - events, where engineers gather and discuss some question/problems
+	- problems: problematic to organize, sometimes people don't know what to ask OR some questions hard to discuss in such way(specific, urgent etc)
+- talks and classes - events, where engineers teach others somethings new
+	- can be even non work related, just for building the community
+	- types:
+		- talks - share some knowledge
+		- classes - share some knowledge with active participation in class from audience
+	- when to create talk/class:
+		- subject has a lot of demand
+		- subject is stale enough
+		- subject involves teacher AND is hard to self-taught
+- documentation - written knowledge, that has main goal to teach reader smth
+	- reasons to contribute:
+		- update - you can learn somethings new + learn how to contribute to docs
+			- it is same rule, as for refactoring, leave place cleaner, that it was before you
+		- create - if you created some new flow, discovered new things OR just gain valuable knowledge - share it with others
+			- locate properly docs, so info can be found easily
+			- ideally, place docs near relevant code OR place links to this docs
+	- good docs must have such systems:
+		- comments(can be with auto creation of Jira tasks to fix them)
+		- review and diffing
+		- possibility to mark status of doc(draft, relevant, obsolete etc)
+		- be located OR linkable to code
+	- how to promote docs (it is time consuming process, that will benefit many people in long run, so it is important, BUT may be hard to promote)
+		- save time, by pointing to docs, instead of answering
+		- enforce sharing and contribution docs
+			- this leads to docs to be noticed, thus leading to moral boost of an author and acts as great incentive
+- code - code is written knowledge too, thus making code clear and readable makes sharing knowledge easier
+	- docs and comments are boosters of knowledge sharing via code
+	- code reviews are boosters of code quality AND help share new practices between author and reviewer
+
+cultivate knowledge sharing as culture via:
+- respect others
+- create incentives top->bottom:
+	- how: make it part of senior position responsibility, make it part of KPIs and review
+	- responsibilities: become mentor, share knowledge(code reviews, docs, talks, classes)
+- create incentives bottom->top, so person receives acknowledgement from colleges
+	- peer bonuses, rating, public "kudos"
+
+establish canonical source for important info
+- prevents information fragmentation, BUT it is harder to maintain
+- such docs MUST be owned and provide an option for feedback, that will be changed by owners directly
+- such docs can be team, office, org etc based too
+- subtype is dev-guide docs, that can provide insights on how-to develop, what style or tooling is used etc
+
+tips:
+- establish short, stable urls for docs
+	- ex from google is "go/", redirect to URL service, that easy to remember+link and will be always stable, even if underlying url has changed, like `go/python` 
+- if possible, consider creating learning platform
+- automate some knowledge, via shared linter/prettier configs
+- big to small updates must be shared, so author gets acknowledgement AND people can find new info, this can be done via:
+	- newsletter
+		- note: never spam with letters, keep only relevant info in them
+	- communities
+		- creating communities prevents info fragmentation
+		- note: each community can have different level of formality OR even be non work related
+
+###### Code Reviews
+google's practices:
+- be picky with first couple reviews of new hires, to establish best practices of how code is written in company, thus preserving it's consistency
+- for important MRs, require check from certificate person, that has deep domain and language knowledge to make a review
+	- such reviewers act as teacher, when reviewing code
+	- discussion is welcomed
+	- such process is great for docs sharing and explaining
+	- be aware that such process is hard to scale, BUT it is worth tradeoff, to achieve knowledge sharing AND consistency
+		- part of this process can and should be automated with tooling
