@@ -328,3 +328,73 @@ google's practices:
 	- such process is great for docs sharing and explaining
 	- be aware that such process is hard to scale, BUT it is worth tradeoff, to achieve knowledge sharing AND consistency
 		- part of this process can and should be automated with tooling
+
+#### Software that enables greater good
+As said before, one of key values, that engineer can have is to respect users of it's product fully and equally
+- remember to think as your user would
+
+all people have some bias by default, often an unconscious one
+- if you don't have enough representment of each group in your company, it will be biased too
+	- Google's ex: image recognition algorithm, at some point, didn't recognized black people as people, because of poor training data
+- still, bias is expected, when targeting specific auditory
+	- BUT, if you have enough market share, underrepresented groups are great targets
+- \---
+- such problem can lead to loosing reputation & market share
+
+how to prevent bias:
+- trainings
+- proper distribution of stuff AND equal opportunity
+	- this will also bring a flow of people to your company
+- always remember your target audience
+- recognize and work toward fixing biases
+- use proper data-sets
+- always question current and future decisions
+- listen for feedback AND be data-driven in your approaches
+
+remember about:
+- phycological safety of each one in the team
+
+#### Leading a Team
+Group of individuals is dysfunctional without a leader, BUT leader can be not one
+For teach team it is beneficial to have two leaders, with same goals, BUT different perspectives and skill: Manager(PM), Teach Lead
+- team will be dysfunctional, because it will has no aim to move to
+- this is important chapter of individual contributors too, for better understanding of your management
+- both roles can be taken by same person, for smaller teams
+
+PM - role that responsible for aligning company goals with engineering happiness, do plannings etc
+- individual and company goals might not align, so it is hard job
+- ideally, product must have engineering background
+
+Teach Lead - highly technical role, that manages any large tech decision, priorities, tech level of teammates, in scope of the team
+- lead can be IC too, BUT it is often more beneficial to delegate
+	- especially on scale
+
+TL+PM - acceptable only for small teams, otherwise person won't perform good enough
+
+Remember, that it is possible to influence large amount of people, BUT don't be authoritarian, by:
+- speaking
+- explaining and aligning goals
+- be human, respectful and trustful to everyone
+- not micro-managing 
+
+###### How to be a manager/lead
+You don't have become manager, BUT it may happen so, thus it is helpful to know how to transition
+
+problems with management:
+- it is hard to quantify what manager does
+	- to fix, remember that team efficiency AND happiness is what you do
+- bad managers make look all managers bad
+	- learn how-to, try and decide wether you like been a manager AND then fully promote
+
+why to become:
+- you limited in amount of code, you can write, BUT you can stere many people under you
+
+problems of managers:
+- micromanagement
+- ignoring low performing teammates
+- \---
+- remember, NEVER over-manage people, try serving your people
+	- otherwise you will loose hard to replace workers, that can't work in such atmosphere
+- don't forget about social aspect of a team
+
+> Traditional managers worry about how to get things done, whereas great managers worry about what things get done (and trust their team to figure out how to do it).
