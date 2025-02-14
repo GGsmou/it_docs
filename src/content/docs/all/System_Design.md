@@ -995,3 +995,85 @@ properties:
 - no metadata is allowed
 
 use-cases: OS, VM, DB, I/O heavy apps
+
+## Designing Distributed Systems
+Set of patterns and advices to make distributed systems efficient AND reliable
+- this patterns aim to make development predictable and understandable, turning it from art to science
+	- basically, stop re-inventing the wheel each time
+- all patterns are heavily based on Container pattern
+
+#### Intro
+Most of apps need to scale rapidly AND be reliable, thus there is only one way...build it distributed
+
+###### History
+Single purpose machines -> multi purpose, one task machines -> multi purpose, multi task machines -> network of multi purpose, multi task machines (client-server architecture) -> large network with single purpose (distributed system)
+
+benefits of DS:
+- resilience
+- scalability
+problems:
+- cost
+- hard to build & maintain
+
+###### The value of patterns
+- patterns can be seen as best-practices, that can be re-used, to suite particular needs, without the need to re-invent the wheel, by spending too much valuable time making mistakes
+- shared language
+- each pattern can be seen as component, that can be combined with others to solve problems
+
+#### Single-Node
+Explanation: container - atomic part of DS, single machine - collection of one/several containers that can be viewed as one Node
+
+###### Motivation
+several containers per one machine have several benefits:
+- cost reduction versus one container per machine
+- isolation of resources
+	- each container can have limited resources of machine AND different priority to shared resources
+- isolation of concerns - one container per one task
+	- in such way, you can build small tools(ex: sync local data with GitRemote), that can be easily re-used
+	- small services are easier to maintain, deploy, test etc
+- team isolation - one container per one team
+
+such tight group of several containers per one machine may be known as *pod*(Kubernetes)
+- each container must be able to access shared resources
+- deployment of all of containers must be easily done as single, atomic operation
+
+#### Sidecar
+Single-Node pattern, made-up from two containers: main(with application logic) AND side-car(extends possibilities of main container, without knowledge of it)
+- deployed as single-node
+- side-car and main share resource heavily
+
+use-case:
+- adoption of legacy code:
+	- add HTTPs to legacy service by proxying traffic through side-car to main
+	- add dynamic configuration to legacy service
+		- remember that app config should be easily backed OR accessible via API, so app is aligned with 12-factors
+- re-usable utils:
+	- easily add health-checking system, by deploying side-car, that can read info from machine/process AND establish common interface to access this data
+		- alternative is to force each service to have such endpoint available
+	- problems: less tailored to specific needs, can be less performant
+	- such "utils" can be used to build event-driven modular services, that can perform configurable set of actions, when event occurs(ex: code is pushed into Git)
+
+good side-card must have:
+- broad set of parameters
+	- it is important for all containers, BUT it is especially important for side-car, to keep it highly-reusable
+- API
+	- ease of integration, ease of testing, lower risk of breaking-changes
+- documentation
+	- can be done inside Dockerfile(`EXPOSE`, `ENV`, `LABEL`(metadata, there are established patterns to use them))
+
+#### Ambassador
+Single-node pattern, with two tightly liked container: main(with main application logic), ambassador(communication middleware between main and external world)
+- value comes from modularity and reusability
+
+use-cases:
+- storage sharding - with grows, you need to shard your storage, because single machine won't handle all file operations
+	- problems: hard to integrate in system where other parts expect single interface to talk too, shards need to be managed, configuration is hard
+	- often solved with ambassador as service, where shard manager is deployed onto single machine and act as load-balancer, BUT we can use ambassador as container and put it in front of each service directly
+		- both approaches have tradeoff
+- service broker - common problem in DS is service discovery(properly connecting applications with each other), service, that solves this problem is called service broker
+	- such service can be built with ambassador, basically your main connects to broker via localhost AND it is broker's responsibility to find proper connection AND proxy requests to it
+- blue/green, tee-ing AND other forms of request splitting for A/B testing purposes
+	- tee-ing is practice of sending request to old AND new service to compare results, do load-testing etc
+	- remember to keep your testing consistent per-user(keep some cache of who see what by IP)
+	- note: as other things, this can be also done on app level OR on separate service level
+
