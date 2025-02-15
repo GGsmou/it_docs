@@ -1011,15 +1011,18 @@ Single purpose machines -> multi purpose, one task machines -> multi purpose, mu
 benefits of DS:
 - resilience
 - scalability
+- easy to maintain(large organization with small teams, that own each MicroService independently)
 problems:
 - cost
 - hard to build & maintain
+- hard to debug
 
 ###### The value of patterns
 - patterns can be seen as best-practices, that can be re-used, to suite particular needs, without the need to re-invent the wheel, by spending too much valuable time making mistakes
 - shared language
 - each pattern can be seen as component, that can be combined with others to solve problems
 
+### Single-Node Patterns
 #### Single-Node
 Explanation: container - atomic part of DS, single machine - collection of one/several containers that can be viewed as one Node
 
@@ -1077,3 +1080,60 @@ use-cases:
 	- remember to keep your testing consistent per-user(keep some cache of who see what by IP)
 	- note: as other things, this can be also done on app level OR on separate service level
 
+#### Adapter
+Single-node pattern, with two tightly linked containers: main(application logic), adapter(modification of main's external interface to meet some needs)
+- value comes from possibility to unify needed parts of application, without the need to alter original application, where each app can be implemented differently, across the organization
+
+use-cases:
+- establish identical interface across DS
+	- ex: health-checks, logs, performance monitoring
+
+why not include adapter into main's code:
+- reusability & modularity, because adapter is decoupled from main
+- adapter helps protecting variations
+- main can use 3d-party apps to do the thing
+- BUT: if you can build your main with generic interface, you can, no need to create additional "custom" decision, that needs to be adapted
+
+### Serving Patterns
+Serving patterns goes one level higher from Single-Node pattern, because now we are operating on Service level, where each Service is independent machine(Single-Node)
+- each Service is loosely coupled with each other
+- communication is done only via network(some defined API) AND can be parallelized
+- Serving Pattern is based on Multi-Node systems, aka MicroServices
+- notes:
+	- communication is always done via some API, BUT it can be: sync OR a-sync(stream based, queue based)
+
+#### Replicated Load-Balancer
+Comes from two parts:
+- Stateless Service - service, that can operate with little-to-no internal state
+	- pros: can be scaled horizontally AND don't need state maintenance, makes system resilient
+	- ex: API Gateway, CDN etc
+	- notes:
+		- to achieve resilience you always need to have AT LEAST 2 replicas, to have some time to do roll-outs and roll-backs + other can be scaled-up, if needed
+- Load-Balancer - service, that routes incoming requests to Services behind it
+	- types:
+		- StickySession
+			- reasons: higher cache hits, requirement to maintain state between requests
+			- problems: horizontal scale AND resilience are partially lost
+				- to partially make-up for that, introduce consistent hashing
+			- notes:
+				- can be done via IP or Cookies or Fingerprinting
+		- Randomized - requests from same user can be routed to different machines
+			- requests are distributed equally:
+				- can be done statically OR with heal-checks, to determine if service keeps-up
+	- notes:
+		- each service need to have a notification mechanism, that it is up and running(readiness probe)
+		- when doing Randomized type, you will have lower cache hit rate, BUT you can make-up for that, by moving cache from memory, to Cache as a Service, and going there first
+			- you will have higher hit-rate, BUT slower operations, because of network overhead
+			- basically, you always want a number of small application instances AND couple of large cache instance
+		- load-balancer can become API Gateway, with adding more functionality to it, like:
+			- rate-limiting
+				- as a pattern, you can give restricted access to anonymous users AND large limits to logged-in users
+				- don't forget to do proper `429` response with header, that indicates when next request is allowed
+			- SSL certificate change
+				- use-cases:
+					- remove encryption on API Gateway and do internal communication via HTTP
+					- remove public encryption AND add internal encryption to do internal communication
+						- ideally each service must have uniq certificate
+						- note: you can use custom certificates for internal usage AND specifically signed for public usage
+
+#### Sharded Service
