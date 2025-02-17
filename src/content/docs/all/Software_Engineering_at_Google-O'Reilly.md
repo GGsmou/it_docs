@@ -398,3 +398,70 @@ problems of managers:
 - don't forget about social aspect of a team
 
 > Traditional managers worry about how to get things done, whereas great managers worry about what things get done (and trust their team to figure out how to do it).
+
+patterns of bad managers:
+- hire people that will be less smart or less ambitious then you, so you will be more important and more irreplaceable as their leader
+	- problems: now team can't operate without you AND overall results are bad
+	- overall, try to hire people smarter then you, they can replace you AND will challenge, BUT now you AND your team can grow
+- ignoring long performers, because it is hard for you to fire them
+	- problem: team will loose in performance, motivation etc
+	- to deal: set-up timeframe, set-up measurable goals, set-up status check-ups
+		- it is ok to micromanage, BUT with respect
+- ignoring human aspect of the managing people
+- try to be friend with everyone
+	- problem: your subordinates will fill obligated to be your friend, because you are a boss + it is hard to be harsh with your friends
+	- better to keep most relationships on the work side of spectrum PLUS some informalities put into it
+- compromise hiring bar for speed
+	- problem: team quality degrades, it is costly to hire bad person
+- treat your team as babies, by micromanaging, don't trusting, disrespect, not giving opportunities etc
+	- problem: people behave, as they are treated
+
+patterns of good manager:
+- loose your personal ego, BUT still have self-respect and self-confidence
+	- cultivate team ego
+	- to achieve: trust people, guide people not take their hand and walk to the destination along with them
+	- respect constructive criticism
+	- apologize
+- mediate your emotions
+	- you must let people know that you know the problem, BUT you can't overreact
+	- your reaction will be mirrored by your team
+	- remember, you been constantly watched by your team
+- don't try to find solution, help person in finding it
+- be a catalyst, by speeding-up the process, BUT not acting in it
+	- as a leader, your goal is to build a consensus (ideally by team-member's hands, BUT, if needed, you can do it yourself)
+	- look for roadblocks, it is often your responsibility to help with them
+		- often, knowing the right person is a key, SO build a network inside your company
+- remember to also be a mentor
+	- junior will take more time to develop smth, it is ok, it will scale your team in future
+	- to be mentor you need to: know the process, be able to explain smth, give just enough needed information
+- set clear goals
+	- set goals -> let people execute -> check if everything moves in right direction
+- be honest
+	- tell that you don't know smth OR can't tell
+	- give proper feedback, even if it is bad
+		- don't use techniques like compliment sandwich, it is better to say things as is, BUT include emphasis
+			- without emphasis person will go into defense mode
+- make your team happy
+	- first and most important, ASK people what they need
+	- explicitly care about people, their careers etc
+- lower pressure, when persons have personal problems
+	- BUT, it is ok to ask them for "compensation" later
+
+tips & tricks
+- delegate, BUT dirty your hands too
+- seek replacement
+	- to do: hire people smarter then you, create opportunities to tru "manager shoos"
+	- why: you can grow this way
+	- DON'T force ICs to become managers, just because
+- act as quick as possible in some situations, like: low performers, bad hiring process etc
+- shield you team from chaos, BUT keep them informed, when needed
+- provide positive feedback too
+- if something can be easily undone - say "yes" to it
+- remember that everyone is different AND needs different approach
+	- it mostly comes to: motivation, direction
+	- giving direction is about finding what needs to be done AND breaking it into smaller parts, that can be assigned to each teammate
+	- givning motivation
+		- focus on intrinsic motivation, by providing:
+			- autonomy
+			- mastery - provide possibilities to improve
+			- purpose - help seen the purpose in person's work
