@@ -1080,6 +1080,10 @@ use-cases:
 	- remember to keep your testing consistent per-user(keep some cache of who see what by IP)
 	- note: as other things, this can be also done on app level OR on separate service level
 
+why not create ambassador as a service(tho this is valid approach too):
+- service need to be scaled independently
+- additional network latency
+
 #### Adapter
 Single-node pattern, with two tightly linked containers: main(application logic), adapter(modification of main's external interface to meet some needs)
 - value comes from possibility to unify needed parts of application, without the need to alter original application, where each app can be implemented differently, across the organization
@@ -1137,3 +1141,60 @@ Comes from two parts:
 						- note: you can use custom certificates for internal usage AND specifically signed for public usage
 
 #### Sharded Service
+Similar to replicated service, BUT each shard can process only subset of requests, thus more sophisticated Load Balancer required(in such context called Shard Manager) AND we can work with stateful services
+- use-cases:
+	- break large DB, FileStorage or Cache into smaller, more manageable once
+	- break large game-server into several smaller once AND shard by player locations
+
+###### Distributed Cache
+- why sharding - to increase processing capacity, without decreasing overall hit-rate
+- why cache is important:
+	- increase in capacity of the system - cache can increase number of requests system can process, because you don't need to count cache request as request processed by the system, but only by the cache
+		- ex: 50% cache hit rate will double the amount of RPS your service can process, BUT putting max_limit as double is not ok, because failure in cache OR in shard of cache will lead to overload
+	- decrease in latency - cache will always be faster than actual calculations, so average response time is faster
+		- remember, that depending solely on average value is dangerous, because if cache or it's shard fails, requests can pile up in queues AND break the system
+		- remember to load test with AND without cache
+	- notes:
+		- when increasing number of shards, cache will degrade for a bit
+		- replicating shards might be a good idea
+			- this will allow for safe rollouts AND prevent "hot shards" problem, where some shard receives more load, because it's content is popular at the moment
+			- alternative is to design overall system resilient to cache failures, which is not always an option
+
+###### Sharding Function
+- characteristics:
+	- uniformal distribution
+	- deterministic result
+- choosing the identifier:
+	- characteristics: stable
+	- examples: request path, entity ID, geographical location
+	- notes:
+		- if several IDs used in to find shard, you need to find their hashes separately AND by both hashes find shard, not calculate combined hash
+- implementations:
+	- hashing function
+		- algorithm: transform some identifier in request to integer hash -> modulo hash value by number of shard -> route request there
+		- problem lies, when re-sharding needed, because this will produce to large number of request remapping AND will lead to partial/full cache failure
+	- consistent hashing - solves re-sharding problem
+
+#### Scatter/Gather
+Pattern, that enables processing of requests in parallel, by breaking request into small, independent once, processing each part in parallel and combining into whole answer again
+- you can view it as sharding of computation resources, rather then data sharding
+- Root can also dynamically measure how each Shard responding AND load it more/less
+- similar situation can happen, if you have initial large data-set, that need to be calculated-upon on demand, BUT is impossible to hold in one machine 
+	- basically, Root will route request to each Shard, each Shard can process only part of data-set(no risk of duplication), Root aggregates responses into large Response
+- note:
+	- MapReduce is great algorithm for some Scatter/Gather use-cases
+	- when it comes to scaling number of Shards, remember about bottlenecks like: network, processing resources of Root, struggler problem(final time will equal to speed of slowest Shard OR if one Shard fails, request fails)
+	- to make system more resilient, replicate each shard
+
+#### Event-Driven Processing
+FAAS (function as a service) is popular name for Even-Driven Processing pattern, which basically is an alternative to long-running servers, that have state, can perform long-running computations etc
+- basically, FASS is short-lived service, that is triggered by event, spins-up, do some work and spins-down
+	- note, that serverless is kinda similar to FASS, because serverless is about operation without personal server, so FASS can be executed with such model in mind, BUT FASS can also execute on your machine
+- please, don't use it as one fits all solution ;)
+- BENEFITS // DX, auto-scaling, auto-recovery, high modularity(FASS is even more atomic then container)
+- PROBLEMS // hard to debug, no local state/cache, network overhead, self-DDOS, won't work with long running OR background processes
+	- always remember to include monitoring in such highly-modular system
+	- it is costly, so, on scale, it is better to just use classical server OR self-host open-source FASS solutions
+- patterns:
+	- Decorator - take request, transform, pass along
+- use-cases: handling async-events
