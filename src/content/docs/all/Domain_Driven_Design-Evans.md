@@ -131,3 +131,67 @@ you can't separate modeling and coding:
 	- if you are a code - spent some time learning the model AND fill free to contribute to it
 	- if you are an expert - spent some time learning how to make your model implementable
 	- overall, defining specific roles is key for scaling, but this roles must be defined in such way, so they can effectively coordinate high-level decisions
+
+## Isolating the Domain
+When developing software it is important to keep Domain separate from other functions of system(often related to software engineering)
+- this enables us to work with domain separately(so it is easier to sync with Model) AND prevents any SoftwareEngineering related details to leak into domain
+
+#### Layered Architecture
+Main idea behind Layered Architecture is to separate your app into layers, where each layer has specific function bound to it(Domain, Architecture, UI etc)
+- for idea to work it is important not to mix logic between the layers, OTHERWISE change in UI logic may change how domain behaves
+- it is easier to understand such programs on scale
+- testing, maintenance and making moves like monolith -> microservices are easier
+- separation of concerns is base for layered architecture
+- element of layer can know about elements under it OR on the same layer, upwards interactions must be done indirectly
+- from DDD perspective Domain is fully represents Model AND can't know any details, like: how it is visualized, how it is stored, how network works etc
+
+connecting layers - layers must interact, BUT still be loosely coupled
+- for DDD any approach, such as MVC, observer, callbacks, Mediator etc is ok, if system is decoupled
+- Architecture layer can be represented as:
+	- set of services, where we achieve loosely coupled interaction via abstract interface AND hiding implementation details
+		- consumer don't need to know how
+	- framework, with set of rules
+		- be careful when choosing restrictive frameworks, because it always will influence the Domain part of an app AND such influence may be restrictive
+
+DDD and Layered Architecture
+- there are many ways to build layers, BUT there must be one, often called Domain, that represents Model fully, so DDD is achieved
+
+notes:
+- DDD + Layered Architecture is hard pass, that require skill, effort AND might be overkill for something fast AND simple, BUT, when building for scale AND time, it is only choice
+	- you shouldn't, BUT you can choose the route of SMART UI, where you mix business logic and UI together, use DB directly, as shared storage AND include as much automation in constructing UI as possible
+		- this will be hard to maintain, extend etc etc, BUT it is great way to prototype smth, try new ideas etc
+
+## Expressing Model in a Software
+It is easy to draw connection between parts of a model, BUT you need to know patterns to mimic such connections in code, without creating de-sync between implementation AND Model
+- pain points:
+	- how to differ between object with deep meaning FROM object that used as attribute or to track state
+	- where to put some behavior, that need to be done, but doesn't correspond with state
+	- when to compromise purity of the model
+	- how modularize your app AND keep it relative to Model
+
+#### Associations
+Design must specify how software implements association, that stated in Model, it can be:
+- DB lookup
+- pointer to object
+- collection of object
+- etc
+
+Often associations are messy, many-to-many, bi-directional, BUT it is hard to not only implement them, it is also hard for understanding, thus it is important to simplify them
+- ex with countr and president, where, for simplification, Model can be distilled to assume:
+	- bi-directional relationship -> Country -> President, because it is most important of two
+	- one-many -> one-one, because it is rare case, when country has multiple presidents AND it is not important for our Modal to account for that 
+		- period need to be included, so we could keep historical data
+- if relation is no important - remove it
+
+#### Entities
+Entity is a form of object, that can't be represented by attributes, BUT by some identity
+- Entity's implementation, attributes and other characteristics may differ, BUT both objects must be somehow matched OR don't matched(if it is different entities with similar attributes)
+	- wrong match OR mismatch is way to data-corruption
+- main characteristic of an Entity is that it has life-cycle, in scope of with it transforms it's shape AND attributes, so it need to be put in Model in such a way, so it could maintain identity
+- examples:
+	- sending money via check OR by an bank app will result in creation of transactions, such transactions can be even of different types, BUT they must be matchable
+- so what?
+	- if you have an Entity in a Model, model must define uniq way to identify each entity, SO it could be implemented in software in form of uniq, immutable ID, that used to match
+- notes:
+	- in Software Engineering you can say that all objects are Entities, because basically we make a copy from DB into server's memory, that same "Entity" is passed to client, mappings and attribute transformations are done in process, BUT it is implementation detail of how data moves, meaning of Entity is separately defined in DDD
+	- not all objects are Entities, if object doesn't need to have identity, it can be treated as just some object with attributes, used in some way
