@@ -1198,3 +1198,37 @@ FAAS (function as a service) is popular name for Even-Driven Processing pattern,
 - patterns:
 	- Decorator - take request, transform, pass along
 - use-cases: handling async-events
+
+#### Ownership Election
+Ownership in Single-Node system is easy, there is one node, that owns somethings, BUT for scalability we need replication, thus a way to establish ownership
+- generally we operate with Master and Slave naming, where replica cluster has single Master, that is a main owner AND other replicas are Slaves, that can be elected as Master by some election protocol
+- side-note: ownership election is only needed, for distributed systems with replication mechanisms
+	- remember that such systems have pros and cons, so it is important to decide is it worth the money, maintenance issues etc
+
+###### Sharing resources
+One approach to build distributed system, is not even elect Master, it is to share resources, which is done by locking mechanisms: Mutex, Semaphore
+- note, locks are usually used inside service and implemented with some primitives, that manipulate shared variable, BUT locks for distributed systems are done as shared key-value store
+- in distributed system process might file AND not release the lock, so some TTL timestamp is needed, that will perform release after expiration
+	- add some mechanism, that won't allow replica to unlock the lock after TTL expired OR crash the service after TTL, if it is appropriate
+- if needed, we can add renew mechanism, that will allow holder to renew TTL value and continue holding the lock
+	- mainly used, when ownership is needed for whole duration of service life
+	- such long-running locks MAY resolve in concurrent behavior, where timeouted holder, for short period of time, beliefs that he is still holding, SO we need to store hostname of actual holder AND add validity checks, that will be performed by workers, who receive requests from replicas
+- due to network, it is possible that order of requests can be mixed in such way, that lock won't prevent it, to mitigate you need to add version to request itself AND add validity check to worker
+
+### Batch Computational Patterns
+There are cases, when you need to process large amount of data in short-period of time, so patterns for that arrived
+- mainly speed is achieved via parallelism
+- ex: video processing, data aggregation, report generation etc
+
+#### Work Queue
+Main idea of WorkQueue is to have independent tasks, that need to be executed within some time-period
+- such tasks are placed on queue, grabbed by Manager and passed to workers
+	- workers can be scaled-up/down on demand to meet expectations
+- note that we can extract generic queue logic from application specific part via ambassador pattern, so we can plug use-case specific ambassadors, when needed
+	- general fact, when establishing API between those to, always add version for future-proofing
+- when engineering Worker it is best to work with file-api, because you can generalize process of downloading and passing file to some black-box(script) AND then sending outputted result back to the cloud
+- general algorithm: load available work -> determine state of each item -> spawn workers to process unprocessed items -> mark item as processed on finish
+- autoscaling must rely on average time to process item AND average time when new item arrives
+	- in order for system to keep-up you need to process faster, that things arrive
+		- processing faster, makes it possible to deal with bursts of traffic
+- if you need to stack operations(ex: detect object, blur object), it is better to create Worker Aggregator, that will implement single Worker interface, BUT under the hood delegate to two workes
