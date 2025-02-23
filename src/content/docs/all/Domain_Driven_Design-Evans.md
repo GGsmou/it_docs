@@ -195,3 +195,91 @@ Entity is a form of object, that can't be represented by attributes, BUT by some
 - notes:
 	- in Software Engineering you can say that all objects are Entities, because basically we make a copy from DB into server's memory, that same "Entity" is passed to client, mappings and attribute transformations are done in process, BUT it is implementation detail of how data moves, meaning of Entity is separately defined in DDD
 	- not all objects are Entities, if object doesn't need to have identity, it can be treated as just some object with attributes, used in some way
+
+###### Modeling Entities
+main ideas behind modeling:
+- establish identity of entity
+- add only required behavior
+	- common behavior is coordination of related objects
+- add attributes, that required for behavior
+- look for duplication in behavior/attributes inside other entities
+	- remove the duplicates OR move corresponding behavior to entity that owns it
+- Entity must have a way to identify it
+	- it is often some id attribute OR combination of attributes, that uniq within the system
+	- if you choose ID route
+		- remember that id must be: uniq, immutable
+		- you need to add possibility for user to distinguish between to similar objects, for example by showing additional attributes
+			- this comes from the fact, that ID often meaningless AND user shouldn't know it
+				- exception is reservation system, package delivery etc, where user can track something by this ID
+		- sometimes you can use external ID, for example hospitals can identify clients by passport number, so records can be exchanged between facilities
+			- if you user something less stable, like phone number of user, it is important to provide some fallback ID OR additional attributes, like name, address etc, that will prevent collision
+
+#### Value Object
+Value object is an object, that has no meaning, it is main purpose to hold some characteristics of a thing, that can be shared AND used by Model
+- note: some frameworks AND systems force usage of ID, but in context of DDD it is redundant actions for ValueObject, so it is overall redundant overhead(performance issues, ID management etc)
+	- why overhead is bad? because reducing complexity is main goal of software engineering
+
+address example:
+- address is a value object, if you drop-shipping goods, because it is just characteristic, associated with user OR order
+- address is entity, if you are a postal office, because you can change attributes, but zip codes hierarchy must be maintained overtime
+- in summary, it depends on how you treat an address, a thing on itself OR some characteristic, associated with some other Entity
+
+notes:
+- ValueObject can be simple OR complex
+- ValueObject can have rules, linked to it
+	- ex: how mix colors in a system
+- ValueObject can be referenced by Entity OR it can reference it
+- ValueObject often used as some parameter, that created, used and discarded
+- ValueObject must have some meaning
+	- ex: Address -> city+zip+country
+- ValueObject is immutable
+
+design:
+- we don't care about identity, so ValueObject is great tool for simplification, performance improvement etc
+	- example with performance: don't assign uniq Currency object to each Order, reference needed Currency from some kind of store, so you only need to maintain pointer (Flyweight pattern)
+- when to share objects, instead of creation:
+	- saving disk space
+	- you have a monolith, so additional network overhead is absent
+	- when objects can't be mutated
+- when to make objects mutable:
+	- object changes frequently
+	- it is expensive to create/delete
+	- you have distributed system
+	- values are shared infrequently
+- notes:
+	- if language can't support some concept from DDD, work around language, it is often more beneficial, that stick to only things that are offered
+	- leave question of mutable/immutable free to choose by dev at design stage, don't bring code specific things to model
+	- there is interesting tradeoff between disk space AND access speed
+		- if you prioritize disk space: store objects by references
+		- if you prioritize access speed: use denormalization, where you store copies of same data as close to referencer as possible
+- associations:
+	- keep them uni-directional
+	- keep associations as simple and as low count as possible
+
+#### Services
+Service is standalone interface, that used to perform some manipulations with Entities of Values AND doesn't have it's own state
+- why we need it? because creating unnecessary objects OR putting unrelated behavior onto existing objects will make Model and understanding of it harder, because we need to deal with unrelated functional, unneeded dependencies are introduced etc
+- service can have side-effect, BUT not state
+- it is associated with some activity AND named after it
+	- naming must come from Language
+- it must have responsibility, defined interface and other strictness, than implied to objects
+	- interface must use existing objects
+	- note, that it can't strip behavior from existing objects
+- don't mix DDD's Service, that is part of Model(Domain layer), with Services that are used in Application, Infrastructure or other layer layers
+	- notes:
+		- Domain can't no anything about other layers, so Facade or just additional mapping need to be established for proper communication
+		- such Domain Services are great place to store Model behavior, so it can be re-used OR just encapsulate and prevent leakage of knowledge into layers like Application
+
+#### Modules
+Module in DDD have similar responsibility of abstracting the details out, as it has in software engineering, BUT DDD states that Module is valid member of Model
+- from DDD's perspective, you need to divide your system into modules by concepts along-side with your coding practices
+- low coupling between modules AND high cohesion within is keys to good module
+- modules should evolve, similar to classes
+- modules must have proper naming(using the Language) AND they need to be like "chapter in a story"
+
+refactoring modules
+- modules can't be kept outdated, otherwise they won't reflect co-evolving Model
+
+structuring modules (some frameworks may lead to pure structure, thus consider some advises)
+- keep related parts as close as possible(in single class OR single module)
+- don't overcomplicate things
