@@ -996,6 +996,27 @@ properties:
 
 use-cases: OS, VM, DB, I/O heavy apps
 
+#### M3U Files
+M3U is file format, that defines what version of video OR audio do you have, so browser can look at it first, determine what version will be most sufficient to user(network, browser version, OS etc) and request specific media
+
+#### Recommendation Algorithm
+types:
+- query based
+- user + item properties match
+- \---
+- often they used hand-in-hand, by first filtering by query AND then sorting via match score
+
+building an algorithm:
+- divide into two modules:
+	- matcher - reduce initial data-set to what user might like
+	- ranker - rank reduced data-set
+- non-functional requirements:
+	- large data-set: item data, user data, user-item interactions
+		- interactions can be collected in form of: user events(clicks etc), user actions(buy, like, comment etc)
+	- possibility to hot swap ML algorithm AND measure
+	- performance, auto-scaling etc
+	- offline training of ML algorithms via some data pipeline
+
 ## Designing Distributed Systems
 Set of patterns and advices to make distributed systems efficient AND reliable
 - this patterns aim to make development predictable and understandable, turning it from art to science
@@ -1231,4 +1252,28 @@ Main idea of WorkQueue is to have independent tasks, that need to be executed wi
 - autoscaling must rely on average time to process item AND average time when new item arrives
 	- in order for system to keep-up you need to process faster, that things arrive
 		- processing faster, makes it possible to deal with bursts of traffic
-- if you need to stack operations(ex: detect object, blur object), it is better to create Worker Aggregator, that will implement single Worker interface, BUT under the hood delegate to two workes
+- if you need to stack operations(ex: detect object, blur object), it is better to create Worker Aggregator, that will implement single Worker interface, BUT under the hood delegate to two workers
+
+#### Event-Driven Batch Processing
+Event-Driven Batch Processing aka Workflow is basically stands for multiple Work Queues, that pass result of one Queue as input for another
+- in it's simplest form, triggering Event is end of one process and data passing to other one, BUT it can be more complicated
+	- ex: you need to wait for two queues to output, so results are merged simultaneously in the next Queue
+- it is something similar to event-driven FAAS
+
+pattern:
+- copier - duplicate single input into same output, but multiplied
+- filter - filter-out Batches, that don't meet some criteria
+	- it can be as simple as putting Ambassador onto generic queue
+- splitter - split evenly OR by some criteria single input into multiple outputs
+- merge - combine several input flows into one flow
+
+we can hand-craft some event system, BUT it is better to use pattern of publisher-subscriber, where we have some Publisher, that adds Messages to Queue AND Subscriber, that listens for new Messages in queues, grabs and processes them
+
+#### Coordinated Batch-Processing
+Coordination is basically a continuation of Event-Driven Batch Processing topic with focus on how to actually aggregate/merge several parallel results
+
+patterns:
+- join - wait for AND combine set of inputs into single output
+	- remember, that it will reduce parallelism AND make things slower
+- reduce - similar to join, BUT here we performing some operation, as well as joining, that will reduce data set to some other data
+	- reduces can be chained, so we still have reduced parallelism, BUT not as much as join
