@@ -283,3 +283,61 @@ refactoring modules
 structuring modules (some frameworks may lead to pure structure, thus consider some advises)
 - keep related parts as close as possible(in single class OR single module)
 - don't overcomplicate things
+
+#### Paradigms
+Main paradigm that used nowadays is OPP
+- why?
+	- easy to grasp(if you can't understand paradigm, you won't be able to grasp the model), while been rich enough, so model AND any needed manipulations can be easily expressed with it
+	- widely adopted(common best practices AND tooling is present)
+		- "object" is understood even in non-tech world
+- when not to use it?
+	- if your domain is math, logic OR similar, where it is hard to think in terms ff objects, you should look into other places as well
+		- it is ok to fit domain into paradigm, BUT it is often better to do in opposite way, by using multiple paradigms
+	- remember, that model need to express paradigm too
+	- when you have specific non-object infrastructure, such as SQL DB
+- alternatives:
+	- relational paradigm - used in SQL DB
+	- rules(declarative) paradigm - write rules, that define some behavior(often how objects interact), that done in declarative manner AND complements OOP
+		- rule can be done as object, BUT it may be problematic to enforce global rules this way
+	- workflow paradigm - write behavior in form of steps, that executed in specific order
+	- functional paradigm
+- how implement paradigm:
+	- domain must work together with paradigm
+	- use language
+	- don't restrict yourself with UML
+	- always consider if paradigm worth it OR is it worth it to mix several paradigms
+
+## Life Cycle of Domain Object
+Each object has some life cycle
+- exampels
+	- if it is intermediate object, it will be created, used and deleted from memory
+	- if it is some Entity, it needs to be created, stored and retrieved from DB, it undergoes modification, can be deleted etc
+- problems
+	- how maintain integrity
+	- how not overcomplicate model with life cycle
+
+#### Aggregates
+Problem: imagine we have Person and related Address, when deleting Person, do we need to delete Address or not (risking deleting Address, that used by someone else OR waisting space)
+- it is even more crucial in concurrent environments
+
+note that problem can be solved on DB level, BUT it is much better if it derives from Model, that establishes clear boundaries between objects and their relations
+
+pattern:
+- aggregate is collection of object, that has boundary(what objects are inside aggregate) and root(Entity, that can be referenced from outside, WHILE other object can't AND can be accessed only within Aggregate OR through the root(ex: you can receive only copy of object))
+- any operation must be performed and coordinate trough the root AND must be completed as single action
+	- deleting root will remove aggregate as a whole
+- everything inside aggregate must have internal identity, that uniq inside aggregate
+- objects inside aggregate can manipulate and reference external roots
+
+#### Factory
+Problem: some object creation steps can reveal to much internals OR just be too complicated
+
+pattern:
+- move responsibility of creation from object itself to some helper object
+	- why create Factory, when you can shift responsibility to Client(user of object)? because it will break encapsulation AND make Client an object highly coupled
+	- note: calling constructor directly can be ok, BUT it couples caller to object more, that just using the factory, SO it is insufficient for some cases
+- factory is great way to create complex aggregates OR ValueObjects with constraints(such as immutability) in a form of simple interface
+	- by DDD it is even required as factory's responsibility, BUT it can depend on your design as well
+- factory need to be abstract
+- notes:
+	- Factory is placed in domain layer, BUT not to the model, because it is implementation detail(no need to put it into model), that is too coupled to original object(need to be co-located as close as possible)
