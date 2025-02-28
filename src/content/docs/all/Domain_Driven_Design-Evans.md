@@ -341,3 +341,71 @@ pattern:
 - factory need to be abstract
 - notes:
 	- Factory is placed in domain layer, BUT not to the model, because it is implementation detail(no need to put it into model), that is too coupled to original object(need to be co-located as close as possible)
+
+where to place factory:
+- on the root of aggregate, so root can control it parts
+- spawner object - object that don't own other object, but holds the most of creation data needed
+- keep is standalone, if there is no good place
+
+! don't use factory just because, it makes things harder and indirect, so avoid increasing complexity for no purpose !
+- commonly, constructor is ok when: you have simple constructor, client have most data needed for creation, client need to know inner implementation
+
+good factory:
+- creation operation is atomic
+- creation operation has consistent failure flow (invariant, return `null` etc)
+	- in general, factory is great place for invariants, because it isn't required for it be result in class instance, as constructor do
+	- still, if you can, you should place validations inside object (as close as possible)
+- doesn't introduce unwanted coupling
+	- often occurs when you introduce unrelated object as parameters, that needed in creation process
+
+notes:
+- factory for ValueObject must construct full, immutable object, while factory for EntityObject can provide only required info
+	- one more difference, factory can be assigned to create IDs for new entities, BUT make it possible to provide ID too, so you could not only create "new entities", but also re-create "old entities" from existing data
+		- here is one more catch, you need to somehow handle invariants, so new rules won't break old Entities
+
+#### Repository
+You need to remember, that retrieving data from DB and creating in-memory objects is basically a part of Object's life-cycle, thus it is related to DDD too
+- generally there are two way to retrieve the object and their proper combination is key to successful app
+	- by pointer inside other object
+	- by searching via some parameters
+- the main problem from DDD's perspective is blurring the domain, because some knowledge goes into query(infra layer)
+	- this leads to view, where dev works with technology, not with domain
+
+pattern:
+- encapsulate actual storage technology with layer, called Repository, that basically will abstract any query OR other operations in interface, that is more domain related
+- often, with some exceptions, repository is only used to work with aggregate root, because working with leafs is root's responsibility
+- repository must return actual constructed objects, not plain data
+- you need to have some hardcoded, common used methods + flexible query builders
+
+benefits:
+- simple, domain related, interface to work with data
+- domain can be communicated via interface
+- decoupling domain from infra
+- easy testing
+
+problems:
+- (the biggest one) you still need to understand how things are implemented under the hood
+	- it is somewhat similar to problem with ORMs
+
+notes:
+- you can leverage OOP and create single repository for different classes
+- repository have optimizations built in, like cache
+- keep repository client driven, don't add domain behavior to it at all
+	- ex: if your app need to do "save on exit", repository might wan't to do it, but it is bad idea, because it is not his responsibility
+- try to cooperate with your framework(if possible, use framework's possibilities to build Repository, BUT if framework constrains too much - discard it)
+
+about factories:
+- factories are used in two ways here:
+	- repository delegates creation of objects from plain data
+	- client uses factory when it needs to create new object when doing some operations
+- don't combine factory and repository, it is mixing of responsibilities AND most often redundant
+
+###### Designing Relational DB
+- Ideally your DB must represent Model, BUT it may not be possible or just performant, so you need to establish clear, encapsulated somewhere(often in Repository) mappings
+- DB must be accessed though one entrance, so all mappings are kept here AND variations are protected
+- keep DB design as straightforward and similar to Model as possible
+	- add foreign keys to show relations
+	- add rules, that enforce aggregates
+	- keep naming of columns same to Language
+- enforce frequent migrations to keep model and DB in sync
+	- if not possible, ex: you don't own DB or it is share, you always can count on mapping
