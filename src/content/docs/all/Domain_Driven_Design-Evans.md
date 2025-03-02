@@ -409,3 +409,30 @@ about factories:
 	- keep naming of columns same to Language
 - enforce frequent migrations to keep model and DB in sync
 	- if not possible, ex: you don't own DB or it is share, you always can count on mapping
+
+## Example of creating Model bound to Implementation
+*I won't note whole example, just interesting parts* 
+
+- if you need to communicate with external system OR internal Model that is separate from your Mode, create a Service, that will protect variations, by acting as interface/translator to other model
+	- when you need to receive some new type of data from this Service, wrap it in ValueObject, so it can encapsulate needed info
+		- if such value object contains part of actual object present in system, it is called EnterpriceSegment, ex: Tax service need only segment of Cargo model, so Service of Tax service can create Segment from Cargo and operate with it
+			- alternatively we could pass responsibility of creating TaxCargoSegment to Cargo via Strategy, but it is often unneeded overhead
+	- this Service can do optimizations like caching etc, in addition to mapping(aka translation)
+
+## Breakthrough
+Iterative approach in development of Model and system in general, bound with consistent refactoring will slowly develop rich Model, without legacy and fossils
+- such tiny improvements will add up to something big, BUT more important is so called Breakthrough event, that might happen
+- basically a Breakthrough is some insight, that arises from deeper understanding of Model AND it is important to react to it properly
+
+reacting properly:
+- after such big discovery it is important to evaluate how much it will cost to implement AND, if implemented, will the benefits worth the cost
+	- if so - do large refactoring
+	- if not - think alternative way to integrate new discovery incrementally (if possible)
+	- \---
+	- it is a high risk refactoring, so you need to evaluate it properly
+
+notes:
+- if your model seems to "technical" for domain experts it is a clear sign, that (A) your model exposes too much implementation details, that aren't needed OR (B) your model built on wrong understanding of domain and doesn't align with it
+	- or both ;)
+- don't wait for breakthrough, just work on making model better and it might come AND when it comes, don't be afraid to incorporate it
+- it is great way to accelerate the project and prevent drowning in complexity
