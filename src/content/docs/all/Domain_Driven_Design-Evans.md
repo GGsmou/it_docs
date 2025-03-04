@@ -436,3 +436,39 @@ notes:
 	- or both ;)
 - don't wait for breakthrough, just work on making model better and it might come AND when it comes, don't be afraid to incorporate it
 - it is great way to accelerate the project and prevent drowning in complexity
+
+## Making Implicit become Explicit
+It is common change, when some implicit thing, not discovered yet, or hidden somewhere in discussions has been found and added to the model
+- number of such changes may lead to breakthrough OR such change is a breakthrough
+
+how to find changes:
+- listen the language - look for cases, where you describe similar things in several distinct places, without naming them(or they can have a name, but it is not represented in the Model)
+	- basically, when you don't have a name in the model for something important, that constantly brought up, it is clear thing of something missing
+- remove awkwardness - if some place is complicated(hard to change, hard to explain, problematic to extend), look for implicit things hidden underneath
+	- it can come from breaking large entity into smaller one
+- enrich domain layer - if some important thins is floating around in some layer, it is often the thing, that this part should be moved to domain, with addition to model
+- fight contradictions - expert stating contradicting thing is clear sign, that some other concept is involved, that will explain contradiction
+	- alternative explanations: different experts have different understanding, you might lack some knowledge to explain contradiction, expert discovered something new and created contradiction
+		- this requires not just changing implicit to explicit, BUT also crunch some knowledge
+	- it is ok to have some contradictions, caused by hardness of domain
+- learn - learn about your domain, thus creating strong understanding, that can become a base of your knowledge crunching and distilling sessions
+	- great when there is no domain expert OR they don't have enough time
+- iterate
+	- don't get attached to your ideas
+	- don't be afraid to make mistakes
+
+some concepts might be tricky to implement:
+- constrains - move them to separate method, that placed onto object, so it is clearly a part of domain, can be re-used and changed with little to no refactor
+	- embraces separation of concerns
+	- give methods clear names
+	- note, placing method into the object might not always work
+		- ex: external data needed, similar constraint is present elsewhere, it is huge part of design that needs to be represented more clearly
+- process as object - you don't need to create object, that will hold no data, but do something, it is redundant
+	- ways to mitigate: use service instead of separate object, create a number of objects(Strategies) that can be consumed in some way
+	- note that we need to include service/strategy as part of the model only if it relevant to domain, not implementation
+- specifications - extract complex conditionals from object into Specification, so it can be clearly stated in the model and used as part of domain layer
+	- Specification is special purpose ValueObject, that based on Predicate patterns and perform needed check for input, that can be any object in a system
+		- Predicate function is function, that accepts input and returns `boolean` evaluation to check if criteria is satisfied
+	- use-cases: validation, selection, invariant for creation step
+	- notes:
+		- this is also great way to define interface that can be mocked, so tests are easier OR/AND development can be run in parallel
