@@ -472,3 +472,53 @@ some concepts might be tricky to implement:
 	- use-cases: validation, selection, invariant for creation step
 	- notes:
 		- this is also great way to define interface that can be mocked, so tests are easier OR/AND development can be run in parallel
+
+## Supple Design
+Good model is only part of good software, another part is design, that is pleasant to work with and iterate upon
+- with bad design, code will degrade fast, because it is harder to refactor such programs
+- aim for simplicity, don't overengineer OR overabstract
+- good design must:
+	- provide rich set of capabilities, so it is easy to express model
+	- keep this capabilities easy to understand AND safe to change, so refactoring OR changes in model could be reflected
+
+#### Patterns
+Good design utilizes number of pattern, here are some of them
+
+###### Intention-Revealing Interface
+To fight cognitive load we need to abstract details, that can be done by encapsulation, BUT if interface is unclear, client will need to check internals, thus all encapsulation lost
+- this results in need for good and proper interfaces(class, method, variable, argument names)
+- communicate purpose and effect through interface
+- don't reveal internals in the name
+- use Language when choosing a name
+- everything, from single class to sub-domain should be hidden behind proper interface
+
+###### Side-Effect-Free Methods
+Methods are divided onto two categories:
+- query - obtain info about the system AKA return some data
+- command/modifier  - change system state AKA modify some data
+
+Each category have different relationship with side-effect:
+- query - can't have any, main purpose is to get data, without worrying of changing something
+- command - can't have too much side-effects, so it is easy to work with it AND it is easy to understand what will happen after call to command
+
+notes:
+- ValueObject is great way to reduce complexity, because some state changes can be omitted in favor of using immutable ValueObjects(often can be seen as result of some computation)
+- keep strict segregation of query and command
+	- query can't have modifications in it
+	- command can't return data (exception: command can return result of modification)
+
+###### Assertions
+Main goal for good assertion is to make side-effect clear and explicit
+- basically assertion is part of interface/contract, that need to be satisfied, in order for operation to succeed
+- you should not only assert pre-conditions, but also result of operation
+- assertions can be state inside model too
+- if you lang don't support assertions, use unit-tests to ensure proper behavior
+
+###### Conceptual Contours
+Main problems:
+- if system consists of large monolithic parts, it is hard to have proper interfaces AND functionality will be duplicated
+- if system consists of small parts, client will need to know how to work with them all, thus encapsulation is lost AND concept can be lost, because it is all over the place
+
+There for you need to decompose system in such a way, that you work with cohesive units, that encapsulate some concept, BUT don't become unmaintainable monolith
+- this is achieved by: iterative refactoring of a model, intuition, alignment with the model(often domain will reveal insights about what can be OR can't be a single unit)
+- clear sign of poor contours is when model refactoring isn't localized and forces changes in multiple areas
