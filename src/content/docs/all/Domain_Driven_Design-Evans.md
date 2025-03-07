@@ -472,6 +472,8 @@ some concepts might be tricky to implement:
 	- use-cases: validation, selection, invariant for creation step
 	- notes:
 		- this is also great way to define interface that can be mocked, so tests are easier OR/AND development can be run in parallel
+		- consider creating some basic implementation, that will provide a way to perform AND, OR, NOT, transitivity check(often pretty difficult operation to perform, so use only when really needed) with specifications, so it is easy to combine them
+			- all in all, it is ok to extend basic functionality, if it is not overcomplicates interface AND truly needed by your system
 
 ## Supple Design
 Good model is only part of good software, another part is design, that is pleasant to work with and iterate upon
@@ -522,3 +524,41 @@ Main problems:
 There for you need to decompose system in such a way, that you work with cohesive units, that encapsulate some concept, BUT don't become unmaintainable monolith
 - this is achieved by: iterative refactoring of a model, intuition, alignment with the model(often domain will reveal insights about what can be OR can't be a single unit)
 - clear sign of poor contours is when model refactoring isn't localized and forces changes in multiple areas
+
+###### Standalone Classes
+With each new dependency, class becomes harder and harder to understand, thus leading to ungraspable system
+- this is classical problem, that is solved by modularization, aggregates and proper abstractions, BUT this is not always enough, because number of modules and their connections(thus number of dependencies per module) can be high as well
+- ideally, each connection must be as meaningful as possible, WHILE overall number of connections as low as possible, THUS it is important to evaluate if dependency is needed(when adding new OR refining old)
+	- basically, low coupling is your friend
+- note that basic language functionality AND libraries are not dependencies in this case, BUT dependency is something they represent
+	- ex: `int` is not a dependency, it is just basic type, BUT `amount: int` is
+- general advice, try to factor standalone concepts in separate, standalone classes, with no dependencies, that used by some other class
+	- this leads to separation of functional, high cohesion between methods of both classes AND overall to less bloated classes
+- remember, as stated in Conceptual Contours, interfaces still need to be rich, don't boil everything to primitive
+
+###### Closure of Operations
+Classes must have as little dependencies as possible, BUT still keeping their interfaces rich and complete
+- avoid boiling down everything to primitive
+
+Basically, if you need to introduce high-level interface, thing if it is possible to closure it under single type, meaning that parameters, return type, implementer(those who execute method) AND type of modified state(if any) will be the same
+- mostly suitable for ValueObjects
+- "type" can be abstract as well as concrete
+- it is pretty useful, even if closure is partial, meaning that condition is only partially true
+
+###### In general
+Keep software obvious, predictable and such that it communicates it's intention
+
+#### Declarative Design
+This concept has meany meanings, most common is that we try to write software, that exposes properly described set of parameters, that allow to control it in well understood manner, resulting in result, that predictable
+
+main problems:
+- declarative frameworks will be a burden, if you try to do something, they don't expect you to do
+- code generation, that can come with such frameworks, can be hard to grasp AND sometimes unpredictable
+
+generally, tend to use specific frameworks to mitigate specific problems, that won't restrict you in other parts of your program
+- also incorporate Language into the framework, if you can, so you could connect declarative style with model even more
+
+#### How approach refactoring
+It maybe hard to start on refactoring some design, so here are some general rule on how to find targets:
+- identify clear sub-domains and extract them from whole design
+- use parts from already established models(common examples is Math, don't reinvent math within your domain, integrate it as part of your domain, often as some atomic operations, that later combined to execute rich operations)
