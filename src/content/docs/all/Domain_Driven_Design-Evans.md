@@ -562,3 +562,37 @@ generally, tend to use specific frameworks to mitigate specific problems, that w
 It maybe hard to start on refactoring some design, so here are some general rule on how to find targets:
 - identify clear sub-domains and extract them from whole design
 - use parts from already established models(common examples is Math, don't reinvent math within your domain, integrate it as part of your domain, often as some atomic operations, that later combined to execute rich operations)
+
+## Analysis Patterns
+Analysis Patterns - set of high-level, conceptual patterns, that provide a starting point in developing complex Models
+- they are not tech solutions, they are guides to work on Model
+- this section demonstrates sub-set of this pattern from DDD perspective
+
+list:
+- balance can be computed(rather then stored) from number of entries(positive OR negative), where computation is done by some entity(usually aggregate root)
+	- reason been money can't appear, there is underlying operation to this change
+- when two accounts operate on similar accounting info, instead of coupling them, introduce separate Object, that will take entry from first account as input, do calculations and return resulting entry to second account
+	- there are several strategies on when to perform such calculations:
+		- when new entity inserted
+		- triggered by account (account looks for Objects to trigger)
+		- triggered by Object (Object collects entries from account to process)
+
+notes:
+- look for complex application logic, it might be actually a part of domain
+- it is often needed to adapt analysis pattern, instead of using directly how it used in other system
+
+## Design Patterns in DDD
+Design Patterns is common things in development world, BUT they can also be re-applied for some cases in DDD land(sometimes you need to shift perspective, so pattern can be used in DDD)
+
+#### Strategy
+If you need several ways for one thing to do something, implement this several ways as strategies and leave the thing just execute received strategy
+
+In DDD it is used to express some rule OR processes
+- even better if this is concrete business rule
+
+problems:
+- client need to be aware about each Strategy type
+- larger number of object
+
+#### Composite
+If your system has tree-like structures, that can be deeply nested AND conceptually similar, you can define a Composite, which can hold simple "leafs" and other complex Composites, both of with will have same methods to do operations, thus client won't need to differentiate between them OR handle any traversal logic
