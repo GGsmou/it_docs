@@ -596,3 +596,71 @@ problems:
 
 #### Composite
 If your system has tree-like structures, that can be deeply nested AND conceptually similar, you can define a Composite, which can hold simple "leafs" and other complex Composites, both of with will have same methods to do operations, thus client won't need to differentiate between them OR handle any traversal logic
+
+## Refactoring Towards Deeper Insights
+Not all refactoring is purely technical, also look for problems in your model
+
+flow:
+- find problematic place that bothers you
+- think about solution (it can be fast and often code based OR more time consuming and often related to model)
+	- finding new model is problematic think, that takes time, effort AND often involves several people
+	- advices: keep changes small and scoped, optionally avoid long term planning, use Language
+- look for knowledge outside(patterns, domain books, other firms etc)
+- remember about keeping software design good AND model to be such, that helps software development
+- don't take too long to refactor AND do it consistently
+	- look for ways to: deeper domain understanding, make important things explicit, make design better
+	- remember: don't push refactoring in hot periods(ex: pre-release), don't make model or design "too elegant" and hard to understand
+
+## Maintaining Model Integrity
+Each team can have their own view of same concept, THUS it is important to establish how to live with this concepts, basically you can:
+- make one entity, that will hold both concepts
+- separate each team with clear boundaries and make separate entities
+Either way, you must keep model unified AND avoid contradictories between similar entities OR inside one entity
+- we aren't living in ideal world, so at least it is important to keep key concepts unified AND have clear relationships between somewhat diverging parts
+	- also it is not always needed to have same entities, some system just doesn't need some functional AND can have some uniq functional
+		- also it is not cost effective to keep model fully unified too
+- thus you need to establish consistent rules AND use some patterns
+
+#### Bounded Context
+Every model must have context, that it is applied in, meaning some clear boundaries(defined on organization scale), inside which model is unified and consistent
+- basically model from one context can communicate with other context, BUT it don't really need to know details OR be consistent within that context
+- each context uses own dialect of Language, so translation in communication will always be present
+
+common sings of non-uniformity within a context:
+- confusion in language
+- interface missmatch
+- behavior differences
+- duplication of same concept
+- false cognate - same term, that means different things
+
+notes:
+- context isn't a module, because one context can be modularized, BUT it is good practice to place context in separate module too
+- don't try to build unified model IF you aren't in the same context with other party
+- context can be defined by team, by sub-team, by department etc
+
+#### Continuous Integration
+Parallel work on same model will lead to inconsistencies, BUT breaking model into smaller and smaller will lead to lose of coherency, so it is important to keep model unified
+
+Extreme Programing can help with it, BUT the most important concept from there is Continuous Integration, which aims on code been integrated(merged) as fast as possible, thus any inconsistencies will be found pretty fast
+- it works both for model AND code changes, where
+	- good model achieved by: communication, documentation, Language
+	- good code achieved by: CI/CD, TBD, AQA, Agile
+
+notes:
+- don't deal with separate context in scope of one task
+
+#### Context Map
+When it is time to communicate between contexts, you need to establish proper, stable, uniform interface to do this task properly
+- basically you do sort of translation(aka mapping)
+- never blur together contexts, keep boundaries clear AND communication only via interface
+	- code re-use will kill boundaries
+- each context must be named, where name is part of a language
+- keep changes context bound AND do massive reorganizations carefully
+
+notes:
+- not all translations are possible because of "reasons"
+- as one possible design, context to context communication is done via some services on the edge of each context, where each service can do needed translation OR they can use intermediate translator, that lyes in-between two contexts AND must be maintained by both of them
+	- remember to test such points of connection, they are the weakest places
+- keep context map documented(each context must have clear boundaries and name)
+
+*following patterns will describe some ways you can establish proper relationships between each context, note that you don't need to strictly follow them, BUT you can move towards achieving them step by step* 
