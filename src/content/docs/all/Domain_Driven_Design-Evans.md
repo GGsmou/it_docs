@@ -664,3 +664,52 @@ notes:
 - keep context map documented(each context must have clear boundaries and name)
 
 *following patterns will describe some ways you can establish proper relationships between each context, note that you don't need to strictly follow them, BUT you can move towards achieving them step by step* 
+
+#### Shared Kernel
+It is sometimes makes practical sense for two+ teams to share subset of same context
+- important: one team can't break other(build proper communication), changes from one team must trigger tests from both teams to run
+- note: it might be hard to do frequent CI this way
+- reasons to have: de-duplication, easier integration of several sub-systems
+
+#### Customer/Supplier
+Some two contexts may form customer-supplier relationship, where one becomes "downstream" and depends on "upstream", while not becoming "upstream"'s dependency
+- problem with such relationship os them upstream can't easily make any changes, WHILE downstream need to constantly accommodate for new changes
+	- so it is important to build proper process here:
+		- "upstream" consults with "downstream" about cost of change AND when it is possible to plan for changes
+		- "upstream" must be ready to help with integration
+- force upstream to run "acceptance" tests, that will verify that downstream is ok
+- such relationship can form externally, between actual customer and business
+	- somewhat same rules apply here too, in addition to:
+		- such customer is prioritized, BUT it can be placed on hold, until other features developed
+- note: upstream must be motivated to help downstream
+	- usually the motivation is overall company goals, but in the case of different companies, some consensus must be found OR non cooperative pattern, such as Conformist, must be used
+
+#### Non-Cooperative Customer/Supplier Alternatives
+When upstream have not motivation to help downstream, some non-cooperative patter must be applied, so downstream can operate properly, here are some of them:
+- Conformist - when you fully depend on upstream model and it's capabilities, just conform to their design and don't provide any translation
+	- be careful with this, because changes in such dependency may break you hard
+- Anticorruption Layer - create translation layer, that will save your system from constant problems AND incapsulate integration inside of it
+	- often useful when working with small subset of other context
+	- great when working with legacy OR just poor integrations, that tend to leak into your system, causing problems
+	- often needed to avoid model corruption with improper concepts
+	- implementation:
+		- use one or several services OR even entities to represent foreign system in isolated manner
+		- use patterns like: Facade(change interface of foreign model), Adapter(change form of information), translator(can be just separate part OR separate part of Adaptor, that used for mapping)
+		- anticorruption layer can be shared between systems OR be just part of downstream
+	- notes:
+		- if possible, change upstream interface, so you life can be a bit easier
+		- you can Conform in places, where it is just too hard to translate, BUT don't overdo it
+		- anticorruption can have additional functionality like logging etc
+- Separate Ways - stop depending on upstream, if it is realistic to do so(often caused by integration been to expensive for what it returns back)
+	- basically do things "in-house"
+
+#### Open Host Service
+If you built a high demand service, to avoid duplication in each subsystem, that will be integrated with you, create your own service, that will be a stable interface to communicate with your system
+- constantly change your service to meet requirements(if they align with you)
+	- if something not aligns well, create augmentation services, that can extend your base service
+
+#### Published Language
+In a way, it is more extreme version of Open Host Service, where you not just create some service, that will make integration easier, you make your model and language public, so anyone can share it
+- good documentation is needed
+- example is shared notation for chemistry, so all companies can use same model and exchange data easily
+- basically you avoid most of translation hustle by choosing this option
