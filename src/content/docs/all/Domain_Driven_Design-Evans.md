@@ -713,3 +713,89 @@ In a way, it is more extreme version of Open Host Service, where you not just cr
 - good documentation is needed
 - example is shared notation for chemistry, so all companies can use same model and exchange data easily
 - basically you avoid most of translation hustle by choosing this option
+
+#### How Draw ContextMap
+Here are some advices on how to draw context boundaries:
+- ideally how break large model must be decided on team-basis, BUT it is not always possible du to different reasons, so, in addition, proper team-to-team communication AND good management is keys
+- remember that your focus is your context and neighboring contexts
+- boundaries can be drawn in two ways, with their own advantages:
+	- large context: less translations/mappings, shared language, easier to understand single coherent thing
+	- small context: less clashing between devs, CI and development is easier in small teams, scales better
+		- note: it can and will be harder, dialects of language will appear, duplication AND knowledge sharing will drop
+	- \---
+	- combination of both is key to scalable, BUT manageable model
+- accept that external system is out of your scope and not always changeable
+	- if it is possible - ask OR do the changes, if not - adapt
+- start small, with single context AND, only if needed, extract parts of it
+- deployment - it is separate problem to manage how deploy two interconnected services
+	- avoid breaking changes
+	- keep translation as part of service, so it can be deployed with it
+	- use versioning
+	- remember to test not only new version, but depended services
+- to integrate this practices start with direction, aka ideal context map and slowly move towards it
+	- look for more value for less disruption
+- examples:
+	- separate ways -> shared kernel
+		- internally unify both contexts
+		- create naming conventions, empty test suites for shard kernel etc
+		- start by the most core functionality
+		- how to merge models: mold one into other, take best from both, create new that will be suitable for both
+			- both teams must work on it
+		- integrate shared functionality into shared kernel iteratively
+		- \---
+		- if you need to go slowly, just move functionality from one context to other, until first is empty
+		- avoid merging two completely different models
+			- if needed, create third context, that can hold duplicated functionality
+	- phasing legacy
+		- define strong anticorruption layer between both systems
+		- migrate iteratively
+			- can be achieved by keeping both systems run it parallel
+				- in general harder, requires tests for both systems AND their integration, BUT overall beneficial, when legacy is large OR UAT stage is critical
+			- if possible, phase legacy and remove anticorruption layer iteratively too
+				- alternatively just hide old functionality AND kill it all at once
+		- focus on reducing anticorruption layer first
+	- open host service -> published language (can happen when there are too many integrations OR they need to have too many access)
+		- look for industry standard language, otherwise:
+			- refine core domain
+			- look for industry standard communication protocol(XML, JSON etc)
+			- share language
+			- build translation layers for each open host service
+				- provides little to no disruption
+			- switch
+		- don't bound language and model too much, some amount of translation will enable freedom of changes in model
+
+notes:
+- be careful with breaking context to avoid it's complexity, it may hit you later, so consider patterns in next chapters, for managing complexity first
+
+## Distillation
+distillation is a process of taking only core part of some domain and solidifying it inside of a model, thus keeping it understandable and manageable
+
+profits:
+- understandable model
+- model that can be described by language
+- focus only on important parts of domain
+- model can be easily managed and divided
+
+similar to "Maintaining Model Integrity", patterns will help us achieving distilled model
+
+#### Core Domain
+If you can't understand system, you can't change it, can't onboard new people, can't extract value from it etc
+- such will lead to fragmentation of knowledge between people
+
+Core Domain is key part of system, while system can have other parts, this is the most important AND must have the most attention
+- it is great business asset, that must be enforced by company and carved-out by devs, instead of just "making features"
+- remember, bunch of features OR fancy architecture won't sell to user
+- generally: keep it small, keep it clean and refined, bring here the most specialized parts AND put supportive parts aside, put as much talent here as possible
+	- other parts of design must be more generic for practicality
+	- refactor core first
+	- speaking about talent, some technical devs might not be interested in domain and it is ok, BUT find those who will and put them in charge of core
+- core is part that might be protected by MDA
+
+why:
+- you can't purchase domain, because:
+	- it will be too generic
+	- it is not profitable to sell it
+
+notes:
+- core is something important to your business, usually your selling point
+- other patterns will focus on refining core domain
