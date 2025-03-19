@@ -799,3 +799,62 @@ why:
 notes:
 - core is something important to your business, usually your selling point
 - other patterns will focus on refining core domain
+	- it is possible to apply them all, BUT some can be harder then other, SO it is ok to do smth right away, while taking time with other
+		- still it is important to do hard parts, so you could get the most out of your core
+
+#### Generic Subdomains
+Some things are important for model, BUT can play supportive role OR be a common knowledge, thus making core less distilled, if kept as part of it
+- generally, place any non-essentials as separate modules of model OR use available third-party tools/libs to do the heavy-lifting
+	- keep this modules less prioritized AND don't put top-talent here
+- lib is great choice for more generic, highly distilled domains, BUT remember that lib can be restrictive in some ways, that clash with your model
+	- alternative to lib is public model, that can be implemented in your system
+- generic subdomain is candidate to be outsourced, BUT be cautious with it, because it may be hard to integrate in your system in future and quality might vary
+	- as advice, write in-house tests, so you can ensure quality of outsourced stuff
+- generic !== reusable
+	- it is key idea, that makes it ok to implement only part of public model, that you need OR, when creating custom model, again focus only on important and create tailored solution
+	- it is great when you can reuse smth, BUT it is not always needed, thus it is not justified to use resources, that could be spent on Core development
+	- note, that striving for reusability may result in addition of some specifics into your generic model, thus making it more complex and harder to maintain
+		- this will lead to appearance of second core, that might bot be needed
+- core domain is risky part, that must be handled first AND only that you should implement generic subdomains
+
+#### Domain Vision Statement
+Write short document, that will describe Core, highlight it's main value, show how Core balances interests of several teams
+- write it early, revisit after insights
+- it is needed as reminder about what exactly is the Core, how resources need to be allocated and why Core need to be sustained
+- it is great onboarding tool
+- it is great for establishing main direction
+- avoid implementation details, keep it distilled, short and non-technical
+	- focus more on model
+
+#### Highlighted Core
+Domain Vision Statement is great tool to broadly define Core, BUT it is not sufficient for development needs, thus it is important to have complementary document, that will define Core in more details, draw clear boundaries etc
+- ideally code structure must do same task, BUT it is not always possible to refactor all at once AND some refactoring guidance is important
+- basically you can use any style of documents(can be even diagram), that will do one simple task, make sure everyone have same understanding of what core actually is
+- main task of document is to describe most important details of core AND relationships inside of it
+	- remember, by keeping document minimalistic and abstract you allow for easier refinements, faster read times AND it will take more time to stale
+- keep document non-technical
+- if you already have some large document, that describes general model, you can simply highlight important parts, that create core
+	- so you can state what is inside core, while not bringing in additional details
+- document must be in-sync with reality, BUT any changes to it(usually caused by changes in model or code) must be discussed beforehand
+	- any changes must be shared
+
+#### Cohesive Mechanisms
+Extract technical details into Cohesive Mechanisms, that can take a form of library OR framework with abstract interface, that can be integrated in your Core, while not bloating it with details
+- keep core declarative and implementation details free
+	- basically your core states that somethings needs to be done AND Cohesive Mechanism performs it
+- look for re-use of existing algorithms and solutions, similar to Generic Subdomains
+- ex: when working with graphs, don't implement all algorithms, just once that will be doing the tasks
+- otherwise: you will couple model to implementation, core will be de-distilled, code of algorithm will be harder to test
+- note that if algorithm is proprietary AND brings value by itself, it is worth considering keeping it as part of core domain
+
+when considering improvement, weight cost-gain difference, by thinking how costly will be the change, how costly not to change, what benefits will you gain AND what changes will even be
+
+#### Segregated Core
+You can factor some parts of core into Subdomain or Mechanism, BUT supportive objects, bounds to generic elements and just some parts that aren't worth to move to separate domain can still cause de-distillation of core
+- refactor-out elements, that aren't directly related to core, into separate modules of core itself, refine them, by establishing clear boundaries, interface AND relations with other modules
+- final result is core of core, that surrounded by modules, that help with execution
+- you will make relationships harder, BUT core itself will be more prominent
+- basically you will make whole core less cohesive, BUT main core more
+	- too big core is sign of need of segregation
+- all teams must commit to process of segregation
+- segregation is quite beneficial, because it highlights core AND moves aside modules, that can be later extracted as separate Subdomains
