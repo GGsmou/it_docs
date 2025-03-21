@@ -858,3 +858,71 @@ You can factor some parts of core into Subdomain or Mechanism, BUT supportive ob
 	- too big core is sign of need of segregation
 - all teams must commit to process of segregation
 - segregation is quite beneficial, because it highlights core AND moves aside modules, that can be later extracted as separate Subdomains
+
+#### Abstract Core
+It is possible that even the most refined core will become quite big and hard to understand
+- one way to deal with it is via polymorphism, where you factor out most important stuff into separate, abstract classes AND use them as base for specific implementations in other places of core
+- such trick will make relations more clear
+- Abstract Core must be backed by model, it is not about code patterns
+
+#### Deep Distill
+Remember, that main focus of distillation is to break large system into smaller parts, that have clear relations AND can be used to easily describe model
+
+## Large-Scale Structure
+Important aspect of successful large system is ability to understand role of each part, without deep dive into how system works
+- basically you need to establish some way of talking about the system from "birds-view", that will be backed by common rules, patterns and restrictions
+- this will help with individual contributions, general system understanding etc
+- this can, but not must be based on ContextMap, discussed earlier
+	- often ContextMap is not broad enough
+
+notes:
+- don't use large-scale structure patterns for systems, that are small and simple
+	- that not worth the cost
+	- it is often sufficient to work with just modules and contexts, in such case
+
+patterns for such large systems...
+
+#### Evolving Order
+Architecture framework OR, more generally, any rules can become burden, rather then help, causing more harm, by forcing every part of system to fit in some problematic structure, by slowing down development etc
+- it is often the case, when system architecture was created upfront AND never refined
+
+so:
+- don't over constraint design
+- let design evolve
+- keep balance, between making system too strict(easy to manage, hard to be flexible) OR making system to loosy goosy(hard to manage, easy to find perfect solution for problem)
+
+#### System Metaphor
+Software Development can be hard to understand and one way to mitigate it is to impose metaphors
+- note: all metaphors have constraints that come with them(be careful with introducing unwanted things OR not introducing wanted, because you restricted by metaphor, so always look for it AND be ready to drop the metaphor)
+- basically, metaphor is some loose term, that can be used as analogy, that creates a trajectory, that system has to follow
+- metaphor must become part of language
+
+#### Responsibility Layers
+There are tow parts of pattern:
+- imposing guidelines on responsibilities that object can/can't have will force more structure on overall system
+- breaking everything into layers(where layer can know about itself and layers bellow) will create more clear relationships
+- \---
+- combining both of them will create a structured system, with clear relationships, that have some meaning
+
+good layering must:
+- tell the story of the system, mainly the priorities of a business
+- lower level must be meaningful without upper layer
+
+possible common layers:
+- "potential" - layer that includes resource organization and focuses on what can be done
+- "operation" - layer that focuses on what is been done
+	- operational objects can reference potential, but not vice versa
+- "decision support" - layer above "operation", that focuses on automatic decision making, based on existing operations, potential or other data
+- "policy" - layer between "decision support" and "operation", that is used to enforce policies, when making decisions
+- "commitment" - layer bellow "policy", that states what we promised to the customers
+- \---
+- decision support -> policy -> commitment -> operation -> potential
+
+remember to keep number of layers small(distilled) enough
+
+#### Knowledge Level
+Knowledge Level used for cases when we need to have some part of system be flexible and configurable, while configuration itself constrained by some rules
+- it is tempting to remove constrains, but it is not often practical AND the less constrains, that more complexity
+	- why not constraint too much for lower complexity? because users will abuse system, by misusing fields and data types to compensate
+- basically we split system into to layers(not actual layers, because the co-depend on each other), one that can execute, other that can influence execution
+	- influencer layer can be customizable from outside of a system
