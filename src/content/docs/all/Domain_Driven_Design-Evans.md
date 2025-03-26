@@ -926,3 +926,72 @@ Knowledge Level used for cases when we need to have some part of system be flexi
 	- why not constraint too much for lower complexity? because users will abuse system, by misusing fields and data types to compensate
 - basically we split system into to layers(not actual layers, because the co-depend on each other), one that can execute, other that can influence execution
 	- influencer layer can be customizable from outside of a system
+
+#### Pluggable Component Framework
+You can design system as set of components, that can interact with each other via one shared interface, known as hub
+- abstract core is common candidate for hub
+- problems:
+	- mature model needed
+	- hub will limit possibilities that each component can do
+
+#### Notes
+Patterns need to be implemented restrictive enough to provide benefit, structure and make system easy to interpret, WHILE not forcing unneeded complexity or pushing towards worse design
+- focus on: making development easier, making domain insights visible, keep system cohesive
+
+Hard future proofing in design is bad thing, BUT not future proofing will hunt you in a long run, in general, keep things simple from the start and iterate upon what you have. Here are some ways to achieve this:
+- minimalist - keep only the most important in framework, other things must be figured case-by-case
+- communication - team must properly understand architecture
+	- use the Language
+- self-discipline - architecture must be followed
+	- otherwise your code will rapidly decay
+- refactor fully - when migrating towards new approach, take time to do proper refactor
+	- keep system homogeneous, this will help with understanding AND future refactors
+	- more refactors == deeper model and system understanding, thus easier future refactors
+- keep core distilled - it is easier to work with and understand
+
+## At the End
+How move towards rich model:
+- create context map, that has small amount of an ambiguity
+- develop rich enough language
+- identify core domain, make it clear through docs and code
+- choose proper stack, that doesn't work against DDD
+- pick top talent devs, that will be interested in domain
+
+Who can enforce strategy (basically there are different ways, here are some):
+- from bottom - team of organized and self-disciplined devs can achieve great architecture
+	- iteration needed
+	- often comes from "leader", meaning some pro-active developer
+	- can even work in cross-team collaboration zones
+- from top - architecture team will create and enforce standards
+	- development needs must be accounted for
+		- collaborate with your devs and listen to them ;)
+	- iteration is key too
+
+Essentials for decision making:
+- decision must reach entire team - focus on dev communication and collaboration
+- decision must absorb and account for feedback
+	- keep tight feedback loop
+		- ideally if architect is developer OR can sometimes act as one
+- allow for evolution and iteration
+	- set flexible boundaries
+- put great talent to work with domain too
+	- don't place all top engineers in infra, architecture etc teams, left great minds to domain, so it can be developed AND app, that based on domain, is great and maintainable
+	- include high number of people with high domain expertise(in infra, architecture etc too, because they can bring valuable insights there, to make application devs live easier)
+- minimalism and simplicity is a key
+	- hard solutions may need hard problems, but better to find an easy one
+	- humility is key, when you need to discard your "great" idea
+- keep objects strict, single purposed and abstract, WHILE developers the opposite(communication, knowledge sharing etc are keys)
+- keep framework away from influencing the domain
+	- while domain must influence and refine framework to it's needs
+		- if possible
+	- don't write framework for dummies, just don't hire dum people
+		- otherwise you will only restrict the smart
+		- while it is ok AND even needed for framework to encapsulate and hide it's dirty details
+- embrace the master plan
+	- master plan - flexible plan, with some boundaries to guide the process
+	- with more details all plans will become more totalitarian, while not gaining in details
+
+notes:
+- don't cary too much about your design, keeping it for too long might result in legacy
+- you can't scale "quicky" architecture, BUT you can start from it and iterate upon
+- you don't need to apply each and every pattern(they are called patterns for that reason), BUT aim for deep domain understanding

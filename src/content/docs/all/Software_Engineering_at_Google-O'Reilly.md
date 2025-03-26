@@ -465,3 +465,81 @@ tips & tricks
 			- autonomy
 			- mastery - provide possibilities to improve
 			- purpose - help seen the purpose in person's work
+
+## Leading at Scale
+When you start leading one team it is natural progression to lead several teams, so this chapter talks about it
+- all best practices from before apply ;)
+- larger scale == higher scope == less engineering knowledge used
+
+three always of leading:
+- always be deciding - you will take more and more decisions, that must be evaluated by tradeoffs
+	- focus on finding the pass, that engineers can follow to achieve something
+	- to decide:
+		- identify the blinders - if progress on decision was made before, gain knowledge about the problem AND identify what blind spots was left by people
+		- find and explain, to everyone involved, tradeoffs
+		- make a decision AND iterate upon it(identify the blinders, find tradeoffs, make a decision again)
+			- always iterate, don't seek perfect solution
+			- notes:
+				- some tradeoffs can be represented as triangle, where you can only pick two
+				- search for all tradeoffs, even if some thing seems like it is not a tradeoff at all
+- always be leaving - build processes to work autonomously without you, so you could leave and work on a new problem
+	- all teams must be self-driving, basically by having good leadership, healthy engineering processes AND positive culture
+	- to achieve this:
+		- divide the problem space - build loose organization structure, so you could divide problem to subproblems, BUT keep things flexible, so each team could iterate and communicate with each structure
+			- each team must have sense of progress, ownership and accomplishments
+			- make team own problem, not solution
+		- delegate subproblems to leader, let them fail and iterate
+			- always ask if you really the only one who can fix it
+			- also ask yourself what I can do that others can AND fill such areas with other leaders
+				- it is not always possible for some tasks tho
+		- iterate by adjusting processes and teams
+			- alternatively you can grow further in career ladder
+			- don't micromanage, focus on small, but critical adjustments
+				- always listen to people
+		- anchor team's identity by assigning problems to them, not products(product is solution, that can be changed overtime, making team loose identity AND defeat the solution, instead of iterating upon better one for the problem)
+- always be scaling - scaling the team is important, but everything discussed prior results in scaling, SO here will be talked about scaling yourself, meaning proper management of personal time and resources
+	- it is common thing, when finishing the project, to gain additional project as result
+		- one success results in discoveries in adjacent areas AND more scope to handle with same amount of people
+		- basically you need to handle more to scale, BUT hiring can't keep-up, so you must know how to compress prior problem
+	- main problem is that, with scope growth you become more and more reactive on stuff that is "thrown at you", SO differentiate urgent from important by:
+		- delegating
+		- scheduling dedicated time to respond OR to do important
+			- based on your role, more time to do for IC and more time to respond for manager
+		- track tasks through some system
+		- just drop incoming request
+			- you will do it anyway, because there are too many of them, so do it intentionally
+			- one strategy is to breaking things into three groups: 20% of non-important, 60% of somewhat-important, 20% of important; drop 80% and focus only on what is important
+				- 60% will be either picked-up OR go back to top 20%
+	- focus on protecting your energy
+		- partially you will adapt to work speed over time, BUT it is also important to be proactive here, so:
+			- take real vacations - take week+ vacations AND avoid most of contacts with work
+			- don't mix personal and work -don't take laptop to home, disable notifications on phone etc
+			- take breaking when working
+			- take sick leaves AND mental health day-offs when needed
+
+## Measuring Engineering Productivity
+To be fully data-driven focus on engineers productivity too
+
+why?
+- scaling team is a way to scale company, BUT growth is not linear, because of overhead, SO by scaling individual engineers you scale company in linear-ish fashion
+
+note: it must be done naturally AND at adequate cost
+
+process:
+- identify what need to be measured
+	- it takes time, resources, makes team slower OR behave unnatural, when measuring, so you need to measure only what is needed
+	- always ask:
+		- what result is expected? - to prevent biased results
+		- what actions will be taking if result is positive/negative? - to check if it makes sense to measure something, that will not result in any change
+			- change can also mean maintaining status quo
+			- sometimes you can identify what really will result in change AND measure that thing
+		- who will take an action and when?
+			- responsible person must be assigned
+			- action must be based on relevant data, so time is important
+		- do you trust this \[source of data\]?
+			- seek for qualitative or/and quantitative analysis
+	- it is ok not to measure when change:
+		- is to costly
+		- is irrelevant, because of other incoming changes
+		- is going to be made anyway
+		- can't be measured precisely
