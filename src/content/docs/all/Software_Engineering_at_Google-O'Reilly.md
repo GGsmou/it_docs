@@ -466,7 +466,7 @@ tips & tricks
 			- mastery - provide possibilities to improve
 			- purpose - help seen the purpose in person's work
 
-## Leading at Scale
+#### Leading at Scale
 When you start leading one team it is natural progression to lead several teams, so this chapter talks about it
 - all best practices from before apply ;)
 - larger scale == higher scope == less engineering knowledge used
@@ -517,7 +517,7 @@ three always of leading:
 			- take breaking when working
 			- take sick leaves AND mental health day-offs when needed
 
-## Measuring Engineering Productivity
+#### Measuring Engineering Productivity
 To be fully data-driven focus on engineers productivity too
 
 why?
@@ -543,3 +543,73 @@ process:
 		- is irrelevant, because of other incoming changes
 		- is going to be made anyway
 		- can't be measured precisely
+
+what metrics to choose:
+- one possible framework is Goals->Signals->Metrics, where
+	- Goal - what you wan't to know, not how
+		- this must be a full list of goals, that covers all trade-offs
+		- common areas to consider:
+			- code quality
+			- attention of engineer(flow state, notification distraction, context switch)
+			- intellectual complexity(base complexity, unknown unknowns)
+			- tempo and velocity
+			- satisfaction
+	- Signal - how would you know that result is achieved
+		- signal can be thing that we want to measure, but it is impossible
+		- it is needed to establish signals first to prevent using only available measurements, think what ideally you would need
+	- Metric - basically a measurable alternative to Signal
+		- something close enough, that can be viewed as signal
+		- by defining what to measure upfront AND that this thing is suitable for our needs, we can prevent doing additional metrics after the result and the result will be more trustable
+		- metrics can be combined to find deeper details about signal
+	- \---
+	- framework allows us to understand what we measure AND why, by providing traceability
+
+data
+- you can collect data in two ways:
+	- quantitative - collect as much as possible, BUT with small insight
+	- qualitative - collect rather small sample, BUT with reach insights
+
+action
+- after measurements are done TAKE ACTIONS, try to keep them tool-driven, so it is good tools that force processes, NOT just recommendations
+
+notes:
+- centralized "data team" can be much more effective that forcing each team to do their own data research
+- if qualitative metric don't match quantitative -> quantitative is incorrect in some way
+
+## Processes
+#### StyleGuides and Rules
+Define set of strict rules, that aren't negotiable AND guidances, that are recommendations
+
+StyleGuides:
+- treat your style guide as combination of style(prettier) AND conventions(linter)
+	- conventions must be strict and understandable
+- main goal is clear, sustainable code
+- it is important to lean towards reuse of industry standard rules, BUT creating something in-house, as addition is important sometimes
+
+Why?
+- to encourage good and discouraged bad behavior
+	- good and bad is aligned with company goals and can differ
+- to establish common language AND patterns
+
+Creating the Rule:
+- ask what goal you need to achieve AND why
+- google approach is to create strict rules, that will be less flexible, BUT more oriented towards time sustainability and disallow arguments between engineers on how to do things, so here are common themes in their rules
+	- pull their weight - add only important rules, that can be less known to avoid mental overhead AND unnecessary large amount of rules
+	- read-first - code is written once, read many times
+		- proper names, easy to follow flow of code, easy to understand intent and what is happening, clear API contracts and abstractions
+	- consistent - tooling, conventions etc must be kept consistent for ease of adoption
+		- engineers spend less time on thinking about how to do things
+		- code is universally readable
+		- scale: easier to refactor, easier to provide tooling, less time-to-learn when changing teams or working in different codebases
+		- ideally adopt all old code to new standards, BUT ideal consistency costs too much
+			- use code-generation tooling to do migrations
+			- one solid choice is to enforce consistency on each level first and then on level higher: file, team, project, monorepo, company
+		- be, as much as possible, consistent with external community of devs
+			- it is great longterm thinking
+	- avoid error-prone and hard to understand constructs - prevent hard to understand things from appearing in codebase
+		- if you understand it !== other people understand them now OR still will in future
+		- easy code easier to debug
+	- be practical
+		- if performance is critical, be inconsistent
+		- if you use external lib, let it be inconsistent, it is not owned by you
+		- etc
