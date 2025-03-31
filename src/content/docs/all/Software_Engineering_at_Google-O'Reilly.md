@@ -613,3 +613,75 @@ Creating the Rule:
 		- if performance is critical, be inconsistent
 		- if you use external lib, let it be inconsistent, it is not owned by you
 		- etc
+
+What style guide should contain:
+- rules to avoid danger
+	- outline what functionality of language should or shouldn't be used from technical perspective
+	- prevent common errors and problems
+	- provide pros+cons and rationale for rule
+- rules to enforce best practices
+	- provide best practices to keep codebase healthy, maintainable and consistent
+	- improve readability of code
+	- prevent new language features and libraries from getting adopted too soon
+		- first study it on small scale AND only after go for broader adoption
+- rules to force consistency
+	- this are some rules, that have small to no effect, BUT was chosen to prevent any debate between co-workers
+		- ex: tab vs space, 2 vs 4 indentation etc
+- \---
+- don't include in your style guide, BUT remember:
+	- don't be clever
+	- don't reinvent the wheel
+	- don't fork codebase
+
+Changing the rules:
+- it is important to keep rules up-to-date with industry, language, practical and automated, SO when it becomes a burden to do so, rule can be changed
+	- it can't happen to often, because rate of migrations won't be realistic at all, SO evaluate each new rule and include reasoning with them for future self(you would be able not only understand why to keep, BUT also see if rationale no longer valid)
+- reason for change must be real, not potential
+- change must be: necessary or beneficial and relatively cheap to implement + it MUST be agreed on by community first, but finally approved by style guide owner
+	- make decision based on trade-offs, NOT preferences
+- note that rules CAN and sometimes MUST have exceptions
+
+Guidance (aka the should's)
+- basically guidance is form of passing collective knowledge of some topic, that doesn't have to be strictly followed, BUT it is often beneficial to do so
+- some guidance can be short, in form of a tip that can be read quickly, well remembered, broadly used AND even shared as daily/weekly advice
+- some guidance can be just a reference/link/example, that can explain some hard topic
+	- links for internal lib docs is great way to reduce duplication
+
+Apply rules:
+- types:
+	- social:
+		- docs - keep them up-to date
+		- classes
+		- code reviews
+		- spreading rules via some info-channel
+	- technical: linter, prettier, compiler etc
+		- such tools will make process of enforcement scalable and predictable
+		- some problems are purely social and vaguely defined, so it is impossible, costly or will result in flacky results
+		- allow some rules to be chosen on per-project basis, if they aren't strict
+
+#### Code Review
+Code review is process of review changes to codebase, but non-author of change, before merging this change to codebase
+- this can be interpreted in different ways, in Google this means that everyone is involved in process AND every change is involved too
+- basically you need process(this chapter) AND tooling(later on)
+
+process:
+- if code is comprehensible and can be well understood by reviewer -> LGTM from any reviewer
+- if code has LGTM + it is appropriate -> approve from code owner(gate keeper of some codebase)
+- if code has LGTM + it compiles with style guide -> readability approve from readability expert
+- \---
+- self-review, more that one LGTM, review from single person who is readability expert and codeowner is used to add flexibility and scalability to process
+- owners - keeping small number of documented, inside some file, codeowners, that act as gate keepers for some particular part of code, is a great way to introduce strict control for quality to each individual part, because it guarantees review from domain expert
+	- such files is great way to document
+	- by maintaining tree-like structure you could easily manipulate code on different levels, BUT don't bother too much people for review
+
+benefits - while common benefits are understood, it is important to look deeper AND maintain important role of reviews, keep it as part of culture(not just nice sanity check, that is actually LGTM)
+- code correctness:
+	- check for: structure, design, bugs, tests, efficiency etc
+	- the earlier you find bug the cheaper it would be
+	- comments can't be opinionated(AT LEAS PRETEND `;)`)
+- \---
+- benefits can apply for both sides of process
+- notes:
+	- keep proccess lightweight enough, so it is scalable
+	- this benefits are so important, that it is worth to slow time-to-production of change rate AND keep this processes rather strict
+	- don't strive for perfect code, approve if code makes codebase better
