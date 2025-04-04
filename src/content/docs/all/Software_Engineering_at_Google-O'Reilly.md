@@ -794,3 +794,101 @@ understand your audience:
 - if possible: provide TLDR
 - keep docs consistent
 - keep public docs of public API separate from implementation docs
+
+documentation types:
+- document must have single purpose, which means conform to single type
+	- keeping doc single-purposed will make it shorter, more readable and easier to maintain
+- \---
+- reference doc - doc that references code usage and adds description to it, often done as comments:
+	- API - docs about API interface, can't assume deep knowledge of API, can't expose implementation details
+	- implementation - in-depth details about implementation of code, used to transfer domain knowledge
+	- ---
+	- try using standard approach to docs: .h, JSDoc, PyDoc etc
+	- guidelines:
+		- TLDR at the top of the file
+		- in consistent style AND in consistent amount comment as much as possible
+		- for files: describe contents of a file on several lines; for class: describe what class intent and what it encapsulates; for function: describe what it is doing
+	- it must be strict, clear and explain all details
+- design doc - must be required for large project:
+	- guidelines:
+		- use predefined template (this template ensure that: all concerns are covered, intent is clear, problem is described, alternatives are covered)
+		- such docs must be easy to collaborate on AND to review
+	- use such docs as point that must be achieved(check this fact before release)
+- tutorials:
+	- onboarding
+	- \---
+	- focus on creating some onboarding tutorial, that will act as "hello world"(make person do something easy, BUT real)
+	- write tutorials when you join team, so you could document your path OR fix existing docs, if they are present
+		- avoid assumptions along the way
+	- state every step that must be taken in tutorial, avoid assumptions about the reader
+		- if steps done by user - focus on user, if steps done by some program - focus on program
+- conceptual docs - addition to reference doc, that acts as explanation behind the hard concepts, related to API
+	- focus on understanding, not covering each and every detail/edge_case
+	- it must be clear for engineer of any level
+- landing page - doc, that describes some general info and acts as hub, ex: team page
+	- identify purpose
+	- keep only links to docs, information must be at minimum
+	- keep number of links low, by breaking landing into separate, themed landings
+
+review of docs:
+- keep each doc reviewed
+- types of reviews:
+	- technical - review technical aspects
+		- done by engineers
+	- clarity - review that doc is understandable by outsiders
+		- done by person without domain knowledge
+	- writing - doc is written in proper style AND with proper grammar
+		- done by tech-writer (ideally)
+	- \---
+	- high profile doc must have all of them checked
+
+philosophy(opinionated part, basically "how google does it"):
+- before answering "how smth is done", focus on "who need to read", "what the purpose", "when it was reviewed, updated etc", "where the document is placed", "why this doc was written"
+- break the flow of text to have beginning, middle, end
+	- this makes doc easier to digest and take some knowledge from
+	- don't be afraid to include some TLDRs in-between paragraphs to summarize key points
+- choose two of three between: complete, accurate, clear, depending on type of the document
+- deprecate old docs
+	- delete OR mark as obsolete(ideally with link to new doc)
+	- don't be afraid to comment that doc isn't working and leaving it
+	- ideally create some auto notification system, so maintainer can know, that doc is been unchanged some time
+
+teach writers:
+- teach writers are expensive, so they can't write internal docs, this won't scale
+- make devs write internal docs
+- make TWs: write/correct external docs, maintain structure of overall documentation, be a domain knowledge library(person that can validate some decisions)
+
+only you, as engineer, can solve docs problem, so:
+- write docs
+- keep it as part of culture
+
+#### Testing Overview
+Remember, that later bug is found, the more it costs, so developer-based tests is our everything
+- also keep them automated, so any change won't produce large manual work
+	- basically speed of change is locked by speed of test
+
+notes:
+- keep tests as part of the culture
+- if you have no tests, introduce them to new or changed features gradually
+- keep tests as part of CI/CD
+- your tests will help others, so it is compounding benefits
+- test in different environments
+- focus on fixing red tests fast
+
+how automated test is defined:
+- by single behavior you are testing
+- specific input
+- observable output
+- environment the test is running
+- \---
+- number of tests will form a tests suit, that can show bigger picture
+
+benefits of testing:
+- less debugging
+- been confident about changes
+	- especially while refactoring
+- clear tests act as documentation of behavior
+- if reviewer see that code covers all cases, he/she don't need to do mental execution of it
+- bad-designed code can't be tested
+- short release cycle
+
