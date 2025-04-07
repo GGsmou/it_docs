@@ -1,5 +1,5 @@
 ---
-title: Notes of "Software Engineering at Google" by O'Reilly
+title: Notes of "Domain Driven Design" by Evans
 ---
 *notes of "Domain Driven Design" by Evans* 
 

@@ -892,3 +892,65 @@ benefits of testing:
 - bad-designed code can't be tested
 - short release cycle
 
+designing a test suit:
+- e2e or similar tests are can be more pleasant to write, BUT they always be slower and flakier then units
+- tests can be distinguished by:
+	- size - instead of classical unit, integration etc you can focus on size, because smaller size is always leads to faster and more stable tests
+		- the smaller is better
+		- determined by: how it is ran, what is allowed to do, how many resources is consumed
+		- sizes:
+			- small: ran on single process(or even thread), can't have async/blocking operations
+			- medium: ran on single machine, can't talk to external systems
+			- large: ran on suit of machines, ran only while building or releasing changes
+	- scope - how much code is been tested at once(not executed, because you can have large number of mocks been used)
+		- the narrower is better(look for 85% units, 15% integrations, 5% e2e), because it is easier to understand, create and debug such tests
+			- keep testing pyramid been pyramid, otherwise you can get bad coverage OR slow suits OR just discover a lot of errors at far "right" side of development
+- tests must be as stable as possible, because, on large suits, statistics will be costly(.1% of 1000 tests is 10), so your engineers will loose time, energy and believe in tests
+	- you can add retries to your suit, BUT it will cost you in CPU and time resources
+	- invest in removing flakiness, by investigating+fixing bad tests, by investing in good infrastructure, that could mitigate non-deterministic aspects of software, by teaching engineers how to write good tests
+- good practices:
+	- isolate testing env as much as possible
+	- make failing test as clear as possible
+	- make test as simple as possible(avoid control flows)
+		- rationale: you will need to test the test for been correct otherwise ;)
+	- if you have rules, like google's "size rule", enforce them with tooling
+	- cover as much as possible with test
+		- as state prior, large scoped changes will be accepted, if suit is green, if something is failed it will be codeowner's responsibility to fix AND expand tests
+	- test for all flows, even failures(ex: slow network, network outage, broken data etc)
+	- look for coverage ONLY with units, avoid it elsewhere(because with units you focus on code, with higher levels you focus on behavior)
+		- overall tend to test behavior, breaking changes(in dependencies too)
+	- tests can't be brittle(break because of unrelated changed), it will cause friction in changes
+	- keep tests as culture: award for good tests, plan their maintenance, introduce proper tooling, establish best practices, force newcomers to do them well(even if your culture is still in-progress and old stuff is learning), introduce social pressure via statistics etc
+		- don't mandate tests, this will feel forced, better to show their benefits, so people start doing them on their own
+	- block most of changes without tests
+- slow tests will kill your velocity, SO keep them fast by:
+	- reducing dependencies
+	- using techniques to speed-up, like parallelism etc
+	- avoiding arbitrary `sleep`s to wait for async result
+		- it is also source of flaky :/, so use polling + timeout
+
+limits of testing:
+- hard problems are still need to be found by people, BUT they must be documented as test
+	- it is easier to explore weak points of an app manually, find them, fix and document
+- visuals(video, audio etc) better judged by human
+
+#### Unit Testing
+- fast and deterministic, often can be ran on single thread
+- narrowly scoped to only code is been developed
+	- it makes them easy to write, comprehend and debug
+- easy and fast to write, increasing coverage
+- serve as docs for specific component of system(function, class)
+
+maintainability - topic, that has main focus on providing practices, that will make unit tests done in such way, that it is easy to understand them, fix AND will keep them non-brittle(so you don't need to change more tests, then you change code)
+- preventing brittle - test fails, but no bug was introduces
+	- overall, test need to be changed only if underlying behavior OR requirement has changed
+		- refactoring - can't cause changes in tests
+		- new feature OR bug fix - can't cause changes in old tests, new must be added
+		- behavior changes - require test changes, but in narrow scope
+			- often such changed should be avoid, as been breaking
+	- test against public interface
+		- this will easily spot any breaking changes to consumer of an API
+	- test state, not interactions
+		- testing what methods was called, their order etc will introduce brittleness AND often redundant, because you don't need to care how smth was achieved, but rather what was the result(state)
+	- use real objects(if they are fast enough to suit testing needs), instead of mocks
+		- this will help you avoid rewriting mocks OR will restrict your reliance on details, that mocks can provide
