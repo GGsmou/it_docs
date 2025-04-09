@@ -954,3 +954,79 @@ maintainability - topic, that has main focus on providing practices, that will m
 		- testing what methods was called, their order etc will introduce brittleness AND often redundant, because you don't need to care how smth was achieved, but rather what was the result(state)
 	- use real objects(if they are fast enough to suit testing needs), instead of mocks
 		- this will help you avoid rewriting mocks OR will restrict your reliance on details, that mocks can provide
+
+important part of good test is it's clarity, meaning how fast engineer can understand what is wrong when test fails:
+- tests that is unclear will have no value, because future engineer won't be able to understand and use it
+- keep tests:
+	- complete - have all related info directly inside test
+	- concise - have no additional info inside test
+- test single behavior per test, not method(method can grow in complexity, introducing new behavior, BUT test can't grow or change)
+	- such tests are easier to read AND understand
+	- such tests map nicely to `given`, `when`, `then` framework
+		- you can directly use this terms OR just structure your test as (at least) three blocks of code, separated by whitespace
+	- name tests after behavior, so intent and problem are communicated
+		- use nesting
+		- name can include given, when, then parts in summarized way
+		- be consistent in naming
+		- optionally, start with "should", as a way to create some name, if you stuck
+- avoid logic(operators, loops, conditions etc) in tests
+	- such tests are harder, more error prone, need to be tested themselfs
+- make error messages clear, so it is easy to understand what went wrong(actual result, expected result, relevant context)
+	- it it is not possible in your framework - add clear messages yourself
+- violate DRY, be DUMP
+	- DRY is great, but ultimately harder to follow, because you need to reference single place AND harder test is worse test, so avoid it ;)
+	- basically DUMP(Descriptive And Meaningful Phrases) stands for embracing duplication, if it introduces clearness
+		- ex:
+			- create builder, that will provide mocked object with default values AND ability to override each value in it, SO you could easily construct needed mocks AND avoid top level shared constants
+			- use beforeEach/beforeAll/afterEach/afterAll to hide some repetitive initializations/clean-ups, AVOID putting there any important details
+	- still, helpers and proper infrastructure need to be present, your main goal is complement DRY with DUMP, not replace it
+	- avoid validator methods, that check large number of things and included in each test
+		- this will lead to mass test failure, when change is introduced, BUT often failing tests won't be related to actual problem
+		- exception is to introduce for...assert pattern, where you want to check single behavior against set of values
+
+testing infra - shared utils for testing across project(s)
+- must be treated as production code, meaning: properly designed, changes are done in non-breaking manner, must have separate test suit, non-authors of lib don't need to tweak it
+- generally tend to use established frameworks, BUT you also can write a specialized one
+
+#### Testing Doubles
+Double is object, that can be used as substitute for some real object in a system, for testing purposes
+
+use-cases:
+- emulate behavior in light-weight way
+- cause rare exceptions/cases
+- check inner details(with what args function was called)
+
+for doubles to be possible code must be:
+- testable - real implementation must be swappable with a double
+- note: double isn't always effective solution, it can cause brittleness, flacky OR false/positive(this is related to fidelity, meaning how much double differ from implementation)
+	- note that fidelity don't need to be 1to1, just good enough
+
+problem with mocks
+- mock is a variation of double, that can substitute implementation with double in such way, that doesn't require dependency management
+- to much mocks will cause brittleness and maintainability problems, SO prefer real implementation
+
+basic concepts:
+- to make your code more testable:
+	- utilize some form of DI, where you provide dependency from outside
+		- it can be done with direct passing of an argument OR via some utility
+		- alternative approach, for loose languages, is to change methods of implementation on fly
+	- use mocking framework
+- types of doubles:
+	- fake - lightweight re-implementation of real object
+		- great for doubling complex things like DB, but faker itself must be good enough, so it is challenging to write AND might require additional testing
+	- stubbing - substituting existing behavior with predefined one, like stubbing the return value
+	- interaction tester - double that provides info about how, how much, when and with what function was called
+		- often should be avoided to prevent brittleness, because it is implementation testing, not interface
+
+testing with real object:
+- it is more preferable way, because you don't need to worry about testability and fidelity, BUT it is not always possible to test this way
+- such approach will help in finding bugs in dependencies, that aren't directly tested, THUS adding more value to test itself
+- it is even beneficial to provide one existing stub, faker OR make your object easy to integrate into test, when developing something and mark it is as non-mockable via linter, this way, if you want to change implementation, you don't need to fix a bunch of mocks
+- use real implementation for fast, reliable and simple dependencies
+	- if you can't double un-reliable solution(ex: complex external service), run it in hermetic way as a part of current environment, that runs test, SO it is more stable
+	- to increase reliability mock variances, like clock time etc
+	- notes:
+		- fast can be related to execution OR to build time
+		- unreliable test == less fidelity
+		- utilize existing factories, DI utils etc to construct real objects, when testing, for simplicity(when writing test AND when maintaining it)
+	- ex: most value objects
