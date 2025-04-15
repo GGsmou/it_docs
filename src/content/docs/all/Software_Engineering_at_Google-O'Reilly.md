@@ -1092,6 +1092,115 @@ recommendations:
 			- when testing system, test BE separately, via API, from UI, don't use UI to test BE(this will always lead to brittle BE tests)
 			- separate out calls to third-party apps too
 				- it can be done either by mocking them OR using sandbox credentials
+		- doubling strategies - it is possible to double even entire service, via:
+			- (Google's approach) record server's output and re-use it in mocking manner, when test run need to be done faster(ex: on the branch)
+			- establish contract, define mocks, use mocks when doing external tests AND when testing service itself(compare mock result and actual result)
 	- seed data
+		- types: seeded data, tested data
+		- seeding is hard problem, because complex system may need:
+			- initial data
+			- quality and quantity of data
+			- actual data creation can be hard, because it may depend on external checks via API
+		- way to mitigate problem:
+			- handcraft data on small scale
+			- copy production data on large scale
+				- if there are too much data - sample portion of it, that needed
 	- perform actions
 	- assert actions
+		- types:
+			- manual
+			- assertions (check if result is equal to expected value)
+			- A/B comparison (compare two results, often manually)
+
+testing types - complex product need complex test suit, that will contain proper amount of each test type
+- functional testing - test one or more binary
+	- assertions, single machine, handcrafted data
+- browser/device testing - special case of functional testing, but interaction is done not with functionality of binary, BUT with UI itself
+- performance/load/stress testing - test how system behaves under critical load
+	- A/B of performance, single machine, handcrafted/production data
+	- it is important to be as similar to production in terms of data and env(ideally run A/B test on same machine) as possible
+- configuration testing - smoke test to verify that app can be launched with given config
+	- assertions, single machine, no data
+- exploratory testing - look for new/atypical behavior inside system
+	- manual verification, prod/stage env, prod/stage data
+	- basically fuzzy testing done manually
+	- remember: replicate found behavior with automatic tests + this process won't scale, so it is quite limited
+	- it can be even done in a meeting, like live review of product
+- A/B diff testing - find broader problems or test for Hyrum's Law(about observable behavior in contrast to defined API)
+	- A/B comparison, two machines, prod data
+	- you can consider Blue/Green with auto-rollback kinda A/B testing done live
+	- you can do A/A OR A/A/B to eliminate flakiness
+	- problems:
+		- diff often need to be checked manually
+		- noise can make result irrelevant
+		- data can't be handcrafted on such scale
+		- it is generally hard to setup
+- UAT - unit test will check if code is doing what it implemented to do, NOT what it is intended to, so we ned acceptance test
+	- manual checks/assertions, single machine, handcrafted data
+	- it can be done manually OR in some easy to use testing framework, that can be used by non-technical person, that will be the end user, to write a test suit
+- probers/canary analysis
+	- assertions+manual checks, prod, prod
+	- probers - health check, that written in form of smoke test, to verify if everything is ok overtime
+	- canary analysis - blue/green with auto-rollback if there are spikes in metrics/logs
+	- remember:
+		- avoid probs that do mutations, because they can cause non-deterministic behavior or user-visible testing data
+		- canary analysis went wrong == users were impacted
+- disaster recovery and chaos engineering
+	- manual verification, prod, handcrafted(with fault injections)/prod data
+	- disaster recovery - break some part of your system, in simulation, and try to recover from this failure
+	- chaos engineering - continuously introduce problems to system in such way, that can be reverted(ideally system should handle them)
+	- both methods are quite costly AND can introduce severe problems, so be careful
+		- especially be careful with mutations
+- user evaluation - collect metrics from real user interactions and identify problems
+	- manual checks, prod, prod
+	- types:
+		- dogfooding - rollout for very small subset of users
+		- experimentation - A/B test on real users
+			- highly data-driven approach
+		- rating - A/B test on real user, BUT with additional prompting for rates(which version is better AND, maybe, why)
+			- great for ML/AI
+
+dev workflow integration - it is important to integrate tests properly into workflow:
+- separate large test from other, BUT make them a requirement to release + notify author of change if something went wrong
+- make reviewing A/B diff a requirement to merge
+- make tests easy to write(tooling) and run(infra)
+- keep suit fast:
+	- break large one into several small and run in parallel
+	- react as user would do - don't just wait N time and fail, incorporate:
+		- polling, event subscription system
+	- if service has long sleeps(may needed for distributed infra), make them shorter for test env
+	- speed-up build via: not building all dependencies(if not needed), caching, splitting builds etc
+- make test easy to debug:
+	- provide contact info of direct owner of test
+	- make it easy to trace error via some call stack tracing
+	- use proper naming and assertion techniques
+- assign owners to tests
+	- otherwise: test won't be maintained AND/OR fixed
+	- use CODEOWNERS to mark owners of code
+	- use language-based annotations to differentiate between owners in larger suit
+
+#### Deprecation
+Deprecation is process of migration from obsolete system to new one, that includes turning old system off
+- this topic is important, because you can reduce cost(running, maintaining etc) and complexity of system overtime this way
+- it is important to plan for deprecation
+- simultaneous number of deprecations can't be too high, it will lead to blockers
+	- ideally deprecate one thing at a time
+
+why?
+- code is liability, that need to be maintained over time, SO it is important to evaluate wether it need to be deprecated or not, at some point
+	- note: code is liability, BUT functionality inside of it is an asset, meaning that better code is easier and cheaper to work with, meaning your asset can thrive
+- if you have newer version - deprecate the old one as soon as possible
+	- basically, new system won't evolve, because old one will drain resources
+
+problems:
+- you need newer system upfront
+- Hyrums law
+- new system must be at least same by functionality, BUT better is better, because it will force migration in non forcing way
+- deprecation can be hard to sell to stakeholders
+- \---
+- all in all, incremental deprecation is often way to go to mitigate this problems
+
+when designing system think:
+- how problematically customer migration would be
+- will it be possible to partially migrate system
+- how organization will deprecate it to mitigate reputational risks
