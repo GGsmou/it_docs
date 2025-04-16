@@ -1204,3 +1204,62 @@ when designing system think:
 - how problematically customer migration would be
 - will it be possible to partially migrate system
 - how organization will deprecate it to mitigate reputational risks
+
+types:
+- advisory - low priority, so old system continues to exist, until priority is given to deprecate it
+	- basically provide users with new system and, maybe, some migration tools, to encourage migration, BUT don't force, because there is no need(no deprecation is planned)
+		- new system must have substantial benefits
+	- note that encouragement won't result in mass migration, because there is no enforcement
+- compulsory - high priority, so old system won't exist anymore after some hard deadline
+	- it is better to form some team, with enough tooling and expertise to do large-scale migration, SO process is quick, less painful and avoids fiction
+	- to find who is dependent on your system use metrics+logs, static analysis tools or even try to turn-off system on staging to see who will break
+
+warnings - great strategy to prevent new user to depend on deprecated parts, BUT to be good they must:
+- be actionable - ideally link to newer solutions, that will replace deprecated system
+- be relevant - warning must pop-up when user directly interacts with deprecated stuff, not when function long in use, BUT it became deprecated
+
+tooling:
+- discovery - tools that allow to iteratively(initially, for calculating milestone, after some time passed) find who depends on current system
+	- static code analysis, code search tools, logging and metrics, disable a dependency and watch who will fail
+- migration - moving from one system to other
+	- ideally should be done in automatic manner via code generation tooling AND then reviewed via version control software
+- preventing regressions - way to force integration of new system, while old is been deprecated
+	- deprecated annotations, warnings, click a button to auto-migrate(if possible)
+
+notes:
+- you can establish separate deprecation team to enforce deprecation, BUT other teams need to invest some time in deprecation too
+- deprecation must be broken into meaningful milestones, with direct value to users, NOT just "kill the system" and that's it
+- incorporate both policy and tooling
+
+## Tools
+#### Version Control and Branches
+VCS is top tool, that been used in all companies, next will be told why AND what are possible strategies to use it
+
+What is VCS?
+- I am too lazy to fully note it here, go google or read original book ;)
+- basically it is a tool to track changes, establish most up-to-date version AND prevent collisions between changes via some clever(or not) locking mechanisms
+
+Why VSC?
+- it enables collaboration and team work in parallel
+- it introduces possibility to map any file just via name-> content, but also via name+time+metadata -> content+metadata
+	- this enables tracking changes overtime AND over author(via metadata, that can be used to identify content OR go along with it)
+- it is often a legal requirement, so you can't work without it ;)
+- it can provide a point to run test, checks etc + reflect on your work AND let others do so too
+- overall it is pretty problematic not to use it, WHILE been pretty cheap to do so
+
+in general, choosing VSC is just a matter of preference, general idea and implementation is similar, BUT factors like centralized/distributed can play role in scaling, so:
+- centralized - developer can have local copy of content, but repository is kept as source of truth somewhere on shared machine
+- decentralized(ex: Git) - any clone/fork etc of repo is repo itself, that contains all metadata and can act in standalone matter OR can be merged into some centralized copy(this "main" copy is not really main, just enforced to be so by policy) in any given point of time
+	- because of policies, decentralized repo often used in centralized manner(single source of truth + single branch), BUT with benefits, as local metadata etc
+	- BUT having several sources of truth can be beneficial, imagine Linux repo AND Debian repo, Debian will have single source of truth for Linux, BUT it won't be the actual Linux repo, only the copy, that will be actualized with pulls from upstream
+- \---
+- overall, just use git + some cloud storage(GitHub, GitLab etc), BUT if you have some specific use-case, find alternatives
+- for some large enough projects DVSC can be overkill, because copying whole monorepo+metadata can be just impossible task
+
+managing branches - it is policy based activity, that can differ from company to company
+- branch is some work in progress, that hasn't been committed to centralized branch yet
+- dev branches - problematic practice, that was enforced to make "main" stable, by putting changes into one large batch, testing them and finally doing one large release
+	- this problematic, because you put small changes with large changes, have several devs work on single branch leading to lower ownership and harder tests to fix, overall branch lives longer leading to more merge conflicts and riskier merges
+	- this practice began, because merges were consider risky, SO we need to reduce their number(which will lead to more risks), better solution is trunk-based development with: "keep main stable", "keep main green", "CI/CD + test"
+		- trunk-based development is overall good strategy, based on research
+	- such practice will lead to resource drainage to merge large branches
