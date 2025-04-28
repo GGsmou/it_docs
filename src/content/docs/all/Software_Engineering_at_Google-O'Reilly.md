@@ -1263,3 +1263,62 @@ managing branches - it is policy based activity, that can differ from company to
 	- this practice began, because merges were consider risky, SO we need to reduce their number(which will lead to more risks), better solution is trunk-based development with: "keep main stable", "keep main green", "CI/CD + test"
 		- trunk-based development is overall good strategy, based on research
 	- such practice will lead to resource drainage to merge large branches
+
+Adding changes must be fast and easy
+Owners must be forced via VCS
+Ideally monorepo must share same version of used libs to prevent compatibility between apps inside
+Dev branches must be short-lived to avoid merge complications, duplications of functionality OR several version of single thing co-exist in scope of several branches
+- imagine including fix into several files across several branches
+- good tooling will act as great enforcement
+
+Be careful with promising hard compatibility, it will lead to feature that harder to develop
+- enforce rebuild+redeploy practice, when you do it from time to time to all of your services
+
+Use release branches when you need to have large releases(monthly etc)
+
+You can use mono OR many - repo approach, both are great for certain cases, BUT you can't allow for multi-version of dependencies, ideall
+- if every project in your organization has the same secrecy, legal, privacy, and security requirements, a true monorepo is a fine way to go. Otherwise, aim for the functionality of a monorepo, but allow yourself the flexibility of implementing that experience in a different fashion.
+- monorepo can be hard to customize on granular level, so virtual monorepo might be a better choice, thus you keep same dependencies, WHILE having granularity
+
+Managing package versions can be costly, so try to avoid it
+- In some languages, you might be able to spend some effort to dodge this with technical approaches like shading, separate compilation, linker hiding, and so on. The work to get those approaches working is entirely lost labor—your software engineers aren’t producing anything, they’re just working around technical debts.
+
+#### Code Search
+Modern IDEs allow for grepping, cross-referencing etc of code, BUT browsing codebase is impossible in such manner, so you need something bigger
+- you should have syntax highlights, cross-referencing, VCS support, working links to external tasks
+
+why to use:
+- find somethings
+	- with possible: restrictions(lang, path), ranking, sorting etc
+- refactor
+- understand code
+- link file to others
+- browse related files(header, test, implementation)
+- find examples
+- find author of change(ideally MR should be linked here too)
+
+why to have:
+- pre-indexing
+- avoid slower IDEs
+- always up-to date
+- code can be easily shared(often needed to: visualize dead code, prettify logs+alerts etc)
+
+notes:
+- ideal latency for search is around 200ms
+- provide current context(viewed file etc) for better ranking
+- progressive indexing is still painful problem
+- ranking:
+	- query independent(can be precomputed) - view rate, number of linked to something
+	- query dependent(must be cheap and computed on fly) - boost filenames over file content(allow to manually filter), use fuzzy search, allow to filter by pathname/base/etc
+	- aim to always retrieve definition and only then usage
+		- can be done by applying modifications to original query and doing multiple requests
+	- keep results diverse(func, class, different languages)
+	- allow to prevent ranking at all and just use some sorting
+- completeness (user must trust the results):
+	- avoid large and non-readable files
+	- fetch prioritized stuff first, BUT allow to fetch all
+	- index VCS history too
+- tokenization can't be used for code, because of it's semantics
+- regex can be approximated as number of fast substring searches
+
+In terms of tool impact, no one uses a tool that they don’t know exists, so it is also important to make developers aware of the available tooling—at Google, it is part of “Noogler” training, the onboarding training for newly hired soft‐ ware engineers. For you, this might mean setting up a standard indexing profile for IDEs, sharing knowledge about egrep, running ctags, or setting up some custom indexing tooling, like Code Search. Whatever you do, it will almost certainly be used, and used more, and in different ways than you expected—and your developers will benefit.
