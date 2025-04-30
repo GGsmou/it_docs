@@ -1322,3 +1322,61 @@ notes:
 - regex can be approximated as number of fast substring searches
 
 In terms of tool impact, no one uses a tool that they don’t know exists, so it is also important to make developers aware of the available tooling—at Google, it is part of “Noogler” training, the onboarding training for newly hired soft‐ ware engineers. For you, this might mean setting up a standard indexing profile for IDEs, sharing knowledge about egrep, running ctags, or setting up some custom indexing tooling, like Code Search. Whatever you do, it will almost certainly be used, and used more, and in different ways than you expected—and your developers will benefit.
+
+#### Build System
+Build system must not frustrate, so engineers move quickly and with ease
+
+Key features: fast, easy, reliable(env independent), automatable(for CI/CD, for large-scale testing of platform solutions)
+
+As soon as we end up having to deal with code from multiple languages, multiple compilation units, libs etc, building code is no longer a one-step process
+
+Good build system:
+- manages libs
+- descriptive
+- presents cache
+- covers env OR similar variables
+- extendable(pushing, publishing(docs, libs etc))
+- env agnostic(build can be done directly from VCS)
+
+The idea of “I need that before I can have this” is something that recurs repeatedly in the design of build systems, and managing dependencies is per‐ haps the most fundamental job of a build system.
+
+Most of modern build systems are task based, meaning you provide a set of tasks, how they depend on one-another and command to run all of it
+- build system should calculate dependency graph, collect env vars etc
+- The problem with such systems is that they actually end up giving too much power to engineers and not enough power to the system
+	- so performance is lacking, complexity is rising
+	- performance can be improved via restrictions, because:
+		- it is easier to parallel less complex system
+		- it will be possible to do incremental builds with additional info
+			- you can let human decide what to rebuild, BUT better not to ;)
+- watch for: depending on env(vars, utils), depending on non-deterministic processes, race-conditions, complex dependencies
+
+Artifact-Based build system
+- Engineers would still need to tell the system what to build, but the how of doing the build would be left to the system.
+- Engineers would still need to tell the system what to build, but the how of doing the build would be left to the system.
+- Many problems cannot be easily expressed using functional programming, but the ones that do benefit greatly from it: the language is often able to trivially parallelize such programs and make strong guarantees about their correctness that would be impossible in an imperative language.
+- Reframing the build process in terms of artifacts rather than tasks is subtle but powerful. By reducing the flexibility exposed to the programmer, the build system can know more about what is being done at every step of the build. It can use this knowledge to make the build far more efficient by parallelizing build processes and reusing their outputs.
+- such build system can treat tools as dependencies, that must be specified AND retrieved from specific source, thus every build is env agnostic
+	- to be platform independent you can define several toolchains, to use per platform
+- to be more Turring complete you can have some strict units of work(ex from Bazel is to have actions with strict input and output)
+	- to prevent concurrency unitize sandboxing of environment
+- to make deterministic builds with external dependencies use versioning AND/OR hashing, so you could store each dependency via VCS, BUT not actually keep it's contents
+	- additionally mirror your dependencies
+
+remote builds for scaling
+- caching of artifacts
+	- you must always guarantee deterministic behavior via hashing techniques
+	- When configuring remote caching in your organization, take care to consider network latencies and perform experiments to ensure that the cache is actually improving performance.
+- large builds can be done fully remotely(even for dev changes)
+	- cache can become a central point of communication(read-through)
+	- For this to work, all of the parts of the artifact-based build systems described earlier need to come together. Build environments must be completely self-describing so that we can spin up workers without human intervention. Build processes themselves must be completely self-contained because each step might be executed on a different machine. Outputs must be completely deterministic so that each worker can trust the results it receives from other workers. Such guarantees are extremely difficult for a task-based system to provide, which makes it nigh-impossible to build a reliable remote execution system on top of one.
+
+Build systems are all about making code easier to work with at scale and over time.
+And like everything in software engineering, there are trade-offs in choosing which
+sort of build system to use. The DIY approach using shell scripts or direct invocations of tools works only for the smallest projects that don’t need to deal with code changing over a long period of time, or for languages like Go that have a built-in build system
+
+Bazel recommends
+- keep 1:1 rule when working with modules(each package need to be treated as buildable module)
+	- if lang don't have standards try to be granular enough(so it is easy to maintain, BUT parallelism and rebuilds aren't killed by 1 single large module)
+- have strict visibility(aka private/public declarations)
+- avoid transitive referencing of linked symbols, use only directly dependent once
+	- (a->b->c -> a->b & a->c)
