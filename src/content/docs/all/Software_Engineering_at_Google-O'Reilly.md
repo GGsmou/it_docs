@@ -1380,3 +1380,88 @@ Bazel recommends
 - have strict visibility(aka private/public declarations)
 - avoid transitive referencing of linked symbols, use only directly dependent once
 	- (a->b->c -> a->b & a->c)
+- avoid automatic dependency management(ex: version 1.4.+), because you are loosing control
+	- There’s no way to guarantee that external parties won’t make breaking updates (even when they claim to use semantic versioning)
+- explicitly list transitive dependencies for external libs too for safety reasons(avoids diamond dependency problem)
+	- it allows to scale easier
+- to mitigate security issues with third-party libs create mirrors OR vendor directly source code from your VCS
+
+Google has learned is that limiting engineers’ power and flexibility can improve their productivity.
+
+#### Code Review Tooling
+Good processes must be backed by great tooling
+- great tooling is: simple, has great UI, don't slows down(ex: no unnecessary guardrails in UI), empowers communication(easy to make comments, code change suggestions), integrations(CI/CD etc)
+
+If situation is critical software must allow for force-\[push/merge/deploy\] etc
+
+Google's tooling is single purpose, so it can do one things and do it great
+- ex: Code Review tool won't send email notifications, it just sends events, that other services can subscribe to
+
+recommendations:
+- show diff + all CI/CD stuff for author first, so you allow self-review
+- include task linkage system
+- diffing must be as precise as possible + allow for flexibility in settings
+- include screenshot diffing for UI changes
+- include possibility to switch versions of a file
+- make code analyzer produce comment to fix, not just console output
+- allow devs to optionally choose a team/group to review change, BUT actual reviewers should be picked at random(avoid bias, repetition, distribute load+knowledge)
+	- look for: owners, familiarity, availability
+- notify author+reviewers about state of review in different ways(can be picked by user)
+- allow reviewer to mark files as reviewed
+- provide quick variations of comment resolve actions(done, read, etc)
+- allow for drafting comments
+- highlight who need to act(what reviewers are not finished, is author need to resolve comments)
+- dedicate a section to see what reviews are waiting for approval OR in progress
+- provide info on what need to be done to get approve(who need to approve, how many comments left etc)
+	- build trust, allow for approving with unresolved comments AND  not removing approve, after fix, for speed reasons
+- provide a way to retrospectively view reviews
+
+Time spent in code reviews is time not spent coding, so any optimization of the review process can be a productivity gain for the company.
+Google greatly values the educational aspects of code review, even though they are more difficult to quantify.
+Trust and communication are core to the code review process. A tool can enhance the experience, but it can’t replace them.
+
+summary: just use self-hosted GitLab, it has everything and even more ;)
+
+#### Static Analysis
+Static analysis refers to programs analyzing source code to find potential issues such as bugs, antipatterns, and other issues that can be diagnosed without executing the program.
+However, static analysis is useful for more than just finding bugs. Through static analysis at Google, we codify best practices, help keep code current to modern API versions, and prevent or reduce technical debt.
+Static analysis is also an integral tool in the API deprecation process, where it can prevent backsliding during migration of the codebase to a new API.
+
+###### Scaling
+Instead of analyzing entire large projects, we focus analyses on files affected by a pending code change, and typically show analysis results only for edited files or lines.
+
+Fixing a static analysis warning could introduce a bug. For code that is not being frequently modified, why “fix” code that is running fine in production?
+- For this reason, we generally focus on newly introduced warnings; existing issues in otherwise working code are typically only worth highlighting (and fixing) if they are particularly important (security issues, sig‐ nificant bug fixes, etc.).
+
+Anything that can be fixed automatically should be fixed automatically.
+
+###### Users
+User trust is extremely important for the success of static analysis tools
+- so provide a way to give feedback
+	- ideally integrate buttons to file a bug OR just provide quick feedback(good/bad), for metrics
+- avoid false/positive rules
+	- warnings must have clear messages AND correct level of "warning", so users won't ignore OR be frustrated by them
+- provide a way for users to include new existing/custom rules, to prevent future bugs/problems etc
+
+Analyze code, when review is submitted
+
+Good checks:
+- Understandable - Be easy for any engineer to understand the output.
+- Actionable and easy to fix - The fix might require more time, thought, or effort than a compiler check, and the result should include guidance as to how the issue might indeed be fixed.
+- Produce less than 10% effective false positives - Developers should feel the check is pointing out an actual issue at least 90% of the time.
+- Have the potential for significant impact on code quality - The issues might not affect correctness, but developers should take them seriously and deliberately choose to fix them.
+
+Suggestions:
+- analyze file references in non-code places(docs)
+- mark two files as such, that must be changed together
+- post build warnings(binary size etc)
+
+Customization:
+- allow for tweaks in analyzers
+	- BUT on project levels, so majority of devs agree on it in the first place
+- allow plug-in style analyzers
+
+Critical errors must disallow build entirely, BUT be fast enough to check(only correctness, ignore style/recommendations/warnings)
+- no false/positives can exist here
+
+Introduce partial analyze inside IDE for quicker feedback-loop
