@@ -1465,3 +1465,79 @@ Critical errors must disallow build entirely, BUT be fast enough to check(only c
 - no false/positives can exist here
 
 Introduce partial analyze inside IDE for quicker feedback-loop
+#### Dependency management
+Dependency management is complex problem, because you can't control code, that you depend on AND that could break you
+
+Dependency equals something, that you are using, but can't control, it can be external AND internal code as well
+- not that it is better keep internal code as part of single repo and avoid dependency management, BUT it not always possible
+ 
+main problem is managing large network of dependencies, BECAUSE it is hard to keep them compatible over time
+- this can be seen in diamond dependency problem, where two used libs transitively depend on different version of some other lib
+	- this is generally hard problem, that can be partially tolerated via dynamic linking, BUT working with types is impossible this way
+
+Systems of policy and technology for dependency management largely boil down to the question, “How do we avoid conflicting requirements while still allowing change among noncoordinating groups?”
+
+Reuse is healthy, especially compared to the cost of redeveloping quality software from scratch. So long as you aren’t downloading trojaned software, if your external dependency satisfies the requirements for your programming task, you should use it.
+
+When we start considering time, the situation gains some complicated trade-offs. Just because you get to avoid a development cost doesn’t mean importing a dependency is the correct choice. In a software engineering organization that is aware of time and change, we need to also be mindful of its ongoing maintenance costs.
+
+Lib can have different strategies of compatibility promises: compatibility in implementation details, API compatibility, no compatibility in-between major or eve minor version
+- to mitigate infinite compatibility problem, you can provide migration scripts for your users
+- none of this is about technical expertise: this is purely a matter of what a project does or does not promise and prioritize.
+- basically you can use anything, BUT you always must consider time aspect, and breaking dependencies aren't going to work well
+- when we move from programming to software engineering, those dependencies become subtly more expensive, and there are a host of hidden costs and questions that need to be answered
+
+consider some questions:
+- Does the project have tests that you can run?
+- Do those tests pass?
+- Who is providing that dependency?
+- What sort of compatibility is the project aspiring to?
+- Does the project detail what sort of usage is expected to be supported?
+- How popular is the project?
+- How long will we be depending on this project?
+- How often does the project make breaking changes?
+- How complicated would it be to implement that functionality within the company?
+- Who will perform an upgrade and maintain dependency?
+	- it is especially important, when you use monorepo and every-one can re-use your newly added dependency
+- How difficult do we expect it to be to perform an upgrade?
+
+It is easier to work in single repo, because you can easily detect breaking changes prior to release AND no versioning is needed
+
+The more that the package remains stable(not updated),the more that we are likely to accrete Hyrum’s Law problem, when updating
+
+A stable dependency-management scheme must therefore be flexible with time and scale: we can’t assume indefinite stability of any particular node in the dependency graph, nor can we assume that no new dependencies are added (either in code we control or in code we depend upon).
+
+Solutions:
+- The simplest way to ensure stable dependencies is to never change them: no API changes, no behavioral changes, nothing. Bug fixes are allowed only if no user code could be broken.
+	- this is where every organization starts: up until you’ve demonstrated that the expected lifespan of your project is long enough that change becomes necessary
+	- In this model, version selection is simple: there are no decisions to be made, because there are no versions.
+- The de facto standard for “how do we manage a network of dependencies today?” is semantic versioning (SemVer).
+	- a changed major number indicates a change to an existing API that can break existing usage, a changed minor number indicates purely added functional‐ ity that should not break existing usage, and a changed patch version is reserved for non-API-impacting implementation details and bug fixes that are viewed as particu‐ larly low risk.
+	- it is easier to calculate compatible version in diamond problem, BUT not always possible and can be resource intensive, given large number of dependencies
+	- SemVer solutions to dependency management are usually SAT-solver based. Version selection is a matter of running some algorithm to find an assignment of versions for dependencies in the network that satisfies all of the version-requirement constraints. When no such satisfying assignment of versions exists, we colloquially call it “dependency hell.”
+	- SemVer is unstable AND it is never safe to assume that update won't break you, due to
+		- just Hyrums Law
+		- A change in isolation isn’t breaking or nonbreaking—that statement can be evaluated only in the context of how it is being used.
+		- not been granular enough(always bump on breaking change is not enough)
+- Bundled distribution - depend on stable bundle with N dependencies in it, labeled as some sing-number version
+	- it is great for end-user, BUT still requires dependency management under the hood
+	- ex: Linux distros
+- We call this model “Live at Head.” It is viewable as the dependency-management extension of trunk-based development: where trunkbased development talks about source control policies, we’re extending that model to apply to upstream dependencies as well.
+	- Live at Head presupposes that we can unpin dependencies, drop SemVer, and rely on dependency providers to test changes against the entire ecosystem before committing.
+	- Break should be made only after either the downstream dependencies are updated or an automated tool is provided to perform the update in place.
+	- Changes in a Live at Head model are not reduced to a SemVer “I think this is safe or not.” Instead, tests and CI systems are used to test against visible dependents to deter‐ mine experimentally how safe a change is.  
+
+Go and Clojure both handle this nicely: in their standard package management eco‐ systems, the equivalent of a major-version bump is expected to be a fully new pack‐ age. This has a certain sense of justice to it: if you’re willing to break backward compatibility for your package, why do we pretend this is the same set of APIs? Repackaging and renaming everything seems like a reasonable amount of work to expect from a provider in exchange for them taking the nuclear option and throwing away backward compatibility.
+
+One possible algorithm of SemVer is MinimumVersionSelection, where you select the lowest possible version, to still update, but as least as possible, in order to prevent more Hyrum's Law
+
+Scale tends to be the thing that shows the weaknesses in SemVer.
+
+Theoretically it is possible to run external CI tests, to verify that your update, statistically, won't break people
+
+providing dependencies:
+- we need to think about the benefits, costs, and risks of providing software, for both us and our potential dependents.
+- There are two major ways that an innocuous and hopefully charitable act like “open sourcing a library” can become a possible loss for an organization. First, it can even‐ tually become a drag on the reputation of your organization if implemented poorly or not maintained properly. As the Apache community saying goes, we ought to priori‐ tize “community over code.” If you provide great code but are a poor community member, that can still be harmful to your organization and the broader community. Second, a well-intentioned release can become a tax on engineering efficiency if you can’t keep things in sync. Given time, all forks will become expensive.
+- “Don’t release things without a plan (and a mandate) to support it for the long term.”
+- Releasing APIs of any sort exposes you to the possibility of competing priorities and unforeseen constraints by outsiders.
+- External users of an API cost a lot more to maintain than internal ones.
