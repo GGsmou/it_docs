@@ -1541,3 +1541,86 @@ providing dependencies:
 - “Don’t release things without a plan (and a mandate) to support it for the long term.”
 - Releasing APIs of any sort exposes you to the possibility of competing priorities and unforeseen constraints by outsiders.
 - External users of an API cost a lot more to maintain than internal ones.
+
+#### Large-Scale Changes
+There are some principles and strategies, that allow doing large-scale changes in such way, that prevents disruption (and even possible), when working with large code-bases
+
+Before going much further, we should dig into what qualifies as a large-scale change (LSC). In our experience, an LSC is any set of changes that are logically related but cannot practically be submitted as a single atomic unit.
+- worth noting, that described practices can be scaled down
+- Cleaning up common antipatterns using codebase-wide analysis tooling
+- Replacing uses of deprecated library features
+- Enabling low-level infrastructure improvements, such as compiler upgrades
+- Moving users from an old system to a newer one
+
+Most of LSCs are pure refactoring
+
+Centralizing the migration and accounting for its costs is almost always faster and cheaper than depending on individual teams to organically migrate
+
+In our experience, organic migrations are unlikely to fully succeed, in part because engineers tend to use existing code as examples when writing new code.
+
+LSCs can seems not so important by itself, BUT, on scale, you will gain happiness and development speed increase, so it is often worth it
+
+Keep system as consistent as possible to enable LSCs
+
+Not all changes are worth it (especially if error will be reproduced back to code base, like typos)
+
+Atomic commit, that contains all the changes won't work because:
+- VCS, infrastructure etc might not handle so much change at once
+- merge conflicts + possibility to miss additions of deprecated code
+- any change is harder on scope, because it affects larger number CI/CD, envs, langs etc, thus brining additional problems
+- number of impacted tests can be impossible to run & fix through (and impossible if you trigger transitive test runs)
+- number of reviews is hard to deal with
+- it is impossible to do atomic commit across several repos
+
+###### Practices
+run tests in train way(ex: stack several LSCs in one suit)
+- it is possible, due to single LSC been very narrow in scope of single file AND mostly correct
+
+The train has five steps and is started fresh every three hours:
+1. For each change on the train, run a sample of 1,000 randomly-selected tests.
+2. Gather up all the changes that passed their 1,000 tests and create one uberchange from all of them: “the train.”
+3. Run the union of all tests directly affected by the group of changes. Given a large enough (or low-level enough) LSC, this can mean running every single test in Google’s repository. This process can take more than six hours to complete.
+4. For each nonflaky test that fails, rerun it individually against each change that made it into the train to determine which changes caused it to fail.
+5. TAP generates a report for each change that boarded the train. The report describes all passing and failing targets and can be used as evidence that an LSC is safe to submit.
+
+###### Infra
+policies and culture:
+- reviews must be enforced to keep quality of LSCs
+- large number of people must be involved in review of LSC to make it possible
+- trust must be build between LSC's author and owner code. Owner must understand the reason for change, BUT can't have veto over it. Create FAQs to prevent some questions
+- language or domain expert can have veto over changes
+- testing culture
+- chosen language: dynamically typed is harder to refactor
+- LSC have no soul to it, so it is ok to revert or reject ongoing one
+
+tooling:
+- AST based tooling to do changes
+- it must be 100% correct
+- it must be possible to run it on any scale, without breakage
+- all large changes must be done through tooling
+- tooling to split single LSC, test and process review of smaller parts
+- testing infra + possibility to test each LSC shard
+- auto-formatting(independent process from LSC)
+
+###### Process
+At Google, we aim to design successor systems with a migration path from older systems in mind, so that system maintainers can move their users to the new system automatically
+
+authorization
+- fill docs: why, what will be impacted, FAQ, estimations
+- get approval from committee (committee can help with: local conflicts, connecting with right experts etc)
+
+change creation
+- must be mostly automatic, BUT, for sake of speed can be done by mass-labor
+- auto-apply formatting
+
+shard management
+(restricted by infra resources to prevent locking of system)
+- break change into shards. Keep dependent parts in shared shard and independent in different
+- test (poor, flaky of non-existent tests are crucial pain-points here). Flaky tests can be ignored
+- pass project specific checks (they can't be flaky)
+- assign reviewers(via OWNERS files). Such reviewers will do basic check AND get knowledge transfer, BUT actual approval is done by "global" reviewer(basically we have single author of LSC and single reviewer, both must use tooling to do their job)
+
+cleanup
+- mark deprecated stuff as deprecated(or bad practice as bad etc) to prevent the need of second LSC
+
+Making LSCs means making a habit of making LSCs.
