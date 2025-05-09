@@ -1624,3 +1624,129 @@ cleanup
 - mark deprecated stuff as deprecated(or bad practice as bad etc) to prevent the need of second LSC
 
 Making LSCs means making a habit of making LSCs.
+
+#### Continuous Delivery
+Given how quickly and unpredictably the technology landscape shifts, the competitive advantage for any product lies in its ability to quickly go to market. An organization’s velocity is a critical factor in its ability to compete with other players, maintain product and service quality, or adapt to new regulation.
+
+Work that stays in progress for a long time before delivering user value is high risk and high cost, and can even be a drain on morale
+
+A core tenet of Continuous Delivery (CD) as well as of Agile methodology is that over time, smaller batches of changes result in higher quality; in other words, faster is safer.
+
+Core principles:
+- Release frequently and in small batches
+- Reduce or remove repetitive overhead of frequent releases via automation
+- Strive for modular architecture to isolate changes and make troubleshooting easier
+- Measure key health indicators like crashes or latency and keep improving them
+- Data-driven decision making, use A/B testing on health metrics to ensure quality
+- Roll out changes to a few users before shipping to everyone
+
+Slow release rate is deadly to company
+
+If your releases are costly and sometimes risky, the instinct is to slow down your release cadence and increase your stability period. However, this only provides shortterm stability gains, and over time it slows velocity and frustrates teams and users.
+
+Modularity will always increase velocity
+
+To keep large changes possible introduce feature flags
+- flag can hide some feature, until it announced
+- flag can be used to do roll-outs
+
+Remember:
+- release will never be perfect, often just good enough. "Good enough" must be tracked via metrics AND reverted, if metrics are abnormal
+- release must be as fast as possible to make it real to: meet deadlines, release hot-fixes
+- avoid bloat, it not only makes your app slower and harder to use, it also makes release and development more problematic. Use A/B to determine if feature is needed in first place
+
+Keep CD configurable:
+- make it possible to release: daily, weekly, after merge
+- make it possible to release app modularly, ex: don't release Linux drivers for Windows release
+
+It is not possible to test on all platforms, versions etc, so:
+- pick most popular targets
+- do gradual roll-outs
+- use metrics
+- do A/A/B tests to reduce statistical errors
+
+Often releases allow for faster verification if change is ok AND, if not, also for easier debugging
+
+When making trade-offs, the passion and urgency a developer feels about launching a new feature can never trump the user experience with an existing product
+
+Keep stage as prod for better and more realistic pre-release testing
+
+#### Compute as a Service
+Managing the problem of "where to run my code"
+
+Manual solutions never work, especially at scale, so automate:
+- deployment
+- scaling (in general giving human a control to parameters is bad idea, due to evaluation problems AND slow update rates)
+- monitoring
+- auto-restart of service (try to auto-heal the process)
+- auto-alert when somethings isn't ok
+
+Using one machine per one program is wasteful, so virtually divide single machine in such way, that each program can have isolated space, that can be dynamically reallocated
+- always hard-limit shared resource to some limit to prevent failure of neighbors on same machine
+- provide isolation of space, so dependencies and data of programs won't collide
+
+Actions that, at a smaller scale, could be manual, will need to be automated to avoid a collapse of the organization under the load.
+
+Assign load or processed data dynamically, so you account for potential failure of workers
+- this avoids error been sent to users, rather it will be gracefully handled
+- this allows for graceful shutdowns of service
+
+State management:
+- any long-lived data must be stored persistently outside of your workers
+- persistent storage must be replicated to avoid outages
+- use cache to decrease latency, NOT load, thus making sure that dead cache won't kill entire system (ideally)
+- pre-heat cache
+- use batch writes (when you ok to loose some OR can re-create them)
+
+Service discovery - how one service will find other:
+- service discovery must be done once on start-up AND re-done on failures
+- add retries
+- include load-balancing
+
+When doing retries on write, don't forget about idempotency
+
+one more case for idempotency: two replicas performing the same work and serving the same role are another potential source of request duplication.
+
+Create resource quotas per dev, to avoid accidental consumption of too much resource, for some tasks
+
+Container is great way to abstract and isolate program from outside world
+
+A filesystem abstraction of some sort also helps with dependency management because it allows the software to predeclare and prepackage the dependencies (e.g., specific versions of libraries) that the software needs to run. Depending on the soft‐ ware installed on the machine presents a leaky abstraction that forces everybody to use the same version of precompiled libraries and makes upgrading any component very difficult, if not impossible.
+
+Don't forget that stuff inside OS is dependency too, so it must be included (ex: UNIX commands won't work on Windows)
+
+Keep architecture as unified as possible to make it easy to migrate, change, expand
+
+Prioritize serving jobs over batch jobs, because first has latency as priority
+
+Graceful shutdown is as important as graceful kill of worker, if possible
+
+Use standardized language to do configurations
+
+Choosing compute as service is hard due to: general Vendor lock-in, Hyrums law, tooling, custom configs, re-education etc
+
+When creating tooling always think about what you want: limit users OR give them more possibilities, but make it more problematic to introduce new behavior
+
+###### Serverless
+A way to purely run your code as isolated operation, without need to deal with server at all
+
+pros:
+- autoscaling with possibility to scale to 0 and not consume resources
+- autoscaling is fast and granular
+- no need to control env
+
+cons:
+- no state at all
+- can't control env
+
+All in all, utilize mix of both, but remember that serverless might not scale well in future
+
+###### Other
+An organization using a public cloud is effectively outsourcing (a part of) the man‐ agement overhead to a public cloud provider. For many organizations, this is an attractive proposition—they can focus on providing value in their specific area of expertise and do not need to grow significant infrastructure expertise. Although the cloud providers (of course) charge more than the bare cost of the metal to recoup the management expenses, they have the expertise already built up, and they are sharing it across multiple customers.
+
+Additionally, a public cloud is a way to scale the infrastructure more easily
+
+One significant concern when choosing a cloud provider is the fear of lock-in
+- to mitigate containerize everything AND be ready to migrate
+- Two extensions of that strategy are possible. One is to use a lower-level public cloud solution (like Amazon EC2) and run a higher-level open source solution (like Open‐ Whisk or KNative) on top of it. This tries to ensure that if you want to migrate out, you can take whatever tweaks you did to the higher-level solution, tooling you built on top of it, and implicit dependencies you have along with you. The other is to run multicloud; that is, to use managed services based on the same open source solutions from two or more different cloud providers (say, GKE and AKS for Kubernetes). This provides an even easier path for migration out of one of them, and also makes it more difficult to depend on specific implementation details available in one one of them.
+
