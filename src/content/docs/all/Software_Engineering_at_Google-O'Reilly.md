@@ -1625,6 +1625,86 @@ cleanup
 
 Making LSCs means making a habit of making LSCs.
 
+#### Continuous Integration
+Continuous Integration, or CI, is generally defined as “a software development practice where members of a team integrate their work frequently. Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible.” Simply put, the fundamental goal of CI is to automatically catch problematic changes as early as possible.
+- main problem with modern word is that we have large number of moving parts, that need to be integrated with one-another AND often aren't in direct responsibility of one single team
+- CI is tightly coupled with tests. Main problem is to find out what tests to run AND on what env
+- CI must be time efficient and guarantee that system is working
+
+To minimize the cost of bugs, CI encourages us to use fast feedback loops. Each time we integrate a code (or other) change into a testing scenario and observe the results, we get a new feedback loop.
+- by definition bug reports are also form of CI, just pretty slow and inefficient
+- canary can be used as form of getting prod feedback
+- Experiments and feature flags are extremely powerful feedback loops. They reduce deployment risk by isolating changes within modular components that can be dynamically toggled in production.
+
+It’s also important that feedback from CI be widely accessible & actionable.
+- unified testing reports must be used
+- report additionally can have: flakiness metric, build & deploy logs etc
+
+It’s well known that automating development-related tasks saves engineering resources in the long run.
+
+CI contains main stages: build and test, deploy(assemble build with configs and serve)
+- configs must: be tested, be linked in visible manner to each build(so it is easy to debug), be part of VCS. Ideally configs must be dynamic
+- deployment can be long by itself and include testing in forms of AB testing or other long-running experiments
+
+###### Testing phases
+Run partial suits and checks on branch to ensure that generally things are ok and can be merged, while keeping testing times reasonably low.
+Run complete testing suit after changes are merged
+
+We should run the same suite of tests against production (sometimes called probers) that we did against the release candidate earlier on to verify) the working state of production, according to our tests, and 2) the relevance of our tests, according to production.
+
+It isn’t just one bit of technology or policy that we rely upon for quality and stability, it’s many testing approaches combined.
+
+Brittle tests fail when an arbitrary test requirement or invariant is violated, without there necessarily being a fundamental connection between that invariant and the correctness of the software being tested
+- while brittle tests can have value, they aren't ideal AND the value is low
+
+notes:
+- 100% test passage is impossible for large enough system, some threshold need to be introduced. Not all test failures are indicative of upcoming production issues and often can be disabled, until investigated
+- Policies that say, “Nobody can commit if our latest CI results aren’t green” are probably misguided. If CI reports an issue, such failures should definitely be investigated before letting people commit or compound the issue. But if the root cause is well understood and clearly would not affect production, blocking commits is unreasonable.
+
+###### Problems
+resource constrains
+
+what to test and where(env)
+
+how test large systems of several services
+
+what to do on failure:
+- fix
+- mute and add task to fix
+
+flakiness
+- detect statistically, mute, fix
+- hermetic testing
+- retries
+
+hermetic testing
+- If a hermetic test fails, you know that it’s due to a change in your application code or tests.
+- The cleanest option to achieve a presubmit-worthy integration test is with a fully hermetic setup
+- Alternative - record/play approach, when you cache BE responses periodically and hit cache with tests.
+- hermetic testing can cause flakiness due to false/positives, so be careful when using them on large scales
+
+###### Notes
+test must be run automatically and in mostly blocking manner
+
+presubmit suit must be fast, but good enough, so it prevents broken main
+
+When a change causes a test to fail in TAP, it is imperative that the change be fixed
+quickly to prevent blocking other engineers. We have established a cultural norm that
+strongly discourages committing any new work on top of known failing tests, though
+flaky tests make this difficult. Thus, when a change is committed that breaks a team’s
+build in TAP, that change may prevent the team from making forward progress or
+building a new release. As a result, dealing with breakages quickly is imperative.
+
+Identify responsible users, that will revert broken changes of long running suits
+
+Changes can be batched, BUT with ability to trace problematic change
+
+Another factor influencing the use of TAP is the speed of tests being run. TAP is often able to run changes with fewer tests sooner than those with more tests. This bias encourages engineers to write small, focused changes. The difference in waiting time between a change that triggers 100 tests and one that triggers 1,000 can be tens of minutes on a busy day. Engineers who want to spend less time waiting end up making smaller, targeted changes, which is a win for everyone.
+
+Running the same test suite against prod and a post-submit CI (with newly built binaries, but the same live backends) is a cheap way to isolate external failures.
+
+In your own products and organizations, try and think of the cost you are already paying for problems discovered and dealt with in production. These negatively affect the end user or client, of course, but they also affect the team. Frequent production fire-fighting is stressful and demoralizing. Although building out CI systems is expensive, it’s not necessarily a new cost as much as a cost shifted left to an earlier— and more preferable—stage, reducing the incidence, and thus the cost, of problems occurring too far to the right.
+
 #### Continuous Delivery
 Given how quickly and unpredictably the technology landscape shifts, the competitive advantage for any product lies in its ability to quickly go to market. An organization’s velocity is a critical factor in its ability to compete with other players, maintain product and service quality, or adapt to new regulation.
 
@@ -1749,4 +1829,3 @@ Additionally, a public cloud is a way to scale the infrastructure more easily
 One significant concern when choosing a cloud provider is the fear of lock-in
 - to mitigate containerize everything AND be ready to migrate
 - Two extensions of that strategy are possible. One is to use a lower-level public cloud solution (like Amazon EC2) and run a higher-level open source solution (like Open‐ Whisk or KNative) on top of it. This tries to ensure that if you want to migrate out, you can take whatever tweaks you did to the higher-level solution, tooling you built on top of it, and implicit dependencies you have along with you. The other is to run multicloud; that is, to use managed services based on the same open source solutions from two or more different cloud providers (say, GKE and AKS for Kubernetes). This provides an even easier path for migration out of one of them, and also makes it more difficult to depend on specific implementation details available in one one of them.
-

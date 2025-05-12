@@ -373,3 +373,15 @@ key to great animation:
 - animations must be cohesive and systematic
 	- it is important to take some time and perfect important(or better all) animations
 		- *it is hard :)* 
+
+## Mentoring
+#### Babysitting
+You steal learning and grows opportunities from mentee by babysitting and helping too much
+- to avoid, don't give answers/solutions right away:
+	- share docs/learning_materials
+	- set deadlines, when somethings must be done and leave person alone to do it
+	- ask question on question
+	- exceptions:
+		- it is ok to help in general, especially if problem is company specific, there is time limitation factor, when onboarding
+		- when answering explain not only how, but also why
+- avoid too much criticism, focus on what is important first and tweak minor things as you go
