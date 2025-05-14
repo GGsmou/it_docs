@@ -1,7 +1,7 @@
 ---
 title: Notes of "Domain Driven Design" by Evans
 ---
-*notes of "Domain Driven Design" by Evans* 
+*notes of "Domain Driven Design" by Evans and a bit more...* 
 
 ## Crunching the Knowledge
 Understanding specialized domain, without prior knowledge(or even with it) is hard AND just "sit with expert and listen his explanations" won't do, because:
@@ -995,3 +995,30 @@ notes:
 - don't cary too much about your design, keeping it for too long might result in legacy
 - you can't scale "quicky" architecture, BUT you can start from it and iterate upon
 - you don't need to apply each and every pattern(they are called patterns for that reason), BUT aim for deep domain understanding
+
+## And a bit more...
+(DDD by Khalilstemmler)
+
+DDD is one way to enable scalability(LoC, number of maintainers) of your codebase, that ensures low coupling and high coercion with keeping it understandable and manageable
+- DDD is always harder to setup, but it has lover complexity curve
+
+recommendations:
+- learn the domain language
+- express domain through code
+	- keep code specific parts separate from domain
+- use YAGNI and other coding principles and standards
+	- YAGNI aka you aren't gonna need it - principle from XP to avoid future proofing codebase and creating complex designs
+		- choose the simplest solution AND later refactor to accommodate for new needs
+- use Layered Architecture
+
+building blocks of DDD:
+- Entities - uniq objects in system
+	- Entities live a life enabling them to be created, updated, persisted, retrieved from persistence, archived and deleted.
+- ValueObject - objects with no identity. They are attributes of Entities.
+- Aggregate - collection of Entities and ValueObjects
+	- can keep part of domain logic encapsulated
+
+domain services (can't depend on infra layer):
+- repository - way to retrieve domain objects
+- factory (and similar) - way to transform external format(ex: SQL) into domain objects
+- domain events - way to introduce indirect relationships inside domain via event system

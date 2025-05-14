@@ -89,11 +89,11 @@ Custom hooks:
 Basically useEffect works before render and useLayoutEffect works after layout is rendered, so we can use it when working with useRef
 
 #### Hooks
-- use(*canary*)
+- use
 	- used to read async value: `use(resource: Promise<value> | context) => value` 
 	- can be called conditionally, in loops, BUT not in try/catch
 	- use === useContext, if called with context
-	- when called activates Suspense(waiting state) mode, if resolves correctly -> re-renders component with value, else fallbacks to nearest error boundarie
+	- when called activates Suspense(waiting state) mode, if resolves correctly -> re-renders component with value, else fallbacks to nearest error boundary
 		- can be wrapper with `<Suspense>` to show some placeholder while fetching
 - CONTEXT
 	- createContext
@@ -139,7 +139,7 @@ Basically useEffect works before render and useLayoutEffect works after layout i
 	- cleanUp will be fired with old values, before next re-render
 	- can't update state + can't work with refs
 	- fires before useLayoutEffect(fires before each repaint), which is fires before useEffect(fires after render finishes)
-- useOptimistic(*canary*)
+- useOptimistic
 	- used to optimistically update UI: `useOptimistic(state, (currentState, optimisticValue) => {}) => [optimisticState, addOptimistic]` 
 		- optimisticState is equal to state normally OR result of function while pending
 		- addOptimistic is used to path inside optimisticValue
@@ -181,6 +181,12 @@ Basically useEffect works before render and useLayoutEffect works after layout i
 				- memoization + not passing isPending
 				- using only when transitioning from lightComponent to heavyComponent OR make conditional rendering inside heavy components to make them light
 		- won't work as debounce, because react is too fast
+- useFormStatus
+	- used to track async form operations: `const { pending, data, method, action } = useFormStatus();` 
+		- `pending` - is form been sent
+		- `data` - sent data
+		- `method` - "POST" | "GET"
+		- `action` - URL where data was sent
 
 ## Components
 - Suspence
@@ -199,6 +205,8 @@ Basically useEffect works before render and useLayoutEffect works after layout i
 		- events are propagating according to ReactTree
 	- you can render react inside non-react parts of DOM
 	- use-cases: dropdown, modal
+- `<title />`, `<meta />` and similar CEO tags can be added directly to component AND will act as their corresponding DOM components(ex: change title)
+	- React will only render a single `<title>` at a time. If more than one component renders a `<title>` tag at the same time, React will place all of those titles in the document head. When this happens, the behavior of browsers and search engines is undefined.
 
 ## Reconciliation(согласування)
 Algorithm of how react mounts and unmounts components(algorithm behind VirtualDOM)
