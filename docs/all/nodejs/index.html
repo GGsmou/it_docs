@@ -269,4 +269,85 @@ Instruction - instruction to execute</p>
 <li>event will trigger all CBs to be executed, even if several events are triggered one after another</li>
 <li>Node provides identical to browser API methods for completeness sake</li>
 </ul>
-<h4 id="buffers">Buffers</h4> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<h4 id="buffers">Buffers</h4>
+<p>Binary data - data that consists of zeros and ones(aka base2 numbers), it is only data format that understood by computers</p>
+<ul>
+<li>1 bit is single 0 or 1</li>
+<li>1 byte is 8 bits</li>
+<li>convertion:
+<ul>
+<li>01011 (base2) -> <code dir="auto">1 * 2^0 + 1 * 2^1 + 0 * 2^2 + 1 * 2^3 + 0 * 2^4</code> -> 11 (base10)</li>
+</ul>
+</li>
+<li>first digit of sequence is Least Significant Bit/Digit (LSB/LSD)</li>
+<li>last digit of sequence is Most Significant Bit/Digit (MSB/MSD)</li>
+</ul>
+<p>Hexadecimal numbers - base16 numbers, that also widely used in computing, due to ease of conversion between base2 and base16, which enables easier notation etc</p>
+<ul>
+<li>4 bits can be represented as single hex character, thus convertion can be easily done via table</li>
+<li>hex is notated as 0x… OR #…</li>
+<li>convertion:
+<ul>
+<li>0x456 -> <code dir="auto">6 * 16^0 + 5 * 16^1 + 4 * 16^2</code> -> 1110</li>
+</ul>
+</li>
+<li>number are represented as 0-F(case insensitive)
+<ul>
+<li>0-F == 0-15</li>
+</ul>
+</li>
+</ul>
+<p>To work with characters computer requires usage of character encoding, which is basically a table that maps characters to some base2 numbers in specific way</p>
+<ul>
+<li>ex:
+<ul>
+<li>ACSII // defines 128 characters of English language and related special characters, 8 bits per char, subset of unicode</li>
+<li>Unicode(standard, that defines encodings: UTF-8, UTF-16, etc) // defines all possible characters
+<ul>
+<li>UTF-8 stores all characters in 8n bit sequences(8, 16, 24, 32)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>note that “9” isn’t actual 9, it will be encoded as some other number</li>
+<li>characters are transformed in process of encoding(transforming readable data to some format) and backward one called decoding</li>
+<li>encoding must always be specified</li>
+</ul>
+<p>Buffer - container(allocated location) in memory, basically a data-structure to work with memory, that used to fastly write, hold, operate and read data in it</p>
+<ul>
+<li>buffer is always prefilled with zeros</li>
+<li>Node buffers can be allocated and operated in byte size only
+<ul>
+<li>basically you can imagine it as an array with 1 byte per element</li>
+</ul>
+</li>
+<li>buffer can’t be re-allocated, it is fixed size
+<ul>
+<li>overflown data will be auto-discarded by Node</li>
+<li>avoid allocating redundant memory</li>
+</ul>
+</li>
+<li>buffer is limited by number of available RAM</li>
+<li>buffer can hold only positive values(0-255) per byte, BUT we can represent negative values via standards(ex: <code dir="auto">(2's compliment + 1) * -1</code>)</li>
+<li>methods:
+<ul>
+<li><code dir="auto">Buffer.from(arr)</code> - allocate buffer of proper size and populate it with provided data
+<ul>
+<li>alternative is to provide: <code dir="auto">(string, method)</code> args to it</li>
+</ul>
+</li>
+<li><code dir="auto">buffer.fill(value)</code> - fill value with provided value</li>
+<li>---</li>
+<li>most of methods can be re-implemented, BUT it will be less efficient due to internal optimizations</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>default max buffer size is 4GB, BUT it can be changed</li>
+</ul>
+</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>URLs will encode non-ASCII chars as hexadecimals in UTF-8</li>
+</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

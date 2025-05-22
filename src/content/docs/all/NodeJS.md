@@ -184,3 +184,48 @@ notes:
 - Node provides identical to browser API methods for completeness sake
 
 #### Buffers
+Binary data - data that consists of zeros and ones(aka base2 numbers), it is only data format that understood by computers
+- 1 bit is single 0 or 1
+- 1 byte is 8 bits
+- convertion:
+	- 01011 (base2) -> `1 * 2^0 + 1 * 2^1 + 0 * 2^2 + 1 * 2^3 + 0 * 2^4` -> 11 (base10)
+- first digit of sequence is Least Significant Bit/Digit (LSB/LSD)
+- last digit of sequence is Most Significant Bit/Digit (MSB/MSD)
+
+Hexadecimal numbers - base16 numbers, that also widely used in computing, due to ease of conversion between base2 and base16, which enables easier notation etc
+- 4 bits can be represented as single hex character, thus convertion can be easily done via table
+- hex is notated as 0x... OR #...
+- convertion:
+	- 0x456 -> `6 * 16^0 + 5 * 16^1 + 4 * 16^2` -> 1110
+- number are represented as 0-F(case insensitive)
+	- 0-F == 0-15
+
+To work with characters computer requires usage of character encoding, which is basically a table that maps characters to some base2 numbers in specific way
+- ex:
+	- ACSII // defines 128 characters of English language and related special characters, 8 bits per char, subset of unicode
+	- Unicode(standard, that defines encodings: UTF-8, UTF-16, etc) // defines all possible characters
+		- UTF-8 stores all characters in 8n bit sequences(8, 16, 24, 32)
+- note that "9" isn't actual 9, it will be encoded as some other number
+- characters are transformed in process of encoding(transforming readable data to some format) and backward one called decoding
+- encoding must always be specified
+
+Buffer - container(allocated location) in memory, basically a data-structure to work with memory, that used to fastly write, hold, operate and read data in it
+- buffer is always prefilled with zeros
+- Node buffers can be allocated and operated in byte size only
+	- basically you can imagine it as an array with 1 byte per element
+- buffer can't be re-allocated, it is fixed size
+	- overflown data will be auto-discarded by Node
+	- avoid allocating redundant memory
+- buffer is limited by number of available RAM
+- buffer can hold only positive values(0-255) per byte, BUT we can represent negative values via standards(ex: `(2's compliment + 1) * -1`)
+- methods:
+	- `Buffer.from(arr)` - allocate buffer of proper size and populate it with provided data
+		- alternative is to provide: `(string, method)` args to it
+	- `buffer.fill(value)` - fill value with provided value
+	- \---
+	- most of methods can be re-implemented, BUT it will be less efficient due to internal optimizations
+- notes:
+	- default max buffer size is 4GB, BUT it can be changed
+
+Notes:
+- URLs will encode non-ASCII chars as hexadecimals in UTF-8
