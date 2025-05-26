@@ -229,3 +229,40 @@ Buffer - container(allocated location) in memory, basically a data-structure to 
 
 Notes:
 - URLs will encode non-ASCII chars as hexadecimals in UTF-8
+- Node pre-allocates memory region to place there your buffers
+- Buffer is subclass of `Uint8Array` 
+- Buffers support operations like `.indexOf` and similar iterative things, like in arrays
+
+```js
+const { Buffer } = require('buffer');
+
+const size = 16;
+const filler = 420;
+
+/*
+allocation will always fill memory with `filler` OR `0`, so it can be slower
+*/
+const buf1 = Buffer.alloc(size, filler);
+
+/*
+allocate free region of memory, BUT don't clean it
+risks: sensitive data can become part of a buffer, memory content might be compromised
+if you need additional speed with safety, always fill this buffer ASAP
+*/
+const buf2 = Buffer.allocUnsafe(size);
+
+const buf3 = Buffer.from([ /* ... */ ]);
+const buf4 = Buffer.concat(buf1, buf2);
+
+/*
+the fastest way is to perform allocUnsafe on memory size that is <= Buffer.poolSize >>> 1 (>>> == bit shift to the right, with dropping LSD)
+>>> is equal to division by 2 + Math.flour
+*/
+
+/*
+Similar to unsafe, but doesn't utilize memory right away, so called slow
+*/
+Buffer.allocUnsafeSlow(size);
+```
+
+#### File System
