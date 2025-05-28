@@ -266,3 +266,24 @@ Buffer.allocUnsafeSlow(size);
 ```
 
 #### File System
+When working with files in node you are actually working with Buffers, that represent content of file in binary format
+
+File is basically a sequence of bits, that can be decoded in some specific manner(text, image etc)
+- file has content AND metadata about this file
+- Node is talking with OS via libuv that wraps SysCalls, that perform operations with files
+	- any file operation will use thread pool
+
+Node has 3 implementations for same `fs` API: sync, async via callbacks, async via Promises
+- they has no difference underneath the hood, but simply just a syntactic sugar
+- Promises are the easiest to use
+- callbacks are the fastest
+	- note: errors always passed as first values in cb
+- synchronous can be used only for blocking operations
+
+notes:
+- `fs.watch` can fire events several times per one save due to OS, program and other issues, out of our control
+- to properly execute read/write operations on file you need to open it first(assigns constant id number, that will identify this file and allow to refer to it for doing operation) AND then execute needed operation, using returned handler
+	- files must be closed to avoid memory leaks
+	- this operation allows fine grained access to file(open for long time, manage metadata, read in chunks, manage reading/writing streams etc), BUT it can be omitted, when you just need to quickly read somethings
+	- reading will shift position, so you might need to override default params
+- Node can decode/encode only characters, not images, videos etc
