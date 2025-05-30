@@ -287,3 +287,20 @@ notes:
 	- this operation allows fine grained access to file(open for long time, manage metadata, read in chunks, manage reading/writing streams etc), BUT it can be omitted, when you just need to quickly read somethings
 	- reading will shift position, so you might need to override default params
 - Node can decode/encode only characters, not images, videos etc
+
+#### Streams
+Basically stream is flow of some data, that either written OR read
+- data is added/received in chunks
+	- in Node, size chunk is 16kb
+- with stream you may sacrifice speed, by doing additional operations, BUT get reduction in resource usage
+	- BUT, if your data writes are smaller then 16kb, you will reduce number of operations
+- types:
+	- writable - used to write to
+		- has internal Buffer to fill one chunk size, which will be emptied with corresponding operation(ex: write chunk to file)
+		- Node will auto hold superfluous data in memory, if there is not place left in Buffer, until Buffer is emptied
+			- stream has `drain` event that signifies, that Buffer emptied and can be filled again, SO you can prevent memory additional memory consumption
+	- readable - used to read from
+		- exposes `data` event, that will be fired after Buffer is filled and ready to be drained
+	- duplex - writable + readable
+		- has two separate Buffers to do reading and writing
+	- transform - duplex, that can change data on fly
