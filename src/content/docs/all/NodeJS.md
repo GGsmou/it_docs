@@ -299,8 +299,31 @@ Basically stream is flow of some data, that either written OR read
 		- has internal Buffer to fill one chunk size, which will be emptied with corresponding operation(ex: write chunk to file)
 		- Node will auto hold superfluous data in memory, if there is not place left in Buffer, until Buffer is emptied
 			- stream has `drain` event that signifies, that Buffer emptied and can be filled again, SO you can prevent memory additional memory consumption
+		- omit closing stream before it finishes it's execution to omit data loss
 	- readable - used to read from
 		- exposes `data` event, that will be fired after Buffer is filled and ready to be drained
+		- readable stream is created in paused state, when event handler is added we start to read AND, after there is nothing else to read stream is closed
+			- closed state can be detected by `"end"` event
 	- duplex - writable + readable
 		- has two separate Buffers to do reading and writing
 	- transform - duplex, that can change data on fly
+
+API
+- writable stream
+	- to check size of writable stream you can use `.writableHighWaterMark` AND to check how much of internal buffer is filled at the moment `.writableLength` exists
+		- alternatively you can check `boolean` returned by `.write`, that will tell wether you can write to buffer OR write will go to memory
+			- generally avoid writing if `.write` returns `false`, if you got `false` WAIT for `"drain"` event
+		- `"drain"` happens only if full buffer fully emptied
+	- to do last write and close stream you can use `.end(data)` 
+		- next writes will always `throw` 
+		- `.end` will emit `"finish"` event
+	- if underlying resource(ex: file) is closed(`.close()`), stream will be closed and emit `"close"` event
+	- stream can be prevented from flushing data by `.cork()` and later re-enabled by `.uncork()` 
+	- `.destroy()` will remove stream and underlying buffer
+	- you can change default encoding of stream via `.setDefaultEncoding()` 
+- readable stream
+	- `.pause()` can be used to stop reading AND `.resume()` to do the opposite
+	- notes:
+		- default buffer size for `fs` readable buffers is 64kb
+		- when doing somethings like read from file and write to other file watch for backpressure, aka problem when you have higher input speed then output, THAT will ultimately cause memory issues
+			- in `fs` this will happen due to hard-drive reading speed been much faster then write speed
