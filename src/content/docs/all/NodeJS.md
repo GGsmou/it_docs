@@ -322,8 +322,21 @@ API
 	- `.destroy()` will remove stream and underlying buffer
 	- you can change default encoding of stream via `.setDefaultEncoding()` 
 - readable stream
-	- `.pause()` can be used to stop reading AND `.resume()` to do the opposite
+	- stream can be in two modes `stoped` and resumed(`flowing`)
+		- all streams are paused from the moment of creation, until `"data"` event is added OR some other stream is piped via `.pipe()` OR `.resume()` is called
+		- stream will be stopped, if `.pause()` is called OR all piped streams are removed via `.unpipe()` 
+		- can be tracked via `.readableFlowing` 
+	- events:
+		- `"data" / "readable"` - receive data chunks
+			- don't mix `"readable"` and `"data"` event usage
+		- `"end"` - reading is finished
+		- `"close"` - stream is closed
+		- `"pause` - stream is paused
+		- `"error` - error happened
+	- `.pipe()` allows to pass data from readable to writable stream, with auto-handling of backpressure 
 	- notes:
 		- default buffer size for `fs` readable buffers is 64kb
 		- when doing somethings like read from file and write to other file watch for backpressure, aka problem when you have higher input speed then output, THAT will ultimately cause memory issues
 			- in `fs` this will happen due to hard-drive reading speed been much faster then write speed
+		- `cat` unix command is analog of readable stream, because it will partially read file by chunks
+		- your aren't guaranteed that data will be split in proper chunks, ex: `"123 123  123"` string can be read as `"12" + " 1" ...` 
