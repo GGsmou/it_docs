@@ -308,7 +308,7 @@ Basically stream is flow of some data, that either written OR read
 		- has two separate Buffers to do reading and writing
 	- transform - duplex, that can change data on fly
 
-API
+API (for consumers)
 - writable stream
 	- to check size of writable stream you can use `.writableHighWaterMark` AND to check how much of internal buffer is filled at the moment `.writableLength` exists
 		- alternatively you can check `boolean` returned by `.write`, that will tell wether you can write to buffer OR write will go to memory
@@ -334,9 +334,24 @@ API
 		- `"pause` - stream is paused
 		- `"error` - error happened
 	- `.pipe()` allows to pass data from readable to writable stream, with auto-handling of backpressure 
+		- accepts only writable stream OR duplex OR transform, both of which implement writable stream
+		- pipe returns stream, that was passed into it, so you can chain duplex streams, BUT not writable streams
+		- avoid using pipe, when already subscribed to `"data"` event of readable stream
+		- `.unpipe()` can be used to pause/stop reading
+		- there are several events: `"pipe"`, `"unpipe"` 
+		- note, that `pipe` has bad error handling, so, for production, it is better to use `pipeline(source, ...duplex/transform[], destination, (err, val) => {}`, that will kill underlying streams on error and pass this error to cb OR return final value
+			- by default `.pipe` won't do clean-up, so you need to manually call `.destroy()` on each stream
+	- `.finished` - called when stream errored OR not writable/readable OR unexpectedly closed, so you can do clean-up
 	- notes:
 		- default buffer size for `fs` readable buffers is 64kb
 		- when doing somethings like read from file and write to other file watch for backpressure, aka problem when you have higher input speed then output, THAT will ultimately cause memory issues
 			- in `fs` this will happen due to hard-drive reading speed been much faster then write speed
 		- `cat` unix command is analog of readable stream, because it will partially read file by chunks
 		- your aren't guaranteed that data will be split in proper chunks, ex: `"123 123  123"` string can be read as `"12" + " 1" ...` 
+		- `fs.copy` will copy via streams
+		- by default, files over 2GB can't be read directly without streams
+
+API (for custom streams)
+- generally custom streams are created by inheriting from base stream class(`Writable`, `Readable`, `Duplex`, `Transform`), with need to implement some predefined set of methods
+	- omit emitting events by hand OR overwriting existing methods, use predefined callbacks AND overwrite only internal, allowed methods
+	- omit throwing errors inside custom functions, pass errors to callbacks
