@@ -355,3 +355,17 @@ API (for custom streams)
 - generally custom streams are created by inheriting from base stream class(`Writable`, `Readable`, `Duplex`, `Transform`), with need to implement some predefined set of methods
 	- omit emitting events by hand OR overwriting existing methods, use predefined callbacks AND overwrite only internal, allowed methods
 	- omit throwing errors inside custom functions, pass errors to callbacks
+	- JS don't have multiple inheritance(thanks God), so Duplex is basically a built in class to do multiple inheritance from `Writable` and `Readable` 
+
+- Duplex - stream that both writable and readable, BUT writing and reading is done fully separately(separate Buffers, separate source of reading and writing etc)
+	- it is possible to make Duplex's read and write parts interact, BUT they don't have to
+		- this will make duplex a transform string (subtype of duplex)
+		- transform inherits from duplex, BUT read and write methods are set in described above manner
+		- transform can be: put through(no data transformation occur) and proper transform(data is changed in some manner)
+
+Notes:
+- streams can be used in object mode, where we moving not buffers, but JS objects
+	- `highWatermark` will specify number of objects
+	- streams can also be used on FE in browser, mainly to work with network streams
+		- note that browsers are using streams under the hood(ex: video streaming), BUT this API allows to utilize it in your code
+		- Node has implementation of this API for compatibility, BUT it won't replace Node's streams API

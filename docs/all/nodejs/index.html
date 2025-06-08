@@ -522,10 +522,38 @@ Instruction - instruction to execute</p>
 </ul>
 <p>API (for custom streams)</p>
 <ul>
-<li>generally custom streams are created by inheriting from base stream class(<code dir="auto">Writable</code>, <code dir="auto">Readable</code>, <code dir="auto">Duplex</code>, <code dir="auto">Transform</code>), with need to implement some predefined set of methods
+<li>
+<p>generally custom streams are created by inheriting from base stream class(<code dir="auto">Writable</code>, <code dir="auto">Readable</code>, <code dir="auto">Duplex</code>, <code dir="auto">Transform</code>), with need to implement some predefined set of methods</p>
 <ul>
 <li>omit emitting events by hand OR overwriting existing methods, use predefined callbacks AND overwrite only internal, allowed methods</li>
 <li>omit throwing errors inside custom functions, pass errors to callbacks</li>
+<li>JS don’t have multiple inheritance(thanks God), so Duplex is basically a built in class to do multiple inheritance from <code dir="auto">Writable</code> and <code dir="auto">Readable</code></li>
+</ul>
+</li>
+<li>
+<p>Duplex - stream that both writable and readable, BUT writing and reading is done fully separately(separate Buffers, separate source of reading and writing etc)</p>
+<ul>
+<li>it is possible to make Duplex’s read and write parts interact, BUT they don’t have to
+<ul>
+<li>this will make duplex a transform string (subtype of duplex)</li>
+<li>transform inherits from duplex, BUT read and write methods are set in described above manner</li>
+<li>transform can be: put through(no data transformation occur) and proper transform(data is changed in some manner)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>streams can be used in object mode, where we moving not buffers, but JS objects
+<ul>
+<li><code dir="auto">highWatermark</code> will specify number of objects</li>
+<li>streams can also be used on FE in browser, mainly to work with network streams
+<ul>
+<li>note that browsers are using streams under the hood(ex: video streaming), BUT this API allows to utilize it in your code</li>
+<li>Node has implementation of this API for compatibility, BUT it won’t replace Node’s streams API</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
