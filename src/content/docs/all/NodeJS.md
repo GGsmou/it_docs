@@ -369,3 +369,72 @@ Notes:
 	- streams can also be used on FE in browser, mainly to work with network streams
 		- note that browsers are using streams under the hood(ex: video streaming), BUT this API allows to utilize it in your code
 		- Node has implementation of this API for compatibility, BUT it won't replace Node's streams API
+
+#### Networking (*lowest level possible in Node*)
+Node is designed and focused on scalable networking apps
+
+Main concepts:
+- on pre-networking era information was passed via floppy discs
+	- write data to disk, physically move it to other PC and read from disk
+- networking elements are:
+	- ethernet cable to move data
+	- switch to connect several PCs to it and form small network
+		- switch is receiving and sending packets of information from/to PC
+			- each packet contains addresses of source and destination
+			- switch can lookup addresses via address table
+	- networking card - part of PC, that enables connection between ethernet and PC
+		- each card has MAC Address associated with it, which is uniq per device and basically a 48bits, represented by 6 hexadecimals, separated by `:` 
+	- router - basically a higher order switch, that can communicate in between networks of switches via IP addresses (uniq address assigned to some device)
+		- router assigns IP addresses to elements inside it's local network in similar uniq manner, BUT this IP addresses aren't uniq on global scale
+- networking is broken into separate, but connected layers, that act as abstractions, that built one upon another
+	- Physical - level where info is moved in form of bits via cables
+	- Data Link - level where info is moved in form of frames, with backed in MAC addresses
+		- done by switches
+	- Network - level where info is moved in form of packets, with backed in IP addresses
+		- done by routers, which calc shortest distance to other router
+	- Transport - level where safety and lossless of data is guaranteed
+		- data is moved in segments
+		- additional responsibility is connection establishment and proper disconnection(notify both sides that connection closed)
+		- port numbers are added on this level to connect to application layer
+		- TCP and UDP live here (there are others, but Node doesn't have native support for them)
+			- TCP - data is received in the way to sent
+				- 3 way handshake is key algorithm -> A send connection packet, B respond with connection acknowledgment packet, A send data packets
+				- headers (it has no IP related headers, because they are added on previous layer) (non-fixed size)
+					- source port (16bits)
+					- destination port (16bits)
+					- sequence numbers (32bits) - keep data in order
+					- acknowledgment numbers (32bits)
+					- ...other...
+					- data
+				- ex: ssh, http
+			- UDP - data is sent as fast as possible, with potential losses
+				- headers (fixed size of 8 bytes)
+					- source port (16bits)
+					- destination port (16bits)
+					- segment length (16bits)
+					- checksum length (16bits) - to prevent data corruption
+					- data
+				- ex: http 3
+	- Application - abstract layer, where data is just data, that can be operated upon
+		- Node server
+- Ports - a way to expose application to outside world (out of your PC)
+	- it is device based, but standard recommends to:
+		- 0-1023 -> system ports, that ran as sudo
+		- 49152-65535 -> safe private ports
+			- can be used for dynamic activity
+		- several apps can be created in same port, BUT they must have different transport(TCP/UDP/etc)
+	- there are list(iANA standard) of well known ports, that should be used for some standard activities
+		- ssh = 22
+		- http = 80 - specifying this port will redirect all http traffic without a port to your app
+
+`net` - module to work with network on lowest level possible in Node
+- it is base for something like `http` module
+- creating server
+	- every app must have port bound to it for proper routing
+	- after server is created it exposes TCP connection to specified port
+		- in Node it is represented as duplex stream
+- connection to server - `net` allows to establish TCP connections with other servers via sockets, which is also a duplex stream
+
+notes:
+- all devices have built it loop-back address, which is universally standardized to be (`127.0.0.1`, or `localhost` DNS)
+	- this address will reroute requests back to device(either by device itself OR by router)
