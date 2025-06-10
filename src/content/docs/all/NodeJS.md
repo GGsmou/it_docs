@@ -427,14 +427,23 @@ Main concepts:
 		- ssh = 22
 		- http = 80 - specifying this port will redirect all http traffic without a port to your app
 
-`net` - module to work with network on lowest level possible in Node
+`net` - module to work with network (on lowest level possible in Node) and inter-process communication (IPC), both of which have similar API
 - it is base for something like `http` module
 - creating server
 	- every app must have port bound to it for proper routing
 	- after server is created it exposes TCP connection to specified port
 		- in Node it is represented as duplex stream
 - connection to server - `net` allows to establish TCP connections with other servers via sockets, which is also a duplex stream
+	- connection will `throw`, if no server to connect was found, due to how TCP specification is made
+	- connection will auto close, if server stops working
+	- client also need to have port, so it will be opened on fly from "dynamic" range, specified by iana spec
+
+`readline` - module to read line by line from readable stream
+- can be greatly combined with `process.stdIn`, which is readable stream, that accepts input from console
+	- basically `.question` will do all heavy lifting for you to achiev this
 
 notes:
 - all devices have built it loop-back address, which is universally standardized to be (`127.0.0.1`, or `localhost` DNS)
 	- this address will reroute requests back to device(either by device itself OR by router)
+- Node refers to opened connections as sockets, which, in SE world, means two opened connections, that have duplex style of communication
+- server can have multiple connections from clients, BUT each connection is represented through separate socket object
