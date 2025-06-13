@@ -712,4 +712,106 @@ Instruction - instruction to execute</p>
 </li>
 <li>Node refers to opened connections as sockets, which, in SE world, means two opened connections, that have duplex style of communication</li>
 <li>server can have multiple connections from clients, BUT each connection is represented through separate socket object</li>
+</ul>
+<p>IP - Internet Protocol (third layer in networking model)
+IP Address - uniq address associated with device, that can be accessed through network</p>
+<ul>
+<li>v4 - 32bits, with 8 bits(0-255) per portion (4 portions), separated with <code dir="auto">.</code>
+<ul>
+<li>max number of uniq devices that can be in single network is 4 billion</li>
+<li>IP comes with subnet mask, which indicates what portion of address is used for network and what for host (ex: 11111111.11111111.11111111.00000000, BUT in notation it will look like some <code dir="auto">some.ip.add.ress/24</code>, where 24 is number of <code dir="auto">1</code>, that can be in range of 0-32)
+<ul>
+<li>this network portion is used to distinguish what traffic is routed to which network AND then by network to what device to route it</li>
+<li>great for distinguishing requests to local and non-local networks</li>
+<li>network portions are stored as tables inside routers</li>
+<li>this led to standardization of this masks in such way, that it is easy to route traffic across the globe
+<ul>
+<li>this results in IP address now containing your location in non-explicit manner</li>
+<li>this list is somewhat dynamic</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>there are some private addresses, that used only for private networks and can’t be accessed from outside of network
+<ul>
+<li>reason for their existence is to save on public IP addresses (4 billon limit problem) and avoid assigning IP addresses to devices, that won’t need them in first place and can be just connected via private network)</li>
+<li>to utilize them routers are doing NAT (Network Address Translation), that converts private IP address to public one
+<ul>
+<li>note that multiple privates can correspond to single public AND conflict resolution is done via NAT</li>
+</ul>
+</li>
+<li>ex:
+<ul>
+<li>10.x.x.x</li>
+<li>172.16.x.x</li>
+<li>192.168.x.x</li>
+<li>127.x.x.x - loopback
+<ul>
+<li>note that for IPv6 this reduced to just use 127.0.0.1</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>some addresses are reserved for specific companies, like IANA</li>
+</ul>
+</li>
+<li>v6 - while v4 is still widely used, we can’t allocate new IPv4s, so we need to have standard with higher number of uniq addresses
+<ul>
+<li>in general it is faster and more improved version of v4 with higher capacity</li>
+<li>addresses
+<ul>
+<li>128 bits - 8 portions of 16 bits, separated by <code dir="auto">:</code> and represented as 8 portions of 4 hex values
+<ul>
+<li>2^128 devices</li>
+</ul>
+</li>
+<li>leading zeros can be discarded
+<ul>
+<li>ex:
+<ul>
+<li><code dir="auto">00AF</code> -> <code dir="auto">AF</code></li>
+<li><code dir="auto">0000</code> -> <code dir="auto">0</code></li>
+<li><code dir="auto">0000:0000</code> -> <code dir="auto">::</code> // can be done only once per address</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>case insensitive (due to hex rules)</li>
+</ul>
+</li>
+<li>private addresses:
+<ul>
+<li>loopback: <code dir="auto">0000:0000:0000:0000:0000:0000:0000:0001</code> OR <code dir="auto">::1</code> OR some other shorthand</li>
+<li>AND thats it, because we don’t need to safe them anymore ;)</li>
+</ul>
+</li>
+<li>adoption is hard due to legacy AND worsen UX, when working with such “ugly” numbers</li>
+</ul>
+</li>
+</ul>
+<p>DNS (Domain Name System) - system which basically doing conversion from human readable strings to IP addresses</p>
+<ul>
+<li>this all DNS resolution is handled by DNS servers, that contain tables for conversion
+<ul>
+<li>note that partial tables can be cached on any edge(browser, device, router, ICP, Country etc) of network</li>
+<li>DNS servers are preconfigured on device, BUT this list can be reconfigured
+<ul>
+<li>reconfiguration can lead to DNS hijacking, where legit DNS is changed to route to non-legit IP
+<ul>
+<li>there is even dns module, built in in Node, that can do lookups and other related stuff
+<ul>
+<li>Node will auto-resolve DNSes for you, if domain name is passed instead of IP</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>built on top of TCP and can be built even via Node</li>
+</ul>
+</li>
+<li>each PC has private DNS table, for things like <code dir="auto">localhost</code> + caching, mentioned before</li>
+<li>great not only for UX, but to stabilize network, because single DNS can correspond to dynamic IP, or several IPs(great for keeping multiple servers on different edges of network and serve IP of closest one)</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

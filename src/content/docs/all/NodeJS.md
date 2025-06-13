@@ -447,3 +447,52 @@ notes:
 	- this address will reroute requests back to device(either by device itself OR by router)
 - Node refers to opened connections as sockets, which, in SE world, means two opened connections, that have duplex style of communication
 - server can have multiple connections from clients, BUT each connection is represented through separate socket object
+
+IP - Internet Protocol (third layer in networking model)
+IP Address - uniq address associated with device, that can be accessed through network
+- v4 - 32bits, with 8 bits(0-255) per portion (4 portions), separated with `.` 
+	- max number of uniq devices that can be in single network is 4 billion
+	- IP comes with subnet mask, which indicates what portion of address is used for network and what for host (ex: 11111111.11111111.11111111.00000000, BUT in notation it will look like some `some.ip.add.ress/24`, where 24 is number of `1`, that can be in range of 0-32)
+		- this network portion is used to distinguish what traffic is routed to which network AND then by network to what device to route it
+		- great for distinguishing requests to local and non-local networks
+		- network portions are stored as tables inside routers
+		- this led to standardization of this masks in such way, that it is easy to route traffic across the globe
+			- this results in IP address now containing your location in non-explicit manner
+			- this list is somewhat dynamic
+	- there are some private addresses, that used only for private networks and can't be accessed from outside of network
+		- reason for their existence is to save on public IP addresses (4 billon limit problem) and avoid assigning IP addresses to devices, that won't need them in first place and can be just connected via private network)
+		- to utilize them routers are doing NAT (Network Address Translation), that converts private IP address to public one
+			- note that multiple privates can correspond to single public AND conflict resolution is done via NAT
+		- ex:
+			- 10.x.x.x
+			- 172.16.x.x
+			- 192.168.x.x
+			- 127.x.x.x - loopback
+				- note that for IPv6 this reduced to just use 127.0.0.1
+	- some addresses are reserved for specific companies, like IANA
+- v6 - while v4 is still widely used, we can't allocate new IPv4s, so we need to have standard with higher number of uniq addresses
+	- in general it is faster and more improved version of v4 with higher capacity
+	- addresses
+		- 128 bits - 8 portions of 16 bits, separated by `:` and represented as 8 portions of 4 hex values
+			- 2\^128 devices
+		- leading zeros can be discarded
+			- ex:
+				- `00AF` -> `AF` 
+				- `0000` -> `0` 
+				- `0000:0000` -> `::` // can be done only once per address
+		- case insensitive (due to hex rules)
+	- private addresses:
+		- loopback: `0000:0000:0000:0000:0000:0000:0000:0001` OR `::1` OR some other shorthand
+		- AND thats it, because we don't need to safe them anymore ;)
+	- adoption is hard due to legacy AND worsen UX, when working with such "ugly" numbers
+
+DNS (Domain Name System) - system which basically doing conversion from human readable strings to IP addresses
+- this all DNS resolution is handled by DNS servers, that contain tables for conversion
+	- note that partial tables can be cached on any edge(browser, device, router, ICP, Country etc) of network
+	- DNS servers are preconfigured on device, BUT this list can be reconfigured
+		- reconfiguration can lead to DNS hijacking, where legit DNS is changed to route to non-legit IP
+			- there is even dns module, built in in Node, that can do lookups and other related stuff
+				- Node will auto-resolve DNSes for you, if domain name is passed instead of IP
+	- built on top of TCP and can be built even via Node
+- each PC has private DNS table, for things like `localhost` + caching, mentioned before
+- great not only for UX, but to stabilize network, because single DNS can correspond to dynamic IP, or several IPs(great for keeping multiple servers on different edges of network and serve IP of closest one)
