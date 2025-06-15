@@ -447,6 +447,11 @@ notes:
 	- this address will reroute requests back to device(either by device itself OR by router)
 - Node refers to opened connections as sockets, which, in SE world, means two opened connections, that have duplex style of communication
 - server can have multiple connections from clients, BUT each connection is represented through separate socket object
+- TCP packets are sent in order, BUT UDP aren't
+- don't forget to add encryption to your server(via TLS directly, or by using HTTPS, FTPS etc)
+- you can use `pm2` CLI tool to run your Node process in background and keep shel interactive
+- `ssh` is tool to interact with server from CLI
+- `scp` is tool to handle file transfer with server
 
 IP - Internet Protocol (third layer in networking model)
 IP Address - uniq address associated with device, that can be accessed through network
