@@ -426,6 +426,7 @@ Main concepts:
 	- there are list(iANA standard) of well known ports, that should be used for some standard activities
 		- ssh = 22
 		- http = 80 - specifying this port will redirect all http traffic without a port to your app
+		- https = 443
 
 `net` - module to work with network (on lowest level possible in Node) and inter-process communication (IPC), both of which have similar API
 - it is base for something like `http` module
@@ -501,3 +502,45 @@ DNS (Domain Name System) - system which basically doing conversion from human re
 	- built on top of TCP and can be built even via Node
 - each PC has private DNS table, for things like `localhost` + caching, mentioned before
 - great not only for UX, but to stabilize network, because single DNS can correspond to dynamic IP, or several IPs(great for keeping multiple servers on different edges of network and serve IP of closest one)
+
+UDP
+- there is no guarantee of data ordering OR data completeness, when using UDP, BUT you gain speed
+	- still, you can built something like HTTP 3, where you use UDP under the hood, BUT ensure data completeness via retries
+	- this means that you work in connectionless model, meaning that you will just fire packets into the void and thats it
+		- in Node you need to bind port, so your app can listen for any incoming info
+- Node allows to use UDP via `dgram`, which uses similar socket interface as `net`, BUT you don't differentiate server from client here
+	- Node has default limit for buffer size, that can be sent per single UDP request
+- there are UDP4 for IPv4 and UDP6 for IPv6
+
+#### HTTP
+HTTP (Hyper Text Transfer Protocol) - is a protocol(set of rules), that sits in Application layer of Networking and responsible for handling format of data been sent, it allows to sent different data(JSON, text, forms etc)
+- HTTP is based on client/server model
+	- each request:
+		- establishes TCP/UDP connection
+		- client sends message, that is called request (because only client can request somethings)
+			- firstly headers are sent
+			- then body is sent in chunks (last chunk states, that it is last chunk)
+		- server responds with message, that called response and it contains:
+			- headers
+			- body, that is sent in chunks, like message is sent
+		- kills (`Connection: close`) TCP connection OR connection is kept (`Connection: keep-alive`) for following requests
+			- for web development, keeping connection is often main choice
+			- you can also configure timeouts per connection AND limit max number of connections
+			- network changes will cause re-establishing of connection
+- HTTP breaks your data into:
+	- headers - some metadata from request, it includes:
+		- method - indicator of what action should be taken
+		- url - what endpoint is called
+		- code - indicator about how server responded
+		- other - how data is structured, other metadata about request etc
+	- body - actual data been sent
+		- optional, but usually included
+		- `req.body` comes as stream, that need to be properly handled
+			- note that data can have predefined length, that defined by `content-length`, OTHERSWISE `transfer-encoding: chunked` must be used
+				- improper content length will auto-cut your data, BUT you don't need to explicitly `.end()`  your stream
+- codes(404 etc) are part of protocol
+	- HTTP2 omits statusMessages in favor of codes
+- it is first class citizen of Node, that accessible via `http` module
+	- request in response in plain `http` module is readable and writable streams
+	- clients in Node are called agents, they are corresponding to TCP connections
+		- data is sent through agents via request objects, that act as duplex stream
