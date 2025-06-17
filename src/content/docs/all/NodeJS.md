@@ -538,9 +538,32 @@ HTTP (Hyper Text Transfer Protocol) - is a protocol(set of rules), that sits in 
 		- `req.body` comes as stream, that need to be properly handled
 			- note that data can have predefined length, that defined by `content-length`, OTHERSWISE `transfer-encoding: chunked` must be used
 				- improper content length will auto-cut your data, BUT you don't need to explicitly `.end()`  your stream
+		- generally you will send JSON or plain text as body, but you can also send files in binary format OR multiple key-value(`string` OR `file`) pairs in `form-data` format
 - codes(404 etc) are part of protocol
 	- HTTP2 omits statusMessages in favor of codes
 - it is first class citizen of Node, that accessible via `http` module
 	- request in response in plain `http` module is readable and writable streams
 	- clients in Node are called agents, they are corresponding to TCP connections
 		- data is sent through agents via request objects, that act as duplex stream
+- there are 3 HTTP versions as for now (1.1, 2, 3), BUT Node natively supports 1.1 and 2
+	- common strategy is to build 1.1 server and then enable 2 and 3 by adding proxies, that could convert from-to 1.1, to your server
+	- there is also HTTPS, but it is just encrypted version of HTTP AND often also configured via proxies
+- HTTP is stateless protocol, meaning that each request doesn't know about existence of another one AND no state is preserved
+	- BUT you still can introduce state via headers, like Cookies
+- under the hood HTTP formats headline(method, url OR status code, status text), headers and body as string in specific format, that can be parsed to receive values
+	- this makes HTTP requests easily readable, when encoded from bytes, BUT parsing them can be a bit problematic
+		- also security is nightmare, so use HTTPS ;)
+
+media types (MIME types) - a standard way to specify type of sent data
+- in OS world file extension is analog of MIME type
+- `Content-Type` header is used to sent this info
+- it must be included for proper work of server/client
+	- it is possible to figure-out content-type, but generally avoid this
+	- it can be figured-out by:
+		- magic numbers - some file encodings have a number at start to identify format
+		- file extensions
+- structure: `type/subtype;key=value` 
+	- type - main type part, ex: `image` 
+		- there are two main classes: discrete(single file, ex: `image`, `text`) and multipart(multiple files, ex: `multipart`, `message`)
+	- subtype - some sub format of type, ex: `png` 
+	- key=value - option, addition info, ex: `charset=utf-8` 
