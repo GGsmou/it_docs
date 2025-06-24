@@ -385,3 +385,16 @@ You steal learning and grows opportunities from mentee by babysitting and helpin
 		- it is ok to help in general, especially if problem is company specific, there is time limitation factor, when onboarding
 		- when answering explain not only how, but also why
 - avoid too much criticism, focus on what is important first and tweak minor things as you go
+
+## Soft Skills
+#### How to sell ideas
+- use metrics as arguments
+- focus on how business can make money with a help of your idea
+- large ideas can be sold little by little with clear roadmap
+- sell pain killer OR something that aligns with company goals/ideals
+
+before pitching idea think if it is really that good OR time can be spent more wisely
+- reputation is key, so don't waste it on bad pitches
+- omit code purism and refactors for sake of it
+	- code improvements better can be sold in batches WITH some larger idea (ex: migrate from REST to BUF with other minor improvements)
+		- Boy Scout rule

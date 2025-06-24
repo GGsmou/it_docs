@@ -567,3 +567,55 @@ media types (MIME types) - a standard way to specify type of sent data
 		- there are two main classes: discrete(single file, ex: `image`, `text`) and multipart(multiple files, ex: `multipart`, `message`)
 	- subtype - some sub format of type, ex: `png` 
 	- key=value - option, addition info, ex: `charset=utf-8` 
+
+HTTP methods - data, that included in requests, that used to tell what action must be done by server
+- HTTP methods mainly differ in been idempotent or not
+	- in this case idempotent means that multiple calls of endpoint with this method can't change server state multiple times(only first one), BUT responses can differ, if needed
+- types:
+	- GET - retrieve some resource
+		- request don't have body
+		- response have body
+		- idempotent
+	- POST - create some resource OR perform some action
+		- request have body
+		- response have body
+		- not idempotent
+	- PUT - create(alternative to POST, when you need to have idempotent behavior) OR fully update resource
+		- request have body
+		- response have body
+		- idempotent
+	- PATCH - partially update resource
+		- request have body
+		- response have body
+		- idempotent
+	- DELETE - delete resource
+		- request may have body
+		- response may have body
+		- idempotent
+	- HEAD - retrieve headers
+		- request don't have body
+		- response don't have body
+		- idempotent
+	- OPTIONS - retrieve possible communication options(what headers can be used, CORS)
+		- request don't have body
+		- response may have body
+		- idempotent
+	- and other less important...
+- notes:
+	- use different types as much as possible, this will act as docs + make app easier to integrate with
+
+HTTP status codes - numbers(codes), that used to communicate client what was result of executed operation (as response)
+- ranges:
+	- 100-599 - general
+	- 100-199 - info
+	- 200-299 - success
+	- 300-399 - redirect
+	- 400-499 - client errors
+	- 500-599 - server errors
+- notes:
+	- generally try to be as descriptive as possible, BUT don't give too much info to client for security reasons
+
+notes:
+- main difference between server and web server is that web server works with web, meaning it servers HTML, CSS, JS over HTTP and utilized Web APIs
+- as automatization matter you can auto-serve all files from your `public` folder
+	- don't forget about proper mine types
