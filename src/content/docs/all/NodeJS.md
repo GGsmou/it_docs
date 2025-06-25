@@ -550,6 +550,7 @@ HTTP (Hyper Text Transfer Protocol) - is a protocol(set of rules), that sits in 
 	- there is also HTTPS, but it is just encrypted version of HTTP AND often also configured via proxies
 - HTTP is stateless protocol, meaning that each request doesn't know about existence of another one AND no state is preserved
 	- BUT you still can introduce state via headers, like Cookies
+	- one purpose is scalability (ability to proxy and distribute is possible only with stateless protocol)
 - under the hood HTTP formats headline(method, url OR status code, status text), headers and body as string in specific format, that can be parsed to receive values
 	- this makes HTTP requests easily readable, when encoded from bytes, BUT parsing them can be a bit problematic
 		- also security is nightmare, so use HTTPS ;)
