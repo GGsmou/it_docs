@@ -1055,4 +1055,27 @@ IP Address - uniq address associated with device, that can be accessed through n
 <li>don’t forget about proper mine types</li>
 </ul>
 </li>
+<li>cookies - way to introduce state into stateless HTTP communication between server and browser
+<ul>
+<li>cookies can be set by server response header <code dir="auto">Set-Cookie: key=val</code>, where each header can hold only single cookie</li>
+<li>client will always sent all it’s cookies to server in form of request <code dir="auto">Cookie: key=val; key2=val2</code> header
+<ul>
+<li>be careful with performance degradation</li>
+<li>this can be mitigated by using <code dir="auto">Path</code> property, that will scope cookies sending to some path only</li>
+</ul>
+</li>
+<li>ideally cookies shouldn’t be changed by client
+<ul>
+<li>this can be configured via <code dir="auto">httpOnly</code> property</li>
+</ul>
+</li>
+<li>don’t forget to expire cookies via <code dir="auto">Expire</code> property</li>
+<li>https can be enforced by <code dir="auto">Secure</code> property</li>
+</ul>
+</li>
+<li>be careful when working with large bodies, omit loading them into memory at once, do piping instead
+<ul>
+<li>generally pipe when content-length is bigger then <code dir="auto">highWaterMark</code></li>
+</ul>
+</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

@@ -620,3 +620,14 @@ notes:
 - main difference between server and web server is that web server works with web, meaning it servers HTML, CSS, JS over HTTP and utilized Web APIs
 - as automatization matter you can auto-serve all files from your `public` folder
 	- don't forget about proper mine types
+- cookies - way to introduce state into stateless HTTP communication between server and browser
+	- cookies can be set by server response header `Set-Cookie: key=val`, where each header can hold only single cookie
+	- client will always sent all it's cookies to server in form of request `Cookie: key=val; key2=val2` header
+		- be careful with performance degradation
+		- this can be mitigated by using `Path` property, that will scope cookies sending to some path only
+	- ideally cookies shouldn't be changed by client
+		- this can be configured via `httpOnly` property
+	- don't forget to expire cookies via `Expire` property
+	- https can be enforced by `Secure` property
+- be careful when working with large bodies, omit loading them into memory at once, do piping instead
+	- generally pipe when content-length is bigger then `highWaterMark` 
