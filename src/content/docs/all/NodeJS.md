@@ -631,3 +631,43 @@ notes:
 	- https can be enforced by `Secure` property
 - be careful when working with large bodies, omit loading them into memory at once, do piping instead
 	- generally pipe when content-length is bigger then `highWaterMark` 
+
+#### Unix
+Unix - historically is machine agnostic OS(written in C), that is base for modern OSs
+- it is required for BE, due to been base for MacOS and Linux, last been main server environment
+- Linux is not written on top of Unix, BUT it uses same philosophy (small and well done programs, that do one thing, embedded as modules and communicate via some standardized channel(ex: pipes)) and Unix compatible
+- Unix not only defines CLI utils, but OS file structure, permissions etc
+- programing languages can be Unix compatible too
+
+Unix shells - some application(process), often written in C, that can communicate with kernel via `syscalls` to do some OS related work
+- each shell have specific instruction set, that mapped onto syscalls
+- shell is base for any terminal(TTY)
+- examples:
+	- sh - first Unix based shell
+		- nowadays `sh` is often just alias for `bash` 
+	- bash - common go-to shell, if you work with Linux
+		- it is basically a programing language
+	- zsh - bash compatible shell, with additional features
+		- MacOS default shell
+
+bash command execution flow:
+- look for relevant alias (alias is alternative way to name command)
+- look for existing functions (custom, then built-in)
+- look at Path
+	- `$PATH` is variable, that stores links to folders with executable applications, so any application stored there can be ran from any part of system by just running command
+	- `PATH` is passed from parent process to child as copy, not by reference
+
+file permissions - each file has 3 permissions(readable writable executable) in different combinations, that assigned to 3 groups of users(owner, owner's group, other)
+- can be changed by `chmod` 
+- note that executable files will run in current shell, BUT, running `bash ./script.sh`, will spawn child process with shell
+- file can't be executable without been readable
+
+to pass functions, variables and aliases from one script to other bash allows using `source`(OR alias `.`) command, that will execute script and put everything to parent shell
+
+`child_process` - module that used to manipulate processes in OS
+- `spawn("process_name", ["args"])` - spawns child process with provided args
+	- stream based
+	- will only look at PATH, to find commands, so be careful with running built-in functions(but some of them can be listed in PATH) or aliases
+- `exec("command")` - directly executes shell commands
+	- basically it spawns child shell process and execute commands
+	- can't use streams
