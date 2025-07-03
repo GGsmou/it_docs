@@ -671,3 +671,38 @@ to pass functions, variables and aliases from one script to other bash allows us
 - `exec("command")` - directly executes shell commands
 	- basically it spawns child shell process and execute commands
 	- can't use streams
+
+shell
+- can be `login` and `non-login`, where first can run additional commands/scripts before running
+	- `login` shell is slower
+- can be `interactive` and `non-interactive`, where first can wait for user input, in-between executing commands
+- shell configs:
+	- shell can run some default config files + file that can contain custom configs
+		- custom config is often include: aliases, functions, env vars
+	- non-login + non-interactive - won't run config
+	- login - run default+custom config
+	- non-login, interactive - run custom config
+
+processes - every running thing in unix is process, that has some other process, with root been kernel itself
+- each process has: PID(process ID), PPID(parent PID)
+- each process can start child process via syscall
+	- this will pass parent's envs to child, establish communication channel between them
+	- note that killing parent not always will kill child, BUT such child will have some other process managing it afterwards, otherwise it must be killed
+- all processes use RAM
+
+env var - some variable that is set on environment level and will be passed to child processes
+- env var acts similarly to plain variable
+- can be created by `export VAR_NAME` (should be uppercase by convention)
+- key for deployment and hiding some sensitive info
+
+file system - tree-like abstraction to manage data in Unix-compatible systems
+- main dir is root (`/`)
+	- `/` is also acts as separator of entries
+- `$HOME` - env var that references home dir path(`/Users/yourUser`) and often aliased as `~` 
+- `.` == current dir
+- `..` == prev directory (relatively)
+	- to make path absolute it must start from `/` and it will always redirect to specified place
+	- be careful with relative paths
+- for better path management Node has `path` package
+	- it can work OS agnostic
+- `$CDW` - env var that stores current working directory path

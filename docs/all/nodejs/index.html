@@ -1143,4 +1143,64 @@ IP Address - uniq address associated with device, that can be accessed through n
 <li>can’t use streams</li>
 </ul>
 </li>
+</ul>
+<p>shell</p>
+<ul>
+<li>can be <code dir="auto">login</code> and <code dir="auto">non-login</code>, where first can run additional commands/scripts before running
+<ul>
+<li><code dir="auto">login</code> shell is slower</li>
+</ul>
+</li>
+<li>can be <code dir="auto">interactive</code> and <code dir="auto">non-interactive</code>, where first can wait for user input, in-between executing commands</li>
+<li>shell configs:
+<ul>
+<li>shell can run some default config files + file that can contain custom configs
+<ul>
+<li>custom config is often include: aliases, functions, env vars</li>
+</ul>
+</li>
+<li>non-login + non-interactive - won’t run config</li>
+<li>login - run default+custom config</li>
+<li>non-login, interactive - run custom config</li>
+</ul>
+</li>
+</ul>
+<p>processes - every running thing in unix is process, that has some other process, with root been kernel itself</p>
+<ul>
+<li>each process has: PID(process ID), PPID(parent PID)</li>
+<li>each process can start child process via syscall
+<ul>
+<li>this will pass parent’s envs to child, establish communication channel between them</li>
+<li>note that killing parent not always will kill child, BUT such child will have some other process managing it afterwards, otherwise it must be killed</li>
+</ul>
+</li>
+<li>all processes use RAM</li>
+</ul>
+<p>env var - some variable that is set on environment level and will be passed to child processes</p>
+<ul>
+<li>env var acts similarly to plain variable</li>
+<li>can be created by <code dir="auto">export VAR_NAME</code> (should be uppercase by convention)</li>
+<li>key for deployment and hiding some sensitive info</li>
+</ul>
+<p>file system - tree-like abstraction to manage data in Unix-compatible systems</p>
+<ul>
+<li>main dir is root (<code dir="auto">/</code>)
+<ul>
+<li><code dir="auto">/</code> is also acts as separator of entries</li>
+</ul>
+</li>
+<li><code dir="auto">$HOME</code> - env var that references home dir path(<code dir="auto">/Users/yourUser</code>) and often aliased as <code dir="auto">~</code></li>
+<li><code dir="auto">.</code> == current dir</li>
+<li><code dir="auto">..</code> == prev directory (relatively)
+<ul>
+<li>to make path absolute it must start from <code dir="auto">/</code> and it will always redirect to specified place</li>
+<li>be careful with relative paths</li>
+</ul>
+</li>
+<li>for better path management Node has <code dir="auto">path</code> package
+<ul>
+<li>it can work OS agnostic</li>
+</ul>
+</li>
+<li><code dir="auto">$CDW</code> - env var that stores current working directory path</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
