@@ -702,7 +702,33 @@ file system - tree-like abstraction to manage data in Unix-compatible systems
 - `.` == current dir
 - `..` == prev directory (relatively)
 	- to make path absolute it must start from `/` and it will always redirect to specified place
-	- be careful with relative paths
+	- be careful with relative paths in node, they will be calculated from where you call node process
+		- to mitigate that you can use `__dirname` OR `import.meta.dirname` variable, that will always resolve in file's dir
 - for better path management Node has `path` package
 	- it can work OS agnostic
 - `$CDW` - env var that stores current working directory path
+
+data streams - streams that used to communicate between processes
+- stdin (standard in) - stream that grabs input and directs it to process
+	- by default stdin is connected to TTY, that proxies keyboard
+- stdout (standard out) - stream that grabs output of process and directs it to other
+	- commonly it is directed from process to TTY, that proxies it to monitor
+- stderr (standard error) - same as stdout, but for data, that shouldn't be saved
+- \---
+- streams can be redirected from/to any process or even file
+	- this can be configured in
+		- Node, ex: console object can be created with custom stroud and stderr streams
+		- Bash, ex: specify 0<dest for stdin, 1>dest for stdout, 2>dest for stderr as param when launching process
+			- `>dest` === `1>dest` 
+			- `<dest` === `0<dest` 
+	- note that all unix utils are configured to read from stdin and output to stdout
+
+piping (`|`) - take stdout of process 1 and attach it to stdin of process 2
+- ignores stderr
+redirection (`>`) - redirect stdin, stdout, stderr from/to some destination
+- you can redirect to void by specifying `/dev/null` as dest
+- note that `>` will overwrite file, but `>>` will append
+
+notes:
+- in bash, process exits with some code, that signifies state(0 == executed successfully)
+	- to read prev command exit code you can use `$?` 
