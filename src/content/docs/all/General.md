@@ -398,3 +398,15 @@ before pitching idea think if it is really that good OR time can be spent more w
 - omit code purism and refactors for sake of it
 	- code improvements better can be sold in batches WITH some larger idea (ex: migrate from REST to BUF with other minor improvements)
 		- Boy Scout rule
+
+#### How to gain authority
+- don't fail on large scale
+- find and fix problematic places, that disturb people
+- be involved
+- help others
+
+#### How to make proper decisions
+- gain experience & don't be afraid to fail
+- find people with experience and ask for review
+	- ideally that people should have same problem as your, so they will be more involved in finding good solution
+- be data driven

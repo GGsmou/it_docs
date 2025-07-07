@@ -729,6 +729,44 @@ redirection (`>`) - redirect stdin, stdout, stderr from/to some destination
 - you can redirect to void by specifying `/dev/null` as dest
 - note that `>` will overwrite file, but `>>` will append
 
+alternative way (to pipes) for inner-process communication in Unix is using IPC (inter-process communication) via Unix Domain Sockets
+- it is done via same `net` module and has similar interface to TCP
+	- instead of path+port we need to set `path` to "file"
+		- this "file" is communication channel between two app
+		- note that this is not actual file, but rather some uniq id, like port
+			- in unix everything is a file, BUT it is actually has socket type
+				- like dir is a file, but with dir type
+- it can be easier to build more complex communication this way
+- you still can use TCP+localhost to communicate between processes, BUT it is less efficient this way
+	- IPC can't be use with internal machine, only inside single environment
+	- IPC utilizes "shared" RAM, instead network card
+		- note that Node doesn't support pure shared memory by default
+
+clustering - running same application multiple times in different physical cores
+- by default, Node will run on single core and can't be multithreaded
+- clustering is done via `fork` sys call, that basically cloning itself as child process
+	- Node includes standard `cluster` lib to do so
+		- it is built upon `child_process.fork()`, which is special case of `child_process.spawn()` 
+	- parent can `fork` itself many times, do coordination(often it is it's only task) and pass data via pipes between processes
+		- to utilize resources fully, parent can `fork` child process onto same core
+	- run `fork` only from parent to avoid infinite loops (actually Node will just fail to execute `fork` to prevent infinite loops)
+		- can be checked via `.isPrimary` 
+	- you can call `fork` n times, where n is number of CPU cores you have(`os.availableParallelism()`)
+- note that Node.js allows to start multiple servers on same port via clustering
+	- Node will bind single port to parent process AND this parent will distribute calls to child processes via round robin algorithm
+		- it is recommended to do manual scheduling for heavy processes to avoid high loads
+	- this is primary usage of this module
+- to share data between parent and child you can use `worker.send(message)` and `process.on("message", (message) => undefined)` OR `process.send(message)` and `cluster.on("message", (worker, message) => undefined)` 
+	- `send` will do serialization for you
+- other events for `cluster`: `"fork"`, `"listen"` 
+- for production you can use `pm2` lib to do same stuff
+	- you can run your app in cluster mode this way, BUT don't have any additional control
+	- also can be used to just run application in bg with additional monitoring
+- avoid using cluster-only functions unconditionally
+
+npm - package manager, that can install and manage code from external source
+
 notes:
 - in bash, process exits with some code, that signifies state(0 == executed successfully)
 	- to read prev command exit code you can use `$?` 
+- bash allows to run processes in bg by specifying `&` at the end of command
