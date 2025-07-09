@@ -766,6 +766,12 @@ clustering - running same application multiple times in different physical cores
 
 npm - package manager, that can install and manage code from external source
 
+ffmpeg - library to work with videos and images
+- video - sequence of bites, that contains large amount of images(frames), audio(can be multiple) and some metadata
+	- each media is encoded in specific way, ex: images === h.256, audio === AAC, metadata === UTF-8
+	- extensions are just identifying container types for all of this data and correspond to some supported codex types, that they can contain inside
+	- each media is called stream and can be changed independently from one-another
+
 notes:
 - in bash, process exits with some code, that signifies state(0 == executed successfully)
 	- to read prev command exit code you can use `$?` 

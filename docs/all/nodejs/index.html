@@ -1326,6 +1326,16 @@ redirection (<code dir="auto">></code>) - redirect stdin, stdout, stderr from/to
 <li>avoid using cluster-only functions unconditionally</li>
 </ul>
 <p>npm - package manager, that can install and manage code from external source</p>
+<p>ffmpeg - library to work with videos and images</p>
+<ul>
+<li>video - sequence of bites, that contains large amount of images(frames), audio(can be multiple) and some metadata
+<ul>
+<li>each media is encoded in specific way, ex: images === h.256, audio === AAC, metadata === UTF-8</li>
+<li>extensions are just identifying container types for all of this data and correspond to some supported codex types, that they can contain inside</li>
+<li>each media is called stream and can be changed independently from one-another</li>
+</ul>
+</li>
+</ul>
 <p>notes:</p>
 <ul>
 <li>in bash, process exits with some code, that signifies state(0 == executed successfully)
