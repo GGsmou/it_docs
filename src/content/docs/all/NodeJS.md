@@ -776,3 +776,15 @@ notes:
 - in bash, process exits with some code, that signifies state(0 == executed successfully)
 	- to read prev command exit code you can use `$?` 
 - bash allows to run processes in bg by specifying `&` at the end of command
+- in Unix each process has a `nice` value bound to it to determine resource usage priority
+	- ranges:
+		- `[-20, -1]` - system processes
+		- `[0, 19]` - other processes, where `0` is default value
+	- the lower the number - the higher the priority of process
+- great Unix tools
+	- ffmpeg - multimedia processing tool
+	- imagemagick - image processing tool
+		- alternative is `npm/Jimp` 
+	- poppler - pdf processing tool
+	- opencv - computer vision tool
+	- whisper - speech to text
