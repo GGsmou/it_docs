@@ -788,3 +788,48 @@ notes:
 	- poppler - pdf processing tool
 	- opencv - computer vision tool
 	- whisper - speech to text
+
+#### Compression
+Compression - encoding data in such way that original content is partially/fully preserved, but byte size is reduced
+- great to reduce size of stored OR transferred information
+	- remember that you need to label compressed files with compression type
+- types:
+	- lossless - no data is lost (main focus of this chapter)
+		- in Node is done via `zlib` module, that based on transform streams
+		- types:
+			- gzip - the most widely adopted algorithm in web, have great performance to compression percetage rate
+				- optimized for text data
+				- in Node: `zlib.createGzip() <=> zlib.createGunzip()` 
+			- brotli - often have better compression percentage rate, compared to gzip, BUT consumes more CPU power
+				- can be used for different data types
+				- focused on optimization of web resources, like CSS, JS etc
+				- in Node: `zlib.createBrotliCompressed() <=> zlib.createBrotliDecompressed()` 
+			- deflate - base for gzip(gzip adds some additional metadata)
+				- in Node: `zlib.createDeflate() <=> zlib.createInflate()` 
+				- used in `.zip` 
+		- algorithms - single compression type can combine several compression algorithms for higher compression percentage (ex: Deflate itself is algorithm, that combines other algorithms)
+			- Huffman Coding - probability based, because main idea is to find the most occurring thing and replace it with least amount of bytes
+				- great for text encoding, because we already have character distribution data for all languages
+			- LZ - family of algorithms, that based on some principles
+				- find repeating patterns, save first one, reference first one in other places
+					- allows to configure `windowSize`, that identifies how far from each other repeating patterns can occur
+		- compressed files won't reduce in size after second compression
+		- popular formats:
+			- PNG - lossless images
+			- FLAC - lossless audio
+	- lossy - some non-significant amount of data is lost, so it can't be redone
+		- doesn't make sense to perform on text, BUT great for multimedia, because human eye can't detect some details, thus they can be neglected
+		- doesn't natively supported in Node
+		- often compressed files won't reduce in size after second compression
+			- OR it is not worse it, due to low size reduction
+		- popular formats:
+			- JPEG - remove details from images, that human eye can't see
+				- mainly reduces coloring
+			- MP3 - audio compression
+			- AAC - audio compression, better quality then MP3
+			- H.264 - compresses all multimedia inside AND looks for static parts in-between frames to compress them in same way as LZ algorithms do by referencing
+- notes:
+	- pre-compress static data AND do caching on compressed dynamic data, because compression is resource-heavy operation
+		- it is often not really worse it to compress text-based responses
+		- also it is not worse to compress small pieces of data
+	- remember about speed and compression ration trade-off
