@@ -833,3 +833,63 @@ Compression - encoding data in such way that original content is partially/fully
 		- it is often not really worse it to compress text-based responses
 		- also it is not worse to compress small pieces of data
 	- remember about speed and compression ration trade-off
+		- also time not always linear
+		- each algorithm can be configured to different level of compression
+	- additionally you can specify file type, BUT often it can be autodetected
+
+http
+- in http world compression is done via including `Accept-Encoding: ..., ...` header by client to indicate supported compression formats
+	- usually done automatically by browser
+		- same for decompression
+	- server can choose any compression AND, if any was chosen, it must respond with `Content-Encoding: ...` header
+		- note that `Content-Length` must be of compressed data, but `Content-Type` of original data AND compressing is done only on body, not headers
+		- client can also compress request body and include `Content-Encoding`, but it is not automatic AND generally avoided, because client doesn't send too much data in general
+- usually compression+decompression is done via proxy OR middleware
+
+minification - "compression" technique for source code, where file size is reduced by introducing changes to code, that doesn't change logic of program, BUT reduce file size
+- remove whitespaces, remove comments, rename variables to shorter format
+- doesn't work with binary data, BUT with text itself
+- great in combination with compression
+- can be compared with resizing in image optimization world
+
+notes:
+- don't compress sensitive data, like jwt tokens etc, because it is possible to do breach attack, where third-party can decrypt encrypted content, if it was compressed
+- avoid compressing small data AND already compressed data(ex: multimedia)
+- be careful with concurrent compressions, because Node allocates separate threads to do compression operations
+- gzip and brotli are doing checksum checks to preserve data integrity
+
+#### Multi-Threading
+While Node is called single-threaded, it still can offload heavy operations to separate threads
+- for this reason Node has threadpool, that is allocated to Node for any it's needs
+- also Node allows to work with real kernel-level threads, do memory sharing and deadlock yourself ;)
+- the reason for "single-threaded" is because Node, by default, utilizes event-loop to manage concurrent actions, while other languages can utilize separate threads
+	- also JS itself is single-threaded AND multi-threading in Node is fairly new concept, that can be done via worker-threads
+		- alternative way of handling is by spawning child process, but it is more resource heavy operation to spawn process, because it still spawns thread under the hood, then to just spawn thread
+			- also threads can share memory without kernel intervention
+
+Thread (same as process in Unix terminology) - unit of execution for process (single process can have one or more threads)
+- thread can be in ready (waiting in queue to be executed by CPU), running(been executed by CPU) or sleep(waiting for something to happen) modes
+	- there can be much more states, like: zombie state etc, BUT these are main once
+	- dispatcher moves threads from ready to running
+	- thread either finished OR moved back to queue after short time period
+		- creates illusion of parallel execution(this illusion is called concurrent execution), even if CPU has single core
+			- for multi-core CPUs, processes can be executed in true parallel manner
+				- note that you don't need to have physical cores, because on physical core can do two operations at a time, such sub-cores are called logical cores
+		- thread is presented to CPU as instruction set, so it is easy to stop at some instruction AND continue later
+	- thread is moved to sleep state after doing blocking sys calls
+		- after call is done, thread is moved back to queue
+		- ex: when Node server process is listening on some port it is in sleep state, until some request comes in
+- adding threads to process allows to get more resources from CPU
+	- this will allow to boost performance by N times, if operation can be done in chunks in parallel
+	- you can prioritize some threads over others
+
+notes:
+- alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming
+- utilize threads to offload heavy OR background OR just blocking operations to separate thread and avoid slowing down or even blocking the main one
+- each thread will have `Max((Cores / Blocking_Parallel_Threads) * 100%, 100%)` CPU usage
+	- note that 100% comes not from all CPU, but from single core
+	- to calculate this value more properly, you can use `(total_time - total_idle_time) / total_time * 100%` (of activity per core) formula
+		- to calculate total cpu utilization, just cal mean of all cores utilization
+	- if process has multiple threads, it will use more than 100%
+		- for Mac and some Unix based machines, BUT it is also can be represented as % from total CPU usage
+- not all cores can have same performance
