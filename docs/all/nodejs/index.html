@@ -1562,6 +1562,35 @@ redirection (<code dir="auto">></code>) - redirect stdin, stdout, stderr from/to
 </ul>
 </li>
 </ul>
+<p>Node</p>
+<ul>
+<li>in Node, all thread operations are done via <code dir="auto">worker_threads</code> module</li>
+<li>Node allows to run files as separate threads, with separate event loop, context etc</li>
+<li>threads are created in async, gradual manner (still faster then creating a process)
+<ul>
+<li>each thread occupies RAM
+<ul>
+<li>be careful with creating threads on request, this can DDOS your service</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>thread communication is done via <code dir="auto">MessageChannel</code>, that establishes communication channel between two ports</li>
+<li>notes:
+<ul>
+<li>child thread can’t make main thread exit</li>
+<li>child logs will go directly to parent thread
+<ul>
+<li>based on <code dir="auto">MessageChannel</code></li>
+<li>blocked main thread will lead to missing logs</li>
+</ul>
+</li>
+<li>there are other slight differences from main thread</li>
+<li>threads often spawned in for loop</li>
+<li>worker can spawn other workers</li>
+</ul>
+</li>
+</ul>
 <p>notes:</p>
 <ul>
 <li>alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming</li>
@@ -1582,4 +1611,6 @@ redirection (<code dir="auto">></code>) - redirect stdin, stdout, stderr from/to
 </ul>
 </li>
 <li>not all cores can have same performance</li>
+<li>any operation, that can be ran in parallel, is great candidate to be ran in multi-threaded way</li>
+<li>always do testing with extreme inputs to detect potential problems</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

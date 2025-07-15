@@ -883,6 +883,22 @@ Thread (same as process in Unix terminology) - unit of execution for process (si
 	- this will allow to boost performance by N times, if operation can be done in chunks in parallel
 	- you can prioritize some threads over others
 
+Node
+- in Node, all thread operations are done via `worker_threads` module
+- Node allows to run files as separate threads, with separate event loop, context etc
+- threads are created in async, gradual manner (still faster then creating a process)
+	- each thread occupies RAM
+		- be careful with creating threads on request, this can DDOS your service
+- thread communication is done via `MessageChannel`, that establishes communication channel between two ports
+- notes:
+	- child thread can't make main thread exit
+	- child logs will go directly to parent thread
+		- based on `MessageChannel` 
+		- blocked main thread will lead to missing logs
+	- there are other slight differences from main thread
+	- threads often spawned in for loop
+	- worker can spawn other workers
+
 notes:
 - alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming
 - utilize threads to offload heavy OR background OR just blocking operations to separate thread and avoid slowing down or even blocking the main one
@@ -893,3 +909,5 @@ notes:
 	- if process has multiple threads, it will use more than 100%
 		- for Mac and some Unix based machines, BUT it is also can be represented as % from total CPU usage
 - not all cores can have same performance
+- any operation, that can be ran in parallel, is great candidate to be ran in multi-threaded way
+- always do testing with extreme inputs to detect potential problems
