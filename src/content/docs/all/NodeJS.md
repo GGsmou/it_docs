@@ -898,6 +898,36 @@ Node
 	- there are other slight differences from main thread
 	- threads often spawned in for loop
 	- worker can spawn other workers
+	- you can either spawn and terminate thread on each operation OR create a pool of threads, that will live in BG AND execute tasks on demand without additional overhead
+		- Node.js has built in thread pool, that, by default, consists of 4 threads, for different tasks
+			- only utilized by Node
+			- utilized by Node only when syscal can't be done in async manner (ex: `fs`, `crypto`, `zlib` etc)
+				- works only with async versions of functions
+			- be careful with creating too many Promises, Node will need to hold all of them in RAM, so better to constraint max number
+
+CPU intensive vs I/O intensive vs Memory intensive operations
+- CPU intensive - operation that takes large amount of CPU time
+- I/O intensive - operation that highly unitizes networking, file system etc to perform operation
+- Memory intensive - operation that takes large amount of RAM
+- Node itself can handle optimization of I/O operations out of the box AND you won't see much benefit of multi-threading such operations, WHILE CPU intensive operations can be greatly optimized
+	- only in Node world, in other languages you still might need to multi-thread your I/O operations
+		- note that for small operations it might not be the case AND batching can help to utilize Node's potential
+- Memory intensive might not give as much benefit, so better to be tested first
+
+shared memory
+- by default, Node keeps memory of each thread independent and shares values between them as deep copies, BUT it is still possible to utilize it
+	- thread concept helps here, because all threads share memory of single process, so no need to involve OS to do process communication and memory sharing
+- Node only allows to share buffers, not actual objects
+	- note that you can use `Buffer` as abstraction on top of `TypedArray`, that is abstraction on top of actual binary data, that is stored inside `.buffer` as `ArrayBuffer` or `SharedArrayBuffer` and transferred this way
+		- for sharing you need to use only `SharedArrayBuffer` 
+		- note that `Buffer` abstraction can utilize pre-allocated pool of memory to store it's data AND not allocate actual memory on flight
+		- `Buffer` is always based on `Uint8Array`, but you can also utilize other `TypedArray`s
+- shared memory will always cause race condition problems that can be fixed with locks
+	- also remember about deadlocks
+- race conditions - cases, when several parallel operations try to modify shared resource, which leads to undetermined (based on timing of execution and final result is determined by last operation) behavior
+	- places, that cause race conditions called critical sections
+	- main mistake is to split read and write into separate operations
+	- can happen in any concurrent environment, even in single-threaded cases
 
 notes:
 - alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming
@@ -911,3 +941,9 @@ notes:
 - not all cores can have same performance
 - any operation, that can be ran in parallel, is great candidate to be ran in multi-threaded way
 - always do testing with extreme inputs to detect potential problems
+- you can profile if your main thread is blocked via `performance.evenLoopUtilization()` 
+- multi-threading light weight operations can downgrade performance
+- when working with worker pool be aware that some requests can be executed pretty fast, so they can be executed on main thread and don't be blocked by heavy tasks OR they can have separate queue OR they can be batched
+	- using separate server for heavy tasks is also valid choice
+	- this is also relevant to topic of blocking event loop
+	- this can be used to DDOS your app

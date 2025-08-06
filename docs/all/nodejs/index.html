@@ -1588,6 +1588,68 @@ redirection (<code dir="auto">></code>) - redirect stdin, stdout, stderr from/to
 <li>there are other slight differences from main thread</li>
 <li>threads often spawned in for loop</li>
 <li>worker can spawn other workers</li>
+<li>you can either spawn and terminate thread on each operation OR create a pool of threads, that will live in BG AND execute tasks on demand without additional overhead
+<ul>
+<li>Node.js has built in thread pool, that, by default, consists of 4 threads, for different tasks
+<ul>
+<li>only utilized by Node</li>
+<li>utilized by Node only when syscal can’t be done in async manner (ex: <code dir="auto">fs</code>, <code dir="auto">crypto</code>, <code dir="auto">zlib</code> etc)
+<ul>
+<li>works only with async versions of functions</li>
+</ul>
+</li>
+<li>be careful with creating too many Promises, Node will need to hold all of them in RAM, so better to constraint max number</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>CPU intensive vs I/O intensive vs Memory intensive operations</p>
+<ul>
+<li>CPU intensive - operation that takes large amount of CPU time</li>
+<li>I/O intensive - operation that highly unitizes networking, file system etc to perform operation</li>
+<li>Memory intensive - operation that takes large amount of RAM</li>
+<li>Node itself can handle optimization of I/O operations out of the box AND you won’t see much benefit of multi-threading such operations, WHILE CPU intensive operations can be greatly optimized
+<ul>
+<li>only in Node world, in other languages you still might need to multi-thread your I/O operations
+<ul>
+<li>note that for small operations it might not be the case AND batching can help to utilize Node’s potential</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Memory intensive might not give as much benefit, so better to be tested first</li>
+</ul>
+<p>shared memory</p>
+<ul>
+<li>by default, Node keeps memory of each thread independent and shares values between them as deep copies, BUT it is still possible to utilize it
+<ul>
+<li>thread concept helps here, because all threads share memory of single process, so no need to involve OS to do process communication and memory sharing</li>
+</ul>
+</li>
+<li>Node only allows to share buffers, not actual objects
+<ul>
+<li>note that you can use <code dir="auto">Buffer</code> as abstraction on top of <code dir="auto">TypedArray</code>, that is abstraction on top of actual binary data, that is stored inside <code dir="auto">.buffer</code> as <code dir="auto">ArrayBuffer</code> or <code dir="auto">SharedArrayBuffer</code> and transferred this way
+<ul>
+<li>for sharing you need to use only <code dir="auto">SharedArrayBuffer</code></li>
+<li>note that <code dir="auto">Buffer</code> abstraction can utilize pre-allocated pool of memory to store it’s data AND not allocate actual memory on flight</li>
+<li><code dir="auto">Buffer</code> is always based on <code dir="auto">Uint8Array</code>, but you can also utilize other <code dir="auto">TypedArray</code>s</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>shared memory will always cause race condition problems that can be fixed with locks
+<ul>
+<li>also remember about deadlocks</li>
+</ul>
+</li>
+<li>race conditions - cases, when several parallel operations try to modify shared resource, which leads to undetermined (based on timing of execution and final result is determined by last operation) behavior
+<ul>
+<li>places, that cause race conditions called critical sections</li>
+<li>main mistake is to split read and write into separate operations</li>
+<li>can happen in any concurrent environment, even in single-threaded cases</li>
 </ul>
 </li>
 </ul>
@@ -1613,4 +1675,13 @@ redirection (<code dir="auto">></code>) - redirect stdin, stdout, stderr from/to
 <li>not all cores can have same performance</li>
 <li>any operation, that can be ran in parallel, is great candidate to be ran in multi-threaded way</li>
 <li>always do testing with extreme inputs to detect potential problems</li>
+<li>you can profile if your main thread is blocked via <code dir="auto">performance.evenLoopUtilization()</code></li>
+<li>multi-threading light weight operations can downgrade performance</li>
+<li>when working with worker pool be aware that some requests can be executed pretty fast, so they can be executed on main thread and don’t be blocked by heavy tasks OR they can have separate queue OR they can be batched
+<ul>
+<li>using separate server for heavy tasks is also valid choice</li>
+<li>this is also relevant to topic of blocking event loop</li>
+<li>this can be used to DDOS your app</li>
+</ul>
+</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/js/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">JS</span> </span> </a> <a href="/it_docs/all/optimization/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Optimization</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
