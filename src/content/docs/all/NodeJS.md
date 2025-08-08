@@ -928,6 +928,17 @@ shared memory
 	- places, that cause race conditions called critical sections
 	- main mistake is to split read and write into separate operations
 	- can happen in any concurrent environment, even in single-threaded cases
+	- to concur race conditions you can utilize concept of atomic operations (operation that must complete fully and can't be interrupted)
+		- this is hardware level operations, provided by CPU and can be accessed via syscalls (or wrappers, like `Atomics` in JS)
+		- hardware guarantees such atomic property by both locking underlying values, when operation executes AND by never interrupting atomic operation
+		- atomic operations always are simple once, to implement more complex things you need to utilize concept of mutual expression to enforce that some part of code OR resource can be used by only n(often 1) concurrent function at given point of type
+			- mutual exclusion is built upon atomic operations
+			- that simplest form is spinlock (block process, while other executes critical section)
+				- in JS it can be implemented via `Atomics.compareAndExchange` 
+				- more complex is semaphore, which can have N simultaneous processes running AND makes other waiting processes not just blocked, but sleeping
+					- if you have only two processes, this will be called binary semaphore AND if locking process does unlocking you will get a mutex
+		- be careful with locks, because locking+unlocking in bad order OR forgetting to unlock will cause deadlock and make your application stuck
+			- watch for order when working with multiple mutexes OR use single mutex instead of combining two of them
 
 notes:
 - alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming
@@ -947,3 +958,6 @@ notes:
 	- using separate server for heavy tasks is also valid choice
 	- this is also relevant to topic of blocking event loop
 	- this can be used to DDOS your app
+- it is often faster to do shared memory, rather then message passing (excluding cases, when there is too much overhead to do locking etc)
+- for CPU intensive operations it is almost always better to use C++, SO you can create Node addon, written in C++, and delegate all expensive compute to it, by imbedding it inside your Node app (with no limitations, unlike WebAssembly)
+	- C++ app will ran as thread under Node process 
