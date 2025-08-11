@@ -940,6 +940,28 @@ shared memory
 		- be careful with locks, because locking+unlocking in bad order OR forgetting to unlock will cause deadlock and make your application stuck
 			- watch for order when working with multiple mutexes OR use single mutex instead of combining two of them
 
+event loop - Node.js achieves async behavior via event loop concept and additional threads, that live in C++ world, while main program, written in JS is one single thread
+- flow:
+	- execute sync code(includes subscribing to async events and placing tasks into microtask queue)
+	- empty-out nextTick & microtask queue
+		- `Promise` results live in microtask queue
+		- nextTicks are ran in same stage as microtasks, BUT always ran before them
+		- each sub-queue will be executed in order of enqueuing
+		- nextTick & microtask queue will always be emptied after each CB in CB queue is executed AND between each sub-cb queue
+	- setup event loop
+		- creates set of callback queues to be executed in specific order
+			- libuv pushes executed operations here
+			- eventloop is running as long as we have subscriptions AND CBs in callback queues
+			- each CB is executed one after another
+		- set of callbacks:
+			- timers (`setTimeout`, `setInterval`)
+			- poll (I/O operations)
+			- check (`setImmediate`)
+				- `setImmediate` CB will always execute next after poll sub-queue is done, BUT it is not guaranteed to be executed next otherwise
+		- not that CB queues aren't guarantee ordering of enqueued operations
+- notes: 
+	- `async`/`await` is syntactic sugar over callbacks, thus `await` is not really blocking operation to our thread, it only blocks caller function flow of execution
+
 notes:
 - alway do monitoring and testing, because multi-threading is mentally challenging and high error risk area of programming
 - utilize threads to offload heavy OR background OR just blocking operations to separate thread and avoid slowing down or even blocking the main one
@@ -961,3 +983,41 @@ notes:
 - it is often faster to do shared memory, rather then message passing (excluding cases, when there is too much overhead to do locking etc)
 - for CPU intensive operations it is almost always better to use C++, SO you can create Node addon, written in C++, and delegate all expensive compute to it, by imbedding it inside your Node app (with no limitations, unlike WebAssembly)
 	- C++ app will ran as thread under Node process 
+
+#### Cryptography
+Basic concept of cryptography is to use some key to modify info in such way, that it can't be understood without key, BUT could be reverted into original form with key
+- key points
+	- confidentiality - data can be accessible only by holder of key
+	- integrity - content can't be secretly modified
+	- authentication - identity of content's author must be confirmable
+- cryptography ensures security and privacy of info and communication
+- for cryptography Node uses `crypto`, `tls` and `https` modules
+	- all of them are built upon `openSSL` 
+- encryption is unbreakable at the current moment
+
+symmetric encryption
+- flow:
+	- get original data, put it through Cipher(algorithm) with some private key and get encrypted data out
+	- get encrypted data, put it through Cipher(algorithm) with used private key and get original data out
+- common algorithms: AES (main), ChaCha (secondary), DES (deprecated main)
+- variants
+	- One-Time Pad Encryption (OTP, often called perfect) - key is destroyed after usage
+		- requirements: key length is data length, key is truly random, key used once and destroyed
+		- based in XOR operation, where we set result to 0 for same bits and 1 for different once, which is `^` operator in Node
+		- this is more of a theoretical algorithm, because key management is problematic, due to need to securely pass key from one place to other before each data exchange AND due to key size
+			- note that key can be used partially, but you always need to know message length
+		- flow: generate random key, exchange it between parties in secured manner, each message uses part of key via XOR to be encrypted, thus destroying it for one party to encrypt and other to decrypt
+		- this is mathematically impossible to break due to basically missing a part of data
+
+dictionary:
+- plaintext - original data
+- ciphertext - encrypted data
+- encryption - conversion plaintext to ciphertext
+- decryption - conversion ciphertext to plaintext
+- cipher - algorithm for encryption and decryption
+
+notes:
+- encryption universally works on binary data
+- http is transferred as plain text, thus you need https to prevent reading of transferred packets
+- encryption is lossless
+- JS's `Math.random` is not secure and can't be used for cryptography
