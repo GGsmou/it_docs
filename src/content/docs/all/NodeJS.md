@@ -1008,6 +1008,51 @@ symmetric encryption
 			- note that key can be used partially, but you always need to know message length
 		- flow: generate random key, exchange it between parties in secured manner, each message uses part of key via XOR to be encrypted, thus destroying it for one party to encrypt and other to decrypt
 		- this is mathematically impossible to break due to basically missing a part of data
+		- for small data, it might be faster to brute force then something like AES, BUT it is much harder to find original data, because potential results will look similar to original data
+	- AES
+		- private key management is done via some other mechanisms, primally via asymmetric encryption
+		- AES has different modes
+			- ecb - concats each block one after other with no random present
+				- highly insecure, because repeated data will be easily detectable
+				- 1 to 1 in size
+				- fast and can run in parallel
+				- if we corrupt some block, only it will be corrupted in final data
+			- cbc - uses result of previous block (or random data for first one) to XOR next before doing encryption, concats each block one after other
+				- 1 to 1 size + additional 128bits for random data
+					- random data must be truly random and never reused
+					- it can be sent as plaintext
+				- corruption of block will lead to its and next neighbor corruption
+				- sequential only
+			- ctr - generate 128bit number (counter), that we gonna increment by 1 (starting from 0) for each block, encrypt it and XOR with block
+				- 1 to 1 size + additional 128bits for random data
+					- it can be sent as plaintext
+				- attacker knows what data is been encrypted, BUT it still doesn't have key, thus we are safe
+				- if we corrupt some block, only it will be corrupted in final data
+				- can run in parallel
+			- gcm (main) - ctr with additional message, that used to identify if original cipher was modified
+		- notes:
+			- key sizes can differ: (128, 196, 256) bits
+				- defines repetitions: 10, 12, 14
+			- works on 128bits blocks of info
+				- for each block: XOR with key, (do byte substitution, do byte shifting, do byte mixing, XOR with key) (repeated N times, without mixing at last step)
+					- key here is 128 bit round key, that derived from original key through some math
+						- it called round due to it is used only once per round
+				- block can be padded with `0x0f` to match size
+			- theoretically breakable AND might be bruteforced in distant future quantencomputers
+
+hashing
+- flow:
+	- get original data of any size (message) -> pass through hash function (one way algorithm) -> receive fixed size output (hash, often 256 bites)
+- properties:
+	- process of hashing can't be reversed
+	- hashes of similar messages can't be similar
+		- in other words, it can't be guessable
+- algorithms:
+	- SHA-256 (main)
+- some use-cases:
+	- generate keys (with often strict length) from any data
+	- ensure integrity of data by hashing it and transmitting hash alongside to verify if data wasn't modified
+	- password storage
 
 dictionary:
 - plaintext - original data
@@ -1021,3 +1066,7 @@ notes:
 - http is transferred as plain text, thus you need https to prevent reading of transferred packets
 - encryption is lossless
 - JS's `Math.random` is not secure and can't be used for cryptography
+- encryption must produce same data for same key and input
+	- BUT, result of encryption can't be guessable, based on similar inputs
+- system is as secure as it's weak part
+- good algorithm is not only secure, but must be efficient, easy to understand, have possibility to use hardware acceleration with it and be reasonable to use
