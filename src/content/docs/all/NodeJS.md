@@ -1029,7 +1029,8 @@ symmetric encryption
 				- attacker knows what data is been encrypted, BUT it still doesn't have key, thus we are safe
 				- if we corrupt some block, only it will be corrupted in final data
 				- can run in parallel
-			- gcm (main) - ctr with additional message, that used to identify if original cipher was modified
+			- gcm (main) - ctr with additional message (MAC), that used to identify if original cipher was modified
+				- it also allows to add additional verification data on top of key
 		- notes:
 			- key sizes can differ: (128, 196, 256) bits
 				- defines repetitions: 10, 12, 14
@@ -1047,12 +1048,36 @@ hashing
 	- process of hashing can't be reversed
 	- hashes of similar messages can't be similar
 		- in other words, it can't be guessable
+	- number of hash collisions must be as low as possible (ideally 0)
+		- SHA-256 collision is still not found
 - algorithms:
-	- SHA-256 (main)
+	- MD5 (broken), SHA family (SHA-1 (broken), SHA-n (256 is main), SHA3n, BLAKE2s256, BLAKE2b512)
+		- often last number means number of bits in hash
 - some use-cases:
 	- generate keys (with often strict length) from any data
 	- ensure integrity of data by hashing it and transmitting hash alongside to verify if data wasn't modified
 	- password storage
+		- don't forget to salt your passwords to omit rainbow table attacks and reduce possibility of brute forcing passwords
+			- if user have chosen simple password, you can make it harder to find with large salt
+			- still, too small passwords are bruteforcable
+	- HashMaps
+		- it uses non-secure but, fast hashing function
+
+message authentication codes - to prevent possibility of man in the middle attacks MACs can be used to verify data integrity, that transmitted over some channel
+- flow: get cipher text, combine with encryption key and hash them together, the result should be send as second part of messages, after cipher text
+- algorithms: hmac (main)
+- Node has built in family of MAC algorithms inside `crypto` 
+	- it is better to use built in algorithms, because just appending key with message is vulnerable with some algorithms, like SHA-n sub-family
+		- it opens possibility to append to original data and have matching MACs
+		- it is called length extension attack
+		- algorithms like hmac are splitting key into two parts and pad message from both sides
+
+key derivation functions - functions that help creating consistent random keys from input, that often comes as human-readable password
+- flow: combine password with salt and do hashing N times to derive final result
+- algorithms: PBKFD2 (main), Scrypt (good for simple passwords), HKDF, Argon2
+- notes:
+	- passwords can't be stored, you need to store only key and corresponding salt (16+ bytes)
+	- for longer keys that hashing algorithm can output we need to do each chunk of data separately
 
 dictionary:
 - plaintext - original data
