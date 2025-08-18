@@ -1079,6 +1079,23 @@ key derivation functions - functions that help creating consistent random keys f
 	- passwords can't be stored, you need to store only key and corresponding salt (16+ bytes)
 	- for longer keys that hashing algorithm can output we need to do each chunk of data separately
 
+asymmetric (public-key) cryptography - process of data encryption and decryption, where pair of keys is used, one to encrypt and other to decrypt
+- keys are related via math, but not identical
+- flow: generate key pairs, send public key to other party, received encrypted info from second party, decrypt via private key
+- most of time, asymmetric cryptography is used to exchange keys for doing symmetric cryptography, because last one is much faster
+- algorithms: RSA, DH (Deffie-Hellman), ECDH (Deffie-Hellman with Elliptic-curve)
+	- RSA solves both exchange of symmetric keys problem AND authentication, that public keys belong to same person, BUT ECDH can be faster, so we can combine them
+	- RSA algorithm:
+		- generate 2 random primes, get modulus of both keys, calculate Phi of both keys, calculate public exponent (often 65537 used), calculate private exponent from all previous data
+			- we need to save modulus and public exponent in public space AND primes and private exponent in private space
+		- to break RSA you need to get modulus and find out two primes, that was used to calc it, BUT it is impossible, giving large enough primes
+- note:
+	- both keys are basically ciphertexts with some information put inside of them
+		- it can be viewed via tools like openssl
+		- both keys contain large primer numbers, that co-linked between keys
+	- both keys can be used to reverse each others operation, they aren't limited to just one action
+	- key must generate party, that accepts data
+
 dictionary:
 - plaintext - original data
 - ciphertext - encrypted data
@@ -1095,3 +1112,4 @@ notes:
 	- BUT, result of encryption can't be guessable, based on similar inputs
 - system is as secure as it's weak part
 - good algorithm is not only secure, but must be efficient, easy to understand, have possibility to use hardware acceleration with it and be reasonable to use
+- never put secrets directly into code, BUT also don't overuse env vars for this purpose, it is much better to use dedicated key management storage (KMS)
