@@ -1086,15 +1086,33 @@ asymmetric (public-key) cryptography - process of data encryption and decryption
 - algorithms: RSA, DH (Deffie-Hellman), ECDH (Deffie-Hellman with Elliptic-curve)
 	- RSA solves both exchange of symmetric keys problem AND authentication, that public keys belong to same person, BUT ECDH can be faster, so we can combine them
 	- RSA algorithm:
-		- generate 2 random primes, get modulus of both keys, calculate Phi of both keys, calculate public exponent (often 65537 used), calculate private exponent from all previous data
+		- generate 2 random primes, get modulus of both keys, calculate Phi of both keys, calculate public exponent (often 65537 used for speed and resource preservation), calculate private exponent from all previous data
 			- we need to save modulus and public exponent in public space AND primes and private exponent in private space
 		- to break RSA you need to get modulus and find out two primes, that was used to calc it, BUT it is impossible, giving large enough primes
+		- RSA add IV vector analog by default as part of input padding process
+		- RSA has input size limitation
 - note:
 	- both keys are basically ciphertexts with some information put inside of them
 		- it can be viewed via tools like openssl
 		- both keys contain large primer numbers, that co-linked between keys
 	- both keys can be used to reverse each others operation, they aren't limited to just one action
 	- key must generate party, that accepts data
+
+digital signatures - process of signing (putting some data) OR verifying (checking that existing signature is vaid) for some data
+- similar to signatures in real world, BUT with math ;)
+- flow: sign hash of data with private key, send your public key with signed hash(often appended to actual data), everyone can verify that data belongs to you via your public key
+- main problem is that you need to involve some third-party to verify that particular person owns particular public key
+	- basically similar to how government enforces ownership of signatures
+- the same concept is met in https, there you also have certificates, with certificate authorities, that guarantee validity of public keys in corresponding to domain names
+	- `X.509` format is commonly used format
+		- it is `pem` file with some data: issuer, subject(server identity), public key, signature algorithm, issuer signature
+	- note that commonly used certificates come preinstalled on device, to omit man in the middle attacks, when doing initial exchange with issuer
+		- this called root certificates, meaning certificates that was issued and signed by same subject (issuer == subject)
+		- to check this list you can use `tls.rootCertificates` 
+			- TLS is encrypted analog of TCP, which is used to make HTTP secure
+	- certificates can be chained (often from 2 to 4)
+	- authority verifies you by domain name via some DNS record
+		- this means that almost all authorities doesn't legally verify business or force them to comply with any rules, so HTTPS is only guarantees secure connection to server itself
 
 dictionary:
 - plaintext - original data
