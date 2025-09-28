@@ -1113,6 +1113,34 @@ digital signatures - process of signing (putting some data) OR verifying (checki
 	- certificates can be chained (often from 2 to 4)
 	- authority verifies you by domain name via some DNS record
 		- this means that almost all authorities doesn't legally verify business or force them to comply with any rules, so HTTPS is only guarantees secure connection to server itself
+- to enable HTTPS in your server you need to have certificate, issued by root (or associated with it) authority
+	- you can even set yourself as root inside your system and self-sign certificates
+		- otherwise client will alert user, that connection can't be verified and seems insecure
+	- to get certificate you first need to create request, that will be fulfilled by CA
+
+TLS (Transport Layer Security) - most common protocol for establishing secure connections
+- base for HTTPS (HTTP + TLS == HTTPS) and other "S" application layer protocols
+	- in this schema TLS work between TCP and HTTP, so HTTP and all it's content is encrypted
+	- note that SSH is not built upon TLS, it is secure by itself
+- TLS in Node.js can be used via `tls` module and has similar functionality to `net`, with additional security, that enforced by certificates, you need to provide, while using it
+	- `tls` exposes additional events, that allow to differ secure and non-secure connections to server
+	- TLS handshake is initiated by client, who asks for supported cipher and for communication in supported TLS version, after receiving it will verify cipher and tell server, that it is finished, after which server will agree, that handshake is finished
+		- the result is that both entities are now have same public key
+		- available versions of TLS: 1.1 (in progress of deprecation), 1.2, 1.3
+			- 1.3 doesn't support RSA, because we have single private key for all transactions, which is less secure that Deffie-Hellman, where we have separate pairs per session, BUT it is faster while initial handshake
+	- Node.js will use it's own list of trusted CAs
+- TLS can be ran in MTLS mode, which means mutual TLS, which is basically TLS, but both parties need to authenticate themselves
+- TLS can reuse previous sessions to reduce load
+
+key exchange protocol - 
+- flow: both client and server generates key pair and exchanges their public keys, after that shared secret is created by combining your own private key with party's public key on both sides
+	- result secrets are identical
+	- client and server need to share prime and generator numbers, BUT they are public information and can be reused, to avoid re-computations
+- main algorithm is Deffie-Hellman (but it is used with Elliptic Curve to reduce key sizes, while preserving security)
+	- ECDH is not only more secure (if you get rid of keys after session ended), but also more performant then RSA(note that it is classified as key transport protocol)
+- in TLS handshake client need to additionally send DH public key with it's first request and server will respond with it's DH public key
+	- in this variation of TLS public key of certificate is used to verify signature from server (which includes client's & server's DH public keys with additional info) and not do actual key transport, thus client can verify that server's DH public key is authentic
+		- RSA signatures can be used here or swapped with algorithm from Elliptic Curve family to reduce key sizes AND speedup calculations of signatures
 
 dictionary:
 - plaintext - original data
@@ -1131,3 +1159,226 @@ notes:
 - system is as secure as it's weak part
 - good algorithm is not only secure, but must be efficient, easy to understand, have possibility to use hardware acceleration with it and be reasonable to use
 - never put secrets directly into code, BUT also don't overuse env vars for this purpose, it is much better to use dedicated key management storage (KMS)
+- if you have connection to DB or just any other server, you must encrypt connection, to avoid information exposure to server provider
+	- alternative is to use private network
+#### Security
+storing user password
+- avoid:
+	- plain text - compromise of DB will lead to password compromise
+	- encrypting passwords - compromise of key will lead to password compromise
+	- simple hashing - same passwords are prone to rainbow tables, weak passwords will result in weak hash
+- proper way is to hash N (1kk is often good and optimized enough) times with additional salt (16bytes at min), that properly infused into password
+	- ideally store metadata like iterations, key length, digest etc as part of password string OR in some relation to it
+		- otherwise you need to ensure that they will never change
+	- salt always must be stored as part OR near the password
+- password comparison must always take same amount of time to avoid timing attacks
+	- Node.js expose API to compare buffers in same amount of time constantly
+- alternatively just don't store passwords and use oAuth
+- notes: Node.js has built in way to properly hash passwords, BUT it is easier to use some libs like argon2, that has better API and better algorithm underneath
+
+## AsyncLocalStorage
+Current way of managing state and context is either directly passing it to function OR passing it via some property of a shared (example: request) object
+- it is valid way, but can be restricting, complicated, introduce props drilling and prone to collisions
+- Node introduced built-in API to provide context in scope of `async` operation life-cycle
+	- `AsyncLocalStorage` comes from `async_hooks` module and first need to be created, by providing initial value and value setter; creating is often done inside some middleware, thus enabling possibility for any related handler to get access to store
+		- note that other requests must be called within setter fn
+	- avoid sharing context between handlers OR modifying it from unexpected places; keep context lightweight
+
+## Modern Node.js Can Do That
+- Node can be ran in `--watch` mode, without need for `nodemon` 
+- Node can strip types, so simplified (at least no enums) TS support is enabled
+	- it is possible to turn-on more complete subset of TS features too
+- Node has built in `sqlite` support
+- Node has built in testing framework
+- Node can inject envs via `--env-file=.env` flag
+- Node allow to create temp files, similar to `sessionStorage` and `localStorage` to store semi-persistent info
+- Node has built-in `glob` support as part of `fs` 
+- Node has browser like WebSocket API (read-only)
+
+```js
+import { setTimeout } from 'node:timers/promises';
+
+await setTimeout(100, 'string');
+```
+
+## Reference Architecture by Red Hat
+Guide on how to create proper modern Node.js application, leveraging the power of npm
+- having shared architecture makes development of large-scale apps and systems easier and faster
+- this architecture is just one possibility, not one fits all solutions
+
+#### Logging
+Proper logging makes it possible to understand and debug systems AND keep traceability hight
+- `pino` - lightweight logger
+- structures logs as carriage-return separated JSON blocks, which is easy to parse, modify and search through
+- logs must be complete and contain all needed debug info
+- logs format must be consistent across the system
+- it might be useful to expose endpoint to configure logger dynamically
+- it must be possible to change or filter-out logs within the app
+- trace ids are great way to link all different services and parts of code into one transaction
+	- it also should be exposed to customer, so support could re-use it for searching
+	- `AsyncLocalStorage` can be useful here
+- enrich logs with user data (not email, but id for GDPR) to enable actions logging
+- log proper IP and not something like loadbalancer's IP
+- avoid logging sensitive data
+- print-out app configuration on startup (tools like `convict` could help to omit logging sensitive configs)
+
+#### Code Consistency
+Code must be consistent for better DX, faster onboarding AND to enable refactors
+- consistency must be agreed on
+- consistency must be the same company-wise
+- automate as much as possible
+- `eslint` + `prettier` are main choices
+	- use pre-existing configs first
+	- plugins and add-ons are available
+- `eslint` must be automated:
+	- IDE integration
+	- on save
+	- pre-commit (`husky`)
+	- CI/CD
+- don't forget to ignore `node_modules` 
+
+#### GraphQL
+GraphQL is powerful tool, that harder to setup than REST, but it might be beneficial in longer run
+- agree on GraphQL Schema first (generating from resolvers is less stable, view schema as API contract)
+- cache, security and similar factors must be built differently, due to nature of GraphQL
+- keep schema generators and analyzers separate from consumer apps
+
+#### Containers
+Modern apps are containerized, backed into images and then this images get deployed to server
+- good container is: small, secure (don't run as root AND don't use privileged ports), properly utilizes resources, debuggable (keep some tooling as part of image)
+- start with choosing well-known and well-supported base image, that is light weight, has OS and Node.js runtime
+- keep size small for efficiency by caching and doing multi-stage builds
+- keep builds fast by:
+	- ignoring unneeded files
+	- separating dependency image from main image to keep it stable
+- limit Node's memory usage to max available memory for container
+- container has poor handling of child_processes and zombies, so be careful with it
+	- don't use `npm start`, this creates unnecessary npm process
+
+#### Frameworks
+Generally use Express, BUT you might also benefit from other framework, that is less of a standard, so do your own research (check: weekly downloads, github starts, issues, number of commits, creation date, frequency of commits)
+- look for stable, but maintainable solution, that wide-spread enough and had good enough docs
+
+#### Code Coverage
+Coverage is metric, that helps verifying how much code is tested (it doesn't always correlate with quality of tests, but it is important non the less)
+- types:
+	- functional - number of FNs called
+	- statement - number of statements included in tests
+	- path coverage - number of conditional flows covered
+	- branch of decision - number of decision structures (ex: loop) covered
+- `jest` and `vitest` provide coverage reports
+- cover public API (contracts, expected behavior etc) first, than cover other behaviors of your application, from most to least critical
+- notes:
+	- look not for hight coverage, but for proper tests, that cover all expected behaviors and break, when needed
+
+#### TS
+TS addresses problem of weak types in JS with addition of some extra features
+- it helps be more confident with changes AND have self-documented code
+- TS must be transpiled into JS via tools like `tsc`
+- TS need to be configured via `tsconfig.json` 
+	- look for stricter configs on new projects
+- TS allows for great autocompletes and refactoring via IDE
+- ship JS code, not TS that need to be transpiled
+	- when shipping library add type declarations alongside JS code
+
+#### Security
+Code and application must be secure by design:
+- dependencies
+	- choose only needed once, it may be better not to use it
+	- choose proper once
+	- choose well maintained once
+	- choose dependencies with well known dependencies of their own
+	- don't autoupdate
+	- always fix `audit` errors and warnings
+- managing access
+	- set 2fa as required authorization for your repos
+	- use `.ignore` files
+		- manage secrets separately (`dotenv` + passing envs via Docker is common combination, BUT you may also need some external vaults too)
+	- avoid mixing public and private npm packages inside single image, ideally build them separately
+- write defensive code
+	- avoid global state
+		- never expose private info in it
+	- use `NODE_ENV` as environment var, because it is standard way to communicate with underlying libraries about how much info should be exposed
+	- validate user input (ideally both server and client, BUT server first)
+		- remember about SQL injections and XSS
+	- handle errors properly
+		- don't expose too much details to client
+	- omit complex regexes (some regexes may be ok, BUT fail with some inputs, so be careful)
+		- avoid ReDoS attacks
+	- expose only needed APIs via some prefix, like `/api` 
+	- integrate ACL and auth into most flows
+	- share dependencies between projects in form of image
+		- easier to update compromised dependencies
+
+#### Accessibility
+Accessibility is often a FE task, BUT CLI OR script accessibility and proper API is also important
+- for CLI focus on providing good documentation, understandable outputs (ideally internationalized), proper colors and text sizes and multi-format output of some data (stdout, HTML, CSV etc)
+- for API satisfy FE requirements, this often means different formats of output (i18n, l10n, different formats) and proper error messages
+
+#### Dev workflows
+Different devs may use different tooling or workflow (due to preferences OR other factors)
+- share knowledge
+- variations
+	- zero install - fully cloud workspace with representation layer in form of laptop
+		- low control on dev side and high dependency on maintainers of env
+	- local development - all code & dependencies are cloned locally, last one installed from config
+	- local development with containers - all code & dependencies are cloned locally, dependencies are containerized and orchestrated
+	- local development of some components - part of code is cloned locally in form of container, that can be ran with mocks (or dev env creds), other code and dependencies are containerized, orchestrated and can be accessible via shared environment
+	- fully remote development wit containers - part of code is cloned locally, other code and dependencies are containerized, orchestrated and can be accessible via shared environment
+- each variations has pros and cons and suitable for different sizes and types of apps
+	- when moving from local to remote you lower complexity of development and testing, BUT development response loop drops
+
+#### npm development
+- always init you package via `npm init` and provide reasonable information (don't forget about license and support)
+- include transpiled code and docs only
+	- you can have several versions, like CJS or ESM
+	- build on `prePublish` 
+	- generate type declarations if possible
+- use different scripts, BUT omit `postInstall` due to supply chain attack risks
+- dependencies
+	- use `package-lock.json` for proper versioning
+	- pin dependencies
+	- notes: `^` will give higher minor and patch releases, `~` will give every higher version in minor range
+- use semantic versioning and conventional commits
+	- you can even auto-update version by commit msgs via `release-please` or `standard-release` 
+- use npm mirror for security, access/other restrictions, removing dependency on public registry
+
+#### Problem determination
+Common problems: memory leaks, performance issues, unhandled failures, resource leak, network issues, system issues
+- use metrics, logs, traces, core dumps, heap snapshots and alerts
+
+To determine the problem:
+- match symptoms from different sources
+- confirm problem
+- gain additional info
+- rinse and repeat
+
+#### Testing
+Testing is important thing, that must be done and must be done properly
+- use `jest`, `vitest` or `mocha` (differs from `jest` and `vitest`, because it is unopinionated and only allow running tests with minimal infra)
+	- from resent times, it is also possible to use Node.js built-in testing framework
+- run tests against different Node versions (at least current and latest LTS)
+
+#### Transactions
+Node has several ways to work with transactions:
+- via DB transactions system and SQL `BEGIN/COMMIT` syntax
+	- don't forget to `ROLLBACK` transaction on failure
+- for distributed systems you need to utilize patterns:
+	- 2 phase commit - reliable, but blocking operation
+	- Saga pattern - async event-based pattern, that makes one service to wait for completion event from other, BUT it introduces complexity
+
+#### Load balancing, threading, and scaling
+Some apps need more resources, here is how to satisfy them
+- note that JS is single-threaded, not Node (due to native threads via `worker_threads` OR by simple nature of microservices systems)
+- use threads for long running tasks, even if you have dedicated service for them, because you don't won't to block health etc
+- utilize scaling by container system, for simplicity, rather then Node's API
+	- keep your app stateless for load balancing and scaling
+
+#### CI/CD
+- use containers
+- use CI pipelines for code verification (lints, tests, builds etc) per PR
+- keep local, dev and prod envs similar
+	- utilize dev envs as means for testing and verification
+	- utulize blue/green releases for prod deployments
+- keep your app configurable per env
+- add audit pipelines (per time cycle OR per PR)

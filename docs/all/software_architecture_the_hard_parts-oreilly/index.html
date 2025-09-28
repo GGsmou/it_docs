@@ -1,0 +1,415 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-has-toc data-has-sidebar data-theme="dark" class="astro-bguv2lll"> <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Notes of "Software Architecture The Hard Parts" by O'Reilly | IT Docs</title><link rel="canonical"/><link rel="shortcut icon" href="/it_docs/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v4.4.4"/><meta name="generator" content="Starlight v0.19.1"/><meta property="og:title" content="Notes of &#34;Software Architecture The Hard Parts&#34; by O'Reilly"/><meta property="og:type" content="article"/><meta property="og:url"/><meta property="og:locale" content="en"/><meta property="og:description"/><meta property="og:site_name" content="IT Docs"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Notes of &#34;Software Architecture The Hard Parts&#34; by O'Reilly"/><meta name="twitter:description"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg> <svg aria-hidden="true" class="dark astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg> <svg aria-hidden="true" class="auto astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg> </template><link rel="stylesheet" href="/it_docs/_astro/index.BsC2KTtW.css" /><script type="module" src="/it_docs/_astro/hoisted.BxjUbMOm.js"></script>
+<script type="module" src="/it_docs/_astro/page.CZ0TFQCk.js"></script></head> <body class="astro-bguv2lll"> <a href="#_top" class="astro-7q3lir66">Skip to content</a>  <div class="page sl-flex astro-vrdttmbt"> <header class="header astro-vrdttmbt"><div class="header sl-flex astro-kmkmnagf"> <div class="title-wrapper sl-flex astro-kmkmnagf"> <a href="/it_docs/" class="site-title sl-flex astro-m46x6ez3">  <span class="astro-m46x6ez3"> IT Docs </span> </a>  </div> <div class="sl-flex astro-kmkmnagf"> <site-search data-translations="{&#34;placeholder&#34;:&#34;Search&#34;}" class="astro-v37mnknz"> <button data-open-modal disabled class="astro-v37mnknz">  <svg aria-label="Search" class="astro-v37mnknz astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>  <span class="sl-hidden md:sl-block astro-v37mnknz" aria-hidden="true">Search</span> <svg aria-label="(Press / to Search)" class="sl-hidden md:sl-block astro-v37mnknz astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 2H7a5 5 0 0 0-5 5v10a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5Zm3 15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10Z"/><path d="M15.293 6.707a1 1 0 1 1 1.414 1.414l-8.485 8.486a1 1 0 0 1-1.414-1.415l8.485-8.485Z"/></svg>  </button> <dialog style="padding:0" aria-label="Search" class="astro-v37mnknz"> <div class="dialog-frame sl-flex astro-v37mnknz">  <button data-close-modal class="sl-flex md:sl-hidden astro-v37mnknz"> Cancel </button> <div class="search-container astro-v37mnknz"> <div id="starlight__search" class="astro-v37mnknz"></div> </div> </div> </dialog> </site-search>    </div> <div class="sl-hidden md:sl-flex right-group astro-kmkmnagf"> <div class="sl-flex social-icons astro-kmkmnagf"> <a href="https://github.com/GGsmou" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <starlight-theme-select>  <label style="--sl-select-width: 6.25em" class="astro-4yphtoen"> <span class="sr-only astro-4yphtoen">Select theme</span> <svg aria-hidden="true" class="icon label-icon astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg>  <select value="auto" class="astro-4yphtoen"> <option value="dark" class="astro-4yphtoen">Dark</option><option value="light" class="astro-4yphtoen">Light</option><option value="auto" selected="true" class="astro-4yphtoen">Auto</option> </select> <svg aria-hidden="true" class="icon caret astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </label>  </starlight-theme-select>  <script>
+	StarlightThemeProvider.updatePickers();
+</script>   </div> </div> </header> <nav class="sidebar astro-vrdttmbt" aria-label="Main"> <starlight-menu-button class="astro-jif73yzw"> <button aria-expanded="false" aria-label="Menu" aria-controls="starlight__sidebar" class="sl-flex md:sl-hidden astro-jif73yzw"> <svg aria-hidden="true" class="astro-jif73yzw astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg>  </button> </starlight-menu-button>    <div id="starlight__sidebar" class="sidebar-pane astro-vrdttmbt"> <div class="sidebar-content sl-flex astro-vrdttmbt"> <ul class="top-level astro-3ii7xxms"> <li class="astro-3ii7xxms"> <details open class="astro-3ii7xxms"> <summary class="astro-3ii7xxms"> <div class="group-label astro-3ii7xxms"> <span class="large astro-3ii7xxms">Overview</span>  </div> <svg aria-hidden="true" class="caret astro-3ii7xxms astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </summary> <ul class="astro-3ii7xxms"> <li class="astro-3ii7xxms"> <a href="/it_docs/all/algorithms__data_structures/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Algorithms and Data Structures</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/architecture/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Architecture</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/backend/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">BackEnd</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/cli/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">CLI</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/code_complete_2-steve_mcconnel/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Notes of &quot;Code Complete 2nd edition&quot; by Steve McConnel</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/code_snippets/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Code_Snippets</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/css/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">CSS</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/design/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Design</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/domain_driven_design-evans/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Notes of &quot;Domain Driven Design&quot; by Evans</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/fintech/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Fintech</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/frontend/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">FrontEnd</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/general/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">General</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/it/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">IT</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/js/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">JS</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/nodejs/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">NodeJS</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/optimization/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Optimization</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/react/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">React</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/security/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Security</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/software_architecture_the_hard_parts-oreilly/" aria-current="page" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Notes of &quot;Software Architecture The Hard Parts&quot; by O&#39;Reilly</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/software_engineering_at_google-oreilly/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/system_design/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">System_Design</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/testing/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">Testing</span>  </a> </li><li class="astro-3ii7xxms"> <a href="/it_docs/all/ts/" class="astro-3ii7xxms"> <span class="astro-3ii7xxms">TS</span>  </a> </li> </ul>  </details> </li> </ul>  <div class="md:sl-hidden"> <div class="mobile-preferences sl-flex astro-wu23bvmt"> <div class="sl-flex social-icons astro-wu23bvmt"> <a href="https://github.com/GGsmou" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <starlight-theme-select>  <label style="--sl-select-width: 6.25em" class="astro-4yphtoen"> <span class="sr-only astro-4yphtoen">Select theme</span> <svg aria-hidden="true" class="icon label-icon astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg>  <select value="auto" class="astro-4yphtoen"> <option value="dark" class="astro-4yphtoen">Dark</option><option value="light" class="astro-4yphtoen">Light</option><option value="auto" selected="true" class="astro-4yphtoen">Auto</option> </select> <svg aria-hidden="true" class="icon caret astro-4yphtoen astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg>  </label>  </starlight-theme-select>  <script>
+	StarlightThemeProvider.updatePickers();
+</script>   </div>  </div> </div> </div> </nav> <div class="main-frame astro-vrdttmbt">  <div class="lg:sl-flex astro-67yu43on"> <aside class="right-sidebar-container astro-67yu43on"> <div class="right-sidebar astro-67yu43on"> <div class="lg:sl-hidden astro-pb3aqygn"><mobile-starlight-toc data-min-h="2" data-max-h="6" class="astro-doynk5tl"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-doynk5tl"><details id="starlight__mobile-toc" class="astro-doynk5tl"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-doynk5tl"><div class="toggle sl-flex astro-doynk5tl">On this page<svg aria-hidden="true" class="caret astro-doynk5tl astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg> </div><span class="display-current astro-doynk5tl"></span></summary><div class="dropdown astro-doynk5tl"><ul class="isMobile astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#preface" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Preface</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#pulling-things-apart" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Pulling things apart</span> </a>  </li> </ul> </div></details></nav></mobile-starlight-toc></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-pb3aqygn"><div class="sl-container astro-pb3aqygn"><starlight-toc data-min-h="2" data-max-h="6"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#preface" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Preface</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#pulling-things-apart" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Pulling things apart</span> </a>  </li> </ul> </nav></starlight-toc></div></div> </div> </aside> <div class="main-pane astro-67yu43on">  <main data-pagefind-body lang="en" dir="ltr" class="astro-bguv2lll">    <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <h1 id="_top" class="astro-j6tvhyss">Notes of &quot;Software Architecture The Hard Parts&quot; by O&#39;Reilly</h1>  </div> </div>  <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <div class="sl-markdown-content"> <p><em>notes of “Software Architecture The Hard Parts” by O’Reilly</em></p>
+<h2 id="preface">Preface</h2>
+<p>Book covers solutions and their tradeoffs on the topic of building distributed systems</p>
+<ul>
+<li>most of solutions are can be adopted for your needs</li>
+<li>main focus of this solutions is on data (flow, owners, managers etc)</li>
+</ul>
+<p>Not all problems have best solution, due to nature of problem OR just because of current company’s landscape</p>
+<ul>
+<li>it is task of architect to find it (some solutions can be generalized and shared, but it doesn’t mean that the are the best)</li>
+<li>look for least-worst set of tradeoff, that, ideally, future proof</li>
+</ul>
+<p>Book focuses on decision making and docs</p>
+<blockquote>
+<p>Software architecture is the stuff that’s hard to change later.</p>
+</blockquote>
+<blockquote>
+<p>The software development ecosystem expands and evolves in completely unexpected ways.</p>
+</blockquote>
+<blockquote>
+<p>Data is the most important asset in a company.</p>
+</blockquote>
+<ul>
+<li>so we can build architecture around it</li>
+<li>some problems arrive from relation between data and it’s management and some architectural principles</li>
+<li>types:
+<ul>
+<li>operational - key data, business can’t operate without it, used for all transactions, almost all CRUDs are built for it, often transactional and relational</li>
+<li>analytical - data used for long-term decision making and analysis, not always relational OR/AND transactional, not required to have</li>
+</ul>
+</li>
+</ul>
+<p>ADR (Architectural Decision Record) - document to provide explanation for architecture solution</p>
+<ul>
+<li>can have different formats, but recommended to have at least context, decision, alternatives and consequences</li>
+</ul>
+<p>It is important to convert design to reality, so we need a way to oversight that our solution is implemented</p>
+<ul>
+<li>some code may be reviewed manually, BUT, as all other parts of SE, this process must have not only have tight feedback loop, BUT also automations (fitness functions in context of the book)
+<ul>
+<li>feedback can be achieved via CI and trunk-based development</li>
+<li>automation must be characterized by concrete, measurable and achievable goals, set by architect
+<ul>
+<li>some characteristics are too vague, so they need to be more specific, thus possible to measure and asses</li>
+<li>some characteristics can negatively impact other (Holistic once), so we need to also measure negative effects</li>
+<li>similar solution to fitness function is unit test (it also assess some requirement, BUT it requires domain knowledge)</li>
+<li>notes:
+<ul>
+<li>you can verify many things, if your app properly layered, if you you avoid circular dependencies etc</li>
+<li>some fitness function can take data (ex: num of users) as input and calculate output in form of dynamic threshold</li>
+<li>some functions can’t ran on CI, because they require manual actions and it is fine, BUT can’t be overused</li>
+<li>don’t overuse fitness functions and focus only on important stuff</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>differ architecture from design</p>
+<ul>
+<li>focus on why one solution over other</li>
+<li>drop implementation details</li>
+</ul>
+<p>definitions:</p>
+<ul>
+<li>orchestrated coordination - service coordinator does main job</li>
+<li>choreographed coordination - all services have a duty to do some coordination</li>
+<li>atomicity - if some workflow have persistent state across it’s lifespan, we call it atomic
+<ul>
+<li>alternative is eventual consistency</li>
+</ul>
+</li>
+</ul>
+<h2 id="pulling-things-apart">Pulling things apart</h2>
+<p>We can differ coupling into static things (how small parts communicate with each other) and dynamic (how large systems communicate with each other AND what contracts do they establish)</p>
+<ul>
+<li>it is beneficial to pull apart and isolate large pieces to keep them understandable and manageable</li>
+<li>ultimate decoupling is impossible and will overcomplicate contracts, communication and will make system too shattered</li>
+<li>
+<blockquote>
+<p>Architects design fine-grained microservices to achieve decoupling, but then orchestration, transactionality, and asynchronicity become huge problems. Generic advice says “decouple,” but provides no guidelines for how to achieve that goal while still constructing useful systems.</p>
+</blockquote>
+<ul>
+<li>we need to worry about transactions, because we need to worry about data AND data, in modern systems, lyes within bounded context of single microservice</li>
+</ul>
+</li>
+</ul>
+<p>Try to focus on interconnections and coupling first and work within framework to untangle systems</p>
+<ul>
+<li>Find what parts are entangled together.</li>
+<li>Analyze how they are coupled to one another.</li>
+<li>Assess trade-offs by determining the impact of change on interdependent systems.</li>
+</ul>
+<blockquote>
+<p>Determining the proper size for microservices seems a pervasive problem - toosmall services create transactional and orchestration issues, and too-large services create scale and distribution issues.</p>
+</blockquote>
+<p>architecture quantum - independently deployable artifact with high functional cohesion, high static coupling, and synchronous dynamic coupling. A common example of an architecture quantum is a well-formed microservice within a workflow</p>
+<ul>
+<li>quantum is great communication term: architect view it from coupling standpoint, developer view it from behavioral standpoint, DevOps operates with is as with single deployable unit</li>
+<li>quantums must have proper size and granularity, based on set of tradeoffs</li>
+<li>qunatums must be independently deployable, thus services with shared DB aren’t separate quantums
+<ul>
+<li>also services, bounded to mediator (for example for event orchstration) are also not pure quantums</li>
+<li>services, that don’t have DB of their own, but highly depend on other services with DB are part of their quantum
+<ul>
+<li>even highly coupled UI will make set of microservices a single quantum
+<ul>
+<li>one way to decouple UI is to convert it to microfrontend, related to microservice, that orchestrated by, BUT not highly coupled to UI</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>highly decoupled systems enable high developer velocity</li>
+<li>drawing quantum diagram enables better understanding of system and can highlight things, that need to be decoupled</li>
+<li>communication - multidimensional space
+<ul>
+<li>communication - sync/async
+<ul>
+<li>affects: synchronization, error handling, transactionality, scalability, and performance</li>
+</ul>
+</li>
+<li>consistency - atomic/eventual_consistency</li>
+<li>coordination - orchestration/choreography
+<ul>
+<li>more complexity == more coordination</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>if two services have different performances and have sync communication, we can we them as a quantum for the moment of call, because one server is limiting factor to other</li>
+<li>scalability is the ability to support a large number of concurrent users; elasticity is the ability to support a burst of user requests in a short time frame</li>
+<li>to sell architectural decision to business you need to have proper research, docs and justification with concrete gains</li>
+</ul>
+</li>
+</ul>
+<p>architectural modularity - large monolith doesn’t provide enough scalability, agility and extensibility to handle modern applications</p>
+<ul>
+<li>modularity helps: break-up the load, enable fast pace of changes</li>
+<li>justification for modularizing app must be present and often comes from:
+<ul>
+<li>agility - compound architectural characteristic made up of many other architecture characteristics, including:
+<ul>
+<li>maintainability - ease of making changes
+<ul>
+<li>affected from: coupling, cohesion, cyclomatic complexity (indirection, nesting), size, technical vs domain partitioning</li>
+<li>increasing modularity will define strict boundaries between systems, making it possible to easily change only part of it</li>
+</ul>
+</li>
+<li>testability - ease and completeness of testing
+<ul>
+<li>monolithic system will have too large suit to run AND single change will trigger non-related tests, that might be fluky
+<ul>
+<li>note that too much coupling between services will require additional testing been performed, thus circling back to existing problem</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>deployability - ease, frequency and risk of deployment
+<ul>
+<li>for safety deployments must be frequent, thus easy</li>
+<li>too much modularity can and will make deployment harder
+<ul>
+<li>
+<blockquote>
+<p>If your microservices must be deployed as a complete set in a specific order, please put</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>define proper contracts and be careful with shipping breaking changes them back in a monolith and save yourself some pain</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>can be achieved with properly modularized monolith</li>
+</ul>
+</li>
+<li>scalability of a system - breaks into
+<ul>
+<li>actual scalability - how systems adapts to grows in number of users over time
+<ul>
+<li>about modularity of system</li>
+<li>monolith is impossible to scale partially</li>
+</ul>
+</li>
+<li>elasticity  - how systems adapts to bursts of traffic
+<ul>
+<li>about service size</li>
+<li>single service must be resilient to bursts</li>
+<li>system must be able to quickly spin-up service instances
+<ul>
+<li>it achieved via size of service AND technical characteristics of it</li>
+</ul>
+</li>
+<li>system must have protections set</li>
+</ul>
+</li>
+<li>sync communication lowers general scalability</li>
+</ul>
+</li>
+<li>fault tolerance - wether different parts of system can function without one-another
+<ul>
+<li>failures in monolith is harder to isolate</li>
+<li>sync communication OR high coupling lowers fault tolerance</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>architectural decomposition - process of breaking architecture apart</p>
+<ul>
+<li>eating elephant piece by piece - simple &#x26; understandable, but have low structure and can lead to big ball of mud in process</li>
+<li>component based decomposition - set of patterns to break, extract and refine components step by step
+<ul>
+<li>implies refining monolith into module, than (optionally, but also can be goal) into service-based and only after to set of microservices
+<ul>
+<li>service-based is useful for:
+<ul>
+<li>As a stepping-stone, it allows an architect to determine which domains require further levels of granularity into microservices and which ones can remain as coarse-grained domain services</li>
+<li>Service-based architecture does not require the database to be broken apart, therefore allowing architects to focus on the domain and functional partitioning prior to tackling database decomposition</li>
+<li>Service-based architecture does not require any operational automation or con‐ tainerization. Each domain service can be deployed using the same deployment artifact as the original application</li>
+<li>The move to service-based architecture is a technical one, meaning it generally doesn’t involve business stakeholders and doesn’t require any change to the organization structure of the IT department nor the testing and deployment environments.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>tactical forking - process of copy-pasting code all codebase and removing redundant chunks of it, until single service is formed
+<ul>
+<li>useful for well-structured applications</li>
+<li>flow: clone monolith, proxy traffic for new service to clone, slowly kill non related functional in clone AND remove duplicated functional in original monolith</li>
+<li>generally code is easier to delete, rather then extract</li>
+<li>use tooling to locate leftover code</li>
+<li>be aware that duplicated code might stay in form of types, that must be kept as similar as possible for future extraction
+<ul>
+<li>consider moving duplicated to shared libs</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>---</li>
+<li>don’t decompose without a need</li>
+<li>to determine how to decompose we need to understand internal structure of system and if it is decomposable (it is impossible to decompose non-structured application, so we need to impose structure first and then chip and refine), it can be done via some metrics
+<ul>
+<li>afferent coupling - incoming connections to component</li>
+<li>efferent coupling - outgoing connections to component
+<ul>
+<li>some parts, like shared models, will have high number of outgoing components, thus we need to decide who owns it, by most of connections</li>
+</ul>
+</li>
+<li>abstractness - systems with low abstraction levels are hard to understand, BUT with too high aren’t usable</li>
+<li>instability - score on how much changes are required, when current component changes
+<ul>
+<li>low instability signifies high level of duplication, BUT hight level signifies of tight coupling and improper abstractions</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>component-based decomposition - set of patterns to refactor large monoliths into distributed apps</p>
+<ul>
+<li>identify and size components - app need to have components, that properly sized
+<ul>
+<li>focus on keeping all sizes around the mean (size can be roughly measured by number of statements AND number of file in relation to overall system)</li>
+<li>when sizing components use domain driven approach and break large components into smaller subdomains
+<ul>
+<li>note that not all components are breakable</li>
+</ul>
+</li>
+<li>fitness functions:
+<ul>
+<li>notify about new components</li>
+<li>component’s relative size can’t grow too large
+<ul>
+<li>”size” can differ, based on application size</li>
+</ul>
+</li>
+<li>number of statements can’t be much more than some deviation from mean</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>gather common domain components - process of identifying and collecting common functionality into separate components
+<ul>
+<li>slight differences in functionality should be clamped together for simplicity</li>
+<li>to identify look for:
+<ul>
+<li>shared inheritance parents OR reused logic all around the code</li>
+<li>common naming inside different parts of an app (ex: FinanceEmail, BillingEmail etc)</li>
+</ul>
+</li>
+<li>note that not all code should be moved to service, BUT could live as a lib</li>
+<li>fitness function (mostly manual):
+<ul>
+<li>find common naming patterns in leaf-nodes of namespaces</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>flatten component’s structure - remove any namespace nesting to keep component structure flat and understandable
+<ul>
+<li>nested system can be characterised by:
+<ul>
+<li>Component - A collection of classes grouped within a leaf node namespace that performs some sort of specific functionality in the application (such as payment processing or customer survey functionality).</li>
+<li>Root namespace - A namespace node that has been extended by another namespace node. For example, given the namespaces ss.survey and ss.survey.templates, ss.sur vey would be considered a root namespace because it is extended by .templates. Root namespaces are also sometimes referred to as subdomains.</li>
+<li>Orphaned classes - Classes contained within a root namespace, and hence have no definable component associated with them</li>
+</ul>
+</li>
+<li>ways to flatten:
+<ul>
+<li>merge root and component (simple component)</li>
+<li>de-parent component from root to create two components</li>
+<li>move all code from root to separate components (complex component)
+<ul>
+<li>this will convert root to namespace and kill orphaned classes</li>
+<li>note that shared code must become separate component (ideally with generic name)
+<ul>
+<li>too much shared code is hard to break-up due to shared library management, so it need to be refined into proper size</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>fitness functions:
+<ul>
+<li>no code in roots</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>determine component’s dependencies - process of understanding how components are wried to find-out proper size for each future service
+<ul>
+<li>this will also help with understanding how hard would it be to break things apart
+<ul>
+<li>some apps is just better to rewrite from scratch</li>
+</ul>
+</li>
+<li>look for coupling between components only</li>
+<li>build visual diagrams</li>
+<li>high coupling can be a signal for need for prior refactor</li>
+<li>fitness functions
+<ul>
+<li>restrict max number of coupling for component</li>
+<li>restrict dependency between certain components</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>creating component domain - component can itself become service, but it is often too granular and several components can be formed in domains, that can become services
+<ul>
+<li>this is highly related to DDD</li>
+<li>fitness function:
+<ul>
+<li>disallow creation of new domains without approval</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>create domain services - move each domain into deployable service, forming service-based architecture
+<ul>
+<li>single ui -> API GW (optional) -> number of services -> DB</li>
+<li>it is ok to stop here and not break down services to quantums, if your system doesn’t need to have them</li>
+<li>fitness functions (govern that each component is consistent):
+<ul>
+<li>all components should have same namespace</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>architecture can have his backlog in form of stories about things that need to be changed in some manner and why to change them</li>
+</ul>
+</li>
+</ul>
+<p>breaking data apart -</p> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
