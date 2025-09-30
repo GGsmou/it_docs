@@ -197,4 +197,78 @@ component-based decomposition - set of patterns to refactor large monoliths into
 - notes:
 	- architecture can have his backlog in form of stories about things that need to be changed in some manner and why to change them
 
-breaking data apart - 
+breaking data apart
+- breaking data is hard, because:
+	- it is valuable & high risk asset
+	- it is more coupled to application
+		- still it has similarities, when broken apart, like: components translate to data domains, class files translate to database tables, and coupling points between classes translate to database artifacts such as foreign keys, views, triggers, or even stored procedures
+- data should be broken when:
+	- too many services impacted by data
+		- migration - breaking changes in DB structure
+			- impacted dependent services need to have coordinated deployments to adapt to new format
+				- it is hard to find what services are impacted
+			- keeping DB and service in single quantum reduces change surface
+				- DB can't be accessed by other service for proper context, thus you can keep service2service contract different from DB schema
+		- downtime - single DB is single point of failure
+	- DB can't handle performance
+		- connectivity - each service requires at least one connection to DB, which can be overwhelming
+			- when considering splitting DB, look for connection waits data
+			- note that when shared DB is used, each service must limit maximum possible connections to DB
+				- you need to distribute connections between services properly
+					- take into account functionality and scalability of each service
+		- scalability - DB might become a bottleneck, when scaling a service
+			- database connections, capacity, throughput, and performance are all factors in determining whether a shared database can meet the demands of multiple services within a distributed architecture.
+	- you need to have quantum
+	- you need to handle different data in different formats
+- data should be kept together when:
+	- data is closely related (FK, view, triggers)
+	- data is transactional and need to be kept consistent
+- decomposition process
+	- create data domains
+	- create separate schema for each domain
+		- create synonyms for different schemas for easier cross-schema interactions detection in future
+	- restrict each service to use only related schema and access other data via other services
+		- in this state you have benefits, when talking about ease of change, BUT performance and failure are still issues
+	- move schemas to separate physical DBs
+		- options:
+			- backup and restore
+				- back up each schema with data domains, then set up database servers for each data domain. They then restore the schemas, connect services to schemas in the new database servers, and finally remove schemas from the original database server. This approach usually requires downtime for the migration.
+			- replicate
+				- teams first set up database servers for each data domain. Next they replicate the schemas, switch connections over to the new database servers, and then remove the schemas from the original database server. While this approach avoids downtime, it does require more work to set up the replication and manage increased coordination.
+	- remove old connections and deploy DB+service as single unit
+		- now you can optimize scalability, connections, DB type etc
+- DB type selection
+	- characteristics to consider:
+		- learning curve
+		- ease of data modeling
+		- scalability
+		- availability
+		- consistency
+		- product maturity, community, language support etc
+		- read OR write priority
+	- types:
+		- relational - Relational databases (also known as an RDBMS) have been the database of choice for more than three decades. There is significant value in their usage and the stability they provide, particularly within most business-related applications. These databases are known for the ubiquitous Structured Query Language (SQL) and the ACID properties they provide. The SQL interface they provide makes them a preferred choice for implementing different read models on top of the same write model
+		- key value - NoSQL DB, based on hashmap structure, which has string keys with arbitrary values and allow for get, set and delete operations, using keys
+			- often come as persistent and non-persistent
+			- have great performance (especially for reads)
+			- subtype is NewSQL DBs, that aim to enrich relational SQL DBs with scalability
+		- document - NoSQL DB, based on JSON concept, that is easy to read, has tree structure and self-describing
+			- read focused
+			- indexable
+		- column family - DB that, have rows with varying numbers of columns, where each column is a name-value pair. With columnar databases, the name is known as a column-key, the value is known as a column-value, and the primary key of a row is known as a row key. Column family databases are another type of NoSQL database that group related data that is accessed at the same time
+			- easy to scale horizontally, highly write efficient, easy to cluster
+		- graph - NoSQL DB, that based on graph data structure
+			- edge direction has significance
+			- great for ML and analytics
+			- read focused
+			- great for relationship querying
+			- edge types and relationships are costly to change
+		- time-series - DB that optimized for tracking a set of data-points in some time window
+			- append-focused with required timestamp for each data-entry
+			- read first
+- notes:
+	- related tables, views, FKs, triggers etc can be grouped as single data domain
+		- some artifacts need to be removed, when data is decomposed
+	- you can use different types of DB for different data
+	- you can create broader domains, if underlying data is too tightly coupled and can't be broken apart
+	- data is always has some schema, but in NoSQL world it is just less explicit (thus more flexible)
