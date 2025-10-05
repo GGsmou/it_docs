@@ -272,3 +272,143 @@ breaking data apart
 	- you can use different types of DB for different data
 	- you can create broader domains, if underlying data is too tightly coupled and can't be broken apart
 	- data is always has some schema, but in NoSQL world it is just less explicit (thus more flexible)
+
+service granularity - not every single thing should be a microservice
+- each service should have single responsibility, BUT you have to decide how broad is this responsibility
+- terms:
+	- modularity - constructed with standardized units or dimensions for flexibility and variety in use
+	- granularity - consisting of or appearing to consist of one of numerous particles forming a larger unit.
+	- is SE we break things into modules, that have some size, thus modularity and granularity
+- to objectively track size you can measure:
+	- number of statements
+	- number of public interfaces
+- consider breaking service when
+	- service scope and responsibility
+		- determined by cohesion and pure service size
+		- if you can't properly name your service, you have scope problem
+	- code volatility (do we often change only some part of service, while others are stable)
+	- scalability (different parts need to scale differently)
+	- fault tolerance
+	- security (if service has parts with not-required security AND required security you can break them to reduce maintenance burden)
+		- it can also reduce access related risks, because you don't need to share different access levels in single service
+	- extensibility (how often service is expanded with new context)
+		- consider only when you are certainly planning on service expansion
+- consider merging services when
+	- is transactional integrity required
+	- do we need to coordinate services
+		- high levels of service2service communication decrease system's fault tolerance and availability AND negatively impact latency
+		- if you have more requests, that require service2service rather than been atomic, you have a problem
+	- do services need to share code
+		- while it is possible to share code, you now have single point of change that impacts all of your services AND it might be hard to coordinate library updates
+			- it is ok to share architectural things, ex: logging; BUT domain code better be kept together
+			- if shared code changes frequently it will be painful to maintain it
+			- shared library can reduce time to market
+				- it can have opposite effect too
+	- can DB be broken apart
+- build your final decision based on business needs
+- note that you can delegate code shareability, security etc onto design
+
+## Pulling things back together
+After system is broken you will be presented with set of challenges to keep it is one understandable and cohesive things, that can be overcame with patterns and techniques
+
+reuse patterns - code reuse is common, but it can have different forms and flavors with their tradeoffs
+- code replication - each service has copy of share functionality
+	- while it is often told to avoid sharing too much, you still need to have it in some form for maintainability (hard to change AND keep consistent)
+	- some simple, low volatile code (often some interfaces OR utils) can and better be replicated
+	- keeps ideal bounded context
+- shared lib - shared code lives separately and bounded to app at compile time
+	- libs must
+		- have proper granularity
+			- too coarse will require constant changes and adoption of potentially useless functionality, BUT too fine grained is hell for dependency management
+			- prefer smaller libs with dedicated, cohesive responsibility
+		- be versioned (always)
+			- you have lower impact by each update, BUT time to market decreases
+	- consider deprecation strategy and support for older version
+		- high volatile libs should have better support for older version
+			- avoids too much maintenance burden on consumer
+	- always pin your versions AND remember that any patch version can lead to breaking changes
+	- note that bundle size increases with each lib AND multi-language environments are problematic (unlike in shared service pattern)
+- shared service - shared code lives separately and accessed via some interface of a service
+	- it has great time to market, BUT breaking changes need to be adopted upfront or versioned via API AND risk of breaking consumers is generally high
+		- note that versioning is still hard her AND reduces time to market, but it may be the only option for some changes
+	- shared service becomes single point of failure
+	- performance is impacted
+		- mainly in form of latency
+		- still you can utilize async communication patterns OR proper protocol to mitigate some performance
+	- scalability may be hard OR service may even become a bottleneck
+	- notes:
+		- inheritance is not accessible with this pattern, only composition
+- side car - shared code is attached to each service (utilize fitness functions to verify that) as external dependency and lives separately from domain logic
+	- great for logging, monitoring and other infra components
+	- can be maintained by infra/platform teams
+	- each sidecar can establish connection with sidecar in other service, thus forming Service Mesh, that can give additional insights on connections inside system
+	- there is concept of orthogonal coupling in architecture, where two independent things need to be coupled for some reason
+		- side car solves operational part, where you have shared, pluggable component, that solves infra needs of each microservice, while preserving their independents
+		- in other words it is consistent way to create isolated coupling
+	- notes:
+		- similar to hexagonal architecture, where you have set of ports and adaptors, that allow to connect to stable domain core
+		- sidecar per language is required
+		- ideally sidecars should be tested on subset/all services it is used
+		- put in sidecar only stuff that widely used
+- notes:
+	- reuse can be harmful, due to been single point of failure AND overcomplicating things, when it comes to domain reuse (each service may have some additional expectations from `Customer`, so they will overcomplicate shared model, duplication is better choice here)
+
+data ownership AND distributed transactions - after data is pulled apart we need a way to provider each service with needed data, handle transactions AND decide on data ownership
+- ideally writer to table owns it, BUT it won't work for multiple writers
+	- for single writer - writer is owner
+	- for many writers - dedicated service is created to become writer/owner
+		- you can have sync/async requests to do writers by other services via API
+	- for several writers - choose one below:
+		- split tables into separate per service so each owns respective data
+			- we will create need for communication and transactional consistency
+		- put services with DB in single domain context AND single quantum
+			- avoid transactional consistency and service2service communication
+			- When choosing the data domain technique, always reevaluate why separate services are needed since the data is common to each of the services. Justifications might include scalability differences, fault-tolerance needs, throughput differences, or isolating code volatility
+			- changes to schema will impact both services, DB performance can become a bottleneck
+		- assign single service to become owner AND use other one to do writes via it in form of delegation
+			- ownership is assigned either to service with most operations priority (the one who must be more performant) OR to service that is closer from domain standpoint
+				- better go with domain for simplicity of understanding the system and proper bounded context AND solve performance via design (cache, queue etc)
+			- creates service2service communication bride (that can be sync OR async) (performance degradation AND transaction problems for write operations)
+			- services are coupled and become single quantum this way
+		- combine services into single one
+			- you trade-off independency and scalability for single data ownership
+			- it will be harder to maintain such service if it becomes too coarse
+			- fault tolerance is at risk
+- distributed transactions
+	- common type of transaction ACID transaction, single atomic units of work
+		- Atomicity means a transaction must either commit or roll back all of its updates in a single unit of work, regardless of the number of updates made during that transaction. In other words, all updates are treated as a collective whole, so all changes either get committed or get rolled back as one unit
+		- Consistency means that during the course of a transaction, the database would never be left in an inconsistent state or violate any of the integrity constraints specified in the database
+		- Isolation refers to the degree to which individual transactions interact with each other. Isolation protects uncommitted transaction data from being visible to other transactions during the course of the business request
+		- Durability means that once a successful response from a transaction commit occurs, it is guaranteed that all data updates are permanent, regardless of further system failures
+	- transaction in distributed system can't be called ACID by nature, they are called distributed OR BASE
+		- Basic availability (the “BA” part of BASE) means that all of the services or systems in the distributed transaction are expected to be available to participate in the dis‐ tributed transaction. While asynchronous communication can help decouple services and address availability issues associated with the distributed transaction participants, it unfortunately impacts how long it will take the data to become consistent for the atomic business transaction
+		- Soft state (the S part of BASE) describes the situation where a distributed transaction is in progress and the state of the atomic business request is not yet complete (or in some cases not even known)
+		- Eventual consistency (the E part of BASE) means that given enough time, all parts of the distributed transaction will complete successfully and all of the data is in sync with one another. The type of eventual consistency pattern used and the way errors are handled dictates how long it will take for all of the data sources involved in the distributed transaction to become consistent (different patterns with different tradeoffs exists)
+			- background synchronization - separate service do data syncing from time to time in batches
+				- longest to become eventually consistent
+				- can be achieved via events OR by some algorithms to read table and sync target tables
+					- in any case sync service need to know and have access to data, thus breaking bounded contexts
+				- great for closed systems, that don't share data between each other
+					- it keeps services decoupled
+				- system is responsive
+			- orchestrated request-based orchestration - orchestrator is managing single request AND request is completed/failed only after all transaction is done
+				- orchestrator is tightly coupled to orchestrated services
+				- orchestrator can be
+					- one of some services
+						- often bad solution, because service is highly coupled with others AND have too much responsibility
+					- separate service
+				- systems becomes consistent pretty fast, but each transaction is slow
+					- for better responsiveness you can utilize parallel operations, BUT rate of rollbacks will increase
+				- error handling is hard due to rollbacks, retries etc
+					- and how to response (200 OK OR error(if error, do we need to retry or not))
+				- service must allow for restore operation OR we need to create/update entity, which might trigger unwanted workflows
+					- and what to do if this operation fails too :/
+				- request become atomic this way
+				- services are decoupled from each other
+			- event-based synchronization (most modern, popular and reliable) - events/commands are sent via pub/sub messaging system to each service with event preservation
+				- eventual consistency is quite short, BUT still takes time
+				- responsiveness is great, if you don't need to wait for response
+				- services are decoupled
+				- message need to be available for reasonable time AND subscribers must be durable, meaning they must be able to receive messages from past, when they were inactive
+				- error handling is still pain for more complex scenarios
+					- common solution is to have dead latter queue, where you send unprocessed events for later automatic/manual resolution
