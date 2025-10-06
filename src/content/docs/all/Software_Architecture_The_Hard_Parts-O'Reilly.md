@@ -412,3 +412,75 @@ data ownership AND distributed transactions - after data is pulled apart we need
 				- message need to be available for reasonable time AND subscribers must be durable, meaning they must be able to receive messages from past, when they were inactive
 				- error handling is still pain for more complex scenarios
 					- common solution is to have dead latter queue, where you send unprocessed events for later automatic/manual resolution
+
+distributed data access - unlike in monolithic apps, with direct DB queries, in distributed systems you need to choose some specific way to access data with set of tradeoffs
+- interservice communication - one service asks other for data via network
+	- problems:
+		- performance degradation (network latency, additional DB calls)
+		- services are coupled via sync calls
+			- fault tolerance reduction
+			- scaling must be done for both services
+	- advantages:
+		- simple
+		- no data duplication
+- column scheme duplication - data duplicated in each service's DB
+	- problems:
+		- data sync is required AND often data is only eventually consistent due to async nature
+		- data duplication
+		- no concrete owner of data
+		- services are coupled (loosely) due to data sync requirement
+	- great for high responsive OR/AND high volume of data systems
+- replicated caching - cache is kept in-memory, BUT constantly updated in bg via async events, thus all services has same data on hands
+	- problems:
+		- startup timing is slower, because we need to populate the cache (or fallback to service2service calls, that can be risky)
+			- also we need to wait for second service to boot
+			- it is problem only for first instance, other can copy cache from already running once
+		- if amount of data is too big, we would spend to much to keep it in memory
+		- we still have latency, so high volatile data isn't suitable here
+		- service discovery may be problematic
+	- benefits:
+		- single data owner, that can access to write to cache
+		- no need to do sync service2service calls
+		- responsiveness
+		- fault tolerance
+		- scalability
+	- notes:
+		- pure in-memory caching can be used here, but we aren't gaining benefits of constant syncing
+		- distributed caching(cache is located in separate service and constantly updated to avoid service2service communication) is often a bad solution here due to:
+		- fault tolerance
+		- data ownership (can be somewhat fixed if only owner writes to can)
+		- network latency
+- data domain - combine two DBs into one and enclose both services into single domain
+	- we avoid all problems with data consistency & syncing, latency, ownership, service coupling etc, BUT in cost of sharing DB between services (with it's fault tolerance, security AND change impact problems)
+
+managing distributed workflows - how combine and build communication between several services to do some task
+- orchestrator - orchestrator/mediator is used to perform coordination (ordering, state, error handling etc) activity between services
+	- orchestrator is used per workflow for couple of services, not for whole system AND can't contain domain logic, outside of scope of orchestration
+	- advantages:
+		- centralized workflow & error handling
+		- recoverability (due to access to internal state)
+		- state
+	- problems:
+		- bottleneck in form of orchestrator (scalability, fault tolerance, latency)
+		- service coupling point is created
+- choreography - each participant of workflow triggers next step execution
+	- triggers are often implemented in form of async messages
+	- we have no state owner so there are different ways of managing it:
+		- front caller - first service in chain holds and used to retrieve state
+			- creates a pseudo-orchestrator, which simplifies workflow
+			- increases communication & coupling
+		- stateless - keep no state and calculate it on fly
+			- keeps services decoupled and scalable in cost of complexity and potentially latency overhead
+		- stamp coupling - pass state as part of messages
+			- we can't query state on demand
+			- contracts are more complex
+	- advantages:
+		- responsive, fault tolerant & scalable with low coupling 
+	- problems:
+		- system is more complex, because workflow & state is located through it's participants
+		- recoverability is harder
+		- service coupling (semantic)
+			- semantic coupling means cross context coupling that arises when we need to implement business requirements, that require domain interactions
+			- ideally you need to model implementation as close as possible to semantics to avoid large semantic coupling
+
+transactional sagas - 

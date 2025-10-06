@@ -870,4 +870,146 @@
 </li>
 </ul>
 </li>
-</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+</ul>
+<p>distributed data access - unlike in monolithic apps, with direct DB queries, in distributed systems you need to choose some specific way to access data with set of tradeoffs</p>
+<ul>
+<li>interservice communication - one service asks other for data via network
+<ul>
+<li>problems:
+<ul>
+<li>performance degradation (network latency, additional DB calls)</li>
+<li>services are coupled via sync calls
+<ul>
+<li>fault tolerance reduction</li>
+<li>scaling must be done for both services</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>advantages:
+<ul>
+<li>simple</li>
+<li>no data duplication</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>column scheme duplication - data duplicated in each service’s DB
+<ul>
+<li>problems:
+<ul>
+<li>data sync is required AND often data is only eventually consistent due to async nature</li>
+<li>data duplication</li>
+<li>no concrete owner of data</li>
+<li>services are coupled (loosely) due to data sync requirement</li>
+</ul>
+</li>
+<li>great for high responsive OR/AND high volume of data systems</li>
+</ul>
+</li>
+<li>replicated caching - cache is kept in-memory, BUT constantly updated in bg via async events, thus all services has same data on hands
+<ul>
+<li>problems:
+<ul>
+<li>startup timing is slower, because we need to populate the cache (or fallback to service2service calls, that can be risky)
+<ul>
+<li>also we need to wait for second service to boot</li>
+<li>it is problem only for first instance, other can copy cache from already running once</li>
+</ul>
+</li>
+<li>if amount of data is too big, we would spend to much to keep it in memory</li>
+<li>we still have latency, so high volatile data isn’t suitable here</li>
+<li>service discovery may be problematic</li>
+</ul>
+</li>
+<li>benefits:
+<ul>
+<li>single data owner, that can access to write to cache</li>
+<li>no need to do sync service2service calls</li>
+<li>responsiveness</li>
+<li>fault tolerance</li>
+<li>scalability</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>pure in-memory caching can be used here, but we aren’t gaining benefits of constant syncing</li>
+<li>distributed caching(cache is located in separate service and constantly updated to avoid service2service communication) is often a bad solution here due to:</li>
+<li>fault tolerance</li>
+<li>data ownership (can be somewhat fixed if only owner writes to can)</li>
+<li>network latency</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>data domain - combine two DBs into one and enclose both services into single domain
+<ul>
+<li>we avoid all problems with data consistency &#x26; syncing, latency, ownership, service coupling etc, BUT in cost of sharing DB between services (with it’s fault tolerance, security AND change impact problems)</li>
+</ul>
+</li>
+</ul>
+<p>managing distributed workflows - how combine and build communication between several services to do some task</p>
+<ul>
+<li>orchestrator - orchestrator/mediator is used to perform coordination (ordering, state, error handling etc) activity between services
+<ul>
+<li>orchestrator is used per workflow for couple of services, not for whole system AND can’t contain domain logic, outside of scope of orchestration</li>
+<li>advantages:
+<ul>
+<li>centralized workflow &#x26; error handling</li>
+<li>recoverability (due to access to internal state)</li>
+<li>state</li>
+</ul>
+</li>
+<li>problems:
+<ul>
+<li>bottleneck in form of orchestrator (scalability, fault tolerance, latency)</li>
+<li>service coupling point is created</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>choreography - each participant of workflow triggers next step execution
+<ul>
+<li>triggers are often implemented in form of async messages</li>
+<li>we have no state owner so there are different ways of managing it:
+<ul>
+<li>front caller - first service in chain holds and used to retrieve state
+<ul>
+<li>creates a pseudo-orchestrator, which simplifies workflow</li>
+<li>increases communication &#x26; coupling</li>
+</ul>
+</li>
+<li>stateless - keep no state and calculate it on fly
+<ul>
+<li>keeps services decoupled and scalable in cost of complexity and potentially latency overhead</li>
+</ul>
+</li>
+<li>stamp coupling - pass state as part of messages
+<ul>
+<li>we can’t query state on demand</li>
+<li>contracts are more complex</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>advantages:
+<ul>
+<li>responsive, fault tolerant &#x26; scalable with low coupling</li>
+</ul>
+</li>
+<li>problems:
+<ul>
+<li>system is more complex, because workflow &#x26; state is located through it’s participants</li>
+<li>recoverability is harder</li>
+<li>service coupling (semantic)
+<ul>
+<li>semantic coupling means cross context coupling that arises when we need to implement business requirements, that require domain interactions</li>
+<li>ideally you need to model implementation as close as possible to semantics to avoid large semantic coupling</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>transactional sagas -</p> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
