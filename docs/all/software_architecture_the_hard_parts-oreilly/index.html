@@ -1012,4 +1012,163 @@
 </ul>
 </li>
 </ul>
-<p>transactional sagas -</p> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>transactional sagas - design patterns for coordination of distributed transactions</p>
+<ul>
+<li>all sagas can be characterized by communication(sync/async), consistency(atomic, eventual), coordination(orchestrated/choreographed)</li>
+<li>epic (orchestrated) saga (sao) - monolith like pattern, common in many systems and known for it’s simplicity
+<ul>
+<li>for transaction to succeed, all transactions must succeed</li>
+<li>failed transactions are rolled back via compensative requests</li>
+<li>non-efficient, when it comes to performance, scalability, elasticity, responsiveness etc</li>
+<li>overall has pretty complex error management and better be avoided
+<ul>
+<li>in other way it is kinda simple, do to lack of async operations</li>
+</ul>
+</li>
+<li>highly coupled</li>
+</ul>
+</li>
+<li>phone tag saga (sac) - similar to epic saga, BUT without dedicated orchestrator (front caller technique is utilized for state management, BUT can also be omited in favor of stamp coupling)
+<ul>
+<li>great for simple, atomic-like workflow, BUT should be avoided for complex, due to complexity rise in front caller</li>
+<li>coupling is high</li>
+<li>happy path is faster then in epic saga, due to lack of mediator, while error path is slow (can be worked around via idempotency and retries)
+<ul>
+<li>mediator won’t become bottleneck here</li>
+<li>lower coupling for happy flow</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>fairy tale saga (seo) - simplifies complexity by utilizing eventual consistency, that is often great for compensative transactions (ex: if request failed, just move on with transaction AND retry again later, by pulling unfinished request from cache)
+<ul>
+<li>commonly used for it’s ease of use and balanced tradeoffs</li>
+<li>high-ish coupling, due to orchestrator nature, BUT not high due to lack of atomicity</li>
+<li>great performance as for sync pattern</li>
+<li>scaling can be done independently</li>
+</ul>
+</li>
+<li>time travel saga (sec) - lowers complexity and coupling by removing mediator
+<ul>
+<li>eventual consistency can take a while</li>
+<li>complexity has proportional relation to workflow’s complexity
+<ul>
+<li>it is true, because we need to keep more logic and state inside each participant, with more complex logic of workflow</li>
+<li>great for “fire and forget” style (high throughput)</li>
+<li>non-responsive fro complex workflows and error management</li>
+</ul>
+</li>
+<li>you can go even deeper and choose anthology saga for additional general perfomance</li>
+</ul>
+</li>
+<li>fantasy fiction saga (aao) - epic saga analog, but with async communication
+<ul>
+<li>not the best pattern, due to additional complexity (more state management, async problems management) of async with not so much benefits
+<ul>
+<li>often you will be better with parallel saga</li>
+</ul>
+</li>
+<li>extremely high coupling</li>
+<li>high complexity</li>
+<li>bad responsiveness</li>
+<li>bad scalability</li>
+</ul>
+</li>
+<li>horror story saga (aac) - the worst combination of characteristics :)
+<ul>
+<li>the main problem is due to high coupling from atomicity, that combined with async and choreography, that are both loosely coupled approaches
+<ul>
+<li>still not the worst coupling</li>
+</ul>
+</li>
+<li>errors conditions are extremely difficult</li>
+<li>most time you will be better with anthology saga</li>
+<li>highly scalable</li>
+<li>low responsiveness</li>
+</ul>
+</li>
+<li>parallel saga (aeo) - high performant and kinda easy to implement for complex workflows
+<ul>
+<li>great responsiveness and parallelization</li>
+<li>good for complex workflows</li>
+<li>additional data syncing in services may be required</li>
+<li>we have a bit high complexity due to async issues and harder error resolution, with potentially slower execution times, BUT it is acceptable tradeoff</li>
+<li>low coupling</li>
+<li>great scalability</li>
+<li>great responsiveness</li>
+</ul>
+</li>
+<li>anthology saga (aec) - highly performant, queue-based pattern
+<ul>
+<li>each service need to have more logic, thus complex workflows can be harder to implement
+<ul>
+<li>stamp coupling is almost only option for state passing</li>
+</ul>
+</li>
+<li>high throughput, scalability, elasticity, and other beneficial operational architecture characteristics</li>
+<li>This pattern works best for simple, mostly linear workflows, where architects desire high processing throughput</li>
+<li>lowest coupling</li>
+<li>responsiveness is high</li>
+</ul>
+</li>
+<li>all sagas can be viewed as state machines
+<ul>
+<li>In many cases, it’s useful to put the list of all possible state transitions and the corresponding transition action in some sort of table. Developers can then use this table to implement the state transition triggers and possible error conditions in an orchestration service (or respective services if using choreography)</li>
+</ul>
+</li>
+<li>to manage sagas you can either have docs, that describe saga in form of state machine OR you can utilize comments in code to denote which method of service is involved in saga and what state system is currently in AND what next step is going to be triggered and in what state
+<ul>
+<li>you can even calculate impact of your change via some tooling and write test</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Often developers are good checks on incomplete or confusing architecture solutions. If they are confused, there may be a good reason</p>
+</blockquote>
+<p>contracts - basically an agreement between services</p>
+<ul>
+<li>contract format is chosen on software design, BUT will it be loose OR tight is chosen by architect</li>
+<li>One constant factor in software architecture that cuts across and affects virtually every aspect of architect decision making is contracts, broadly defined as how disparate parts of an architecture connect with one another</li>
+<li>This definition of contract encompasses all techniques used to “wire together” parts of a system, including transitive dependencies for frameworks and libraries, internal and external integration points, caches, and any other communication among parts.</li>
+<li>some contracts can be stricter or looser (rpc -> rest -> simple JSON)
+<ul>
+<li>a strict contract requires adherence to names, types, ordering, and all other details, leaving no ambiguity</li>
+<li>many architects like strict contracts because they model the identical semantic behavior of internal method calls. However, strict contracts create brittleness in integration architecture
+<ul>
+<li>this means that strict contracts can be harmful for often changing systems</li>
+</ul>
+</li>
+<li>Using such loose contracts allows for extremely decoupled systems, often one of the goals in architectures, such as microservices. However, the looseness of the contract comes with tradeoffs such as lack of contract certainty, verification, and increased application logic</li>
+<li>strictness
+<ul>
+<li>benefits: fidelity, versioning, easy to verify at build time, contract as docs</li>
+<li>problems: coupling, versioning</li>
+</ul>
+</li>
+<li>loseness
+<ul>
+<li>benefits: decoupled, ease of evolution (you still need to change every affected part, but it is easier)</li>
+<li>problems: management &#x26; verification is hard due to lack of schema, requires fitness functions OR some e2e tests to verify contract</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>notes:
+<ul>
+<li>include as least as possible into your contract and keep it minimal
+<ul>
+<li>this will prevent unwanted breaking changes</li>
+</ul>
+</li>
+<li>microservices often benefit from looser, but somewhat defined contracts, that are implementation agnostic
+<ul>
+<li>you can keep contracts pretty loose AND system stable via fitness functions that could verify that contract is fulfilled, when provider of data for contract makes some changes
+<ul>
+<li>note that teams need to be mature and don’t ignore failed tests in order not to break others</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

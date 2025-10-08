@@ -483,4 +483,87 @@ managing distributed workflows - how combine and build communication between sev
 			- semantic coupling means cross context coupling that arises when we need to implement business requirements, that require domain interactions
 			- ideally you need to model implementation as close as possible to semantics to avoid large semantic coupling
 
-transactional sagas - 
+transactional sagas - design patterns for coordination of distributed transactions
+- all sagas can be characterized by communication(sync/async), consistency(atomic, eventual), coordination(orchestrated/choreographed)
+- epic (orchestrated) saga (sao) - monolith like pattern, common in many systems and known for it's simplicity
+	- for transaction to succeed, all transactions must succeed
+	- failed transactions are rolled back via compensative requests
+	- non-efficient, when it comes to performance, scalability, elasticity, responsiveness etc
+	- overall has pretty complex error management and better be avoided
+		- in other way it is kinda simple, do to lack of async operations
+	- highly coupled
+- phone tag saga (sac) - similar to epic saga, BUT without dedicated orchestrator (front caller technique is utilized for state management, BUT can also be omited in favor of stamp coupling)
+	- great for simple, atomic-like workflow, BUT should be avoided for complex, due to complexity rise in front caller
+	- coupling is high
+	- happy path is faster then in epic saga, due to lack of mediator, while error path is slow (can be worked around via idempotency and retries)
+		- mediator won't become bottleneck here
+		- lower coupling for happy flow
+- fairy tale saga (seo) - simplifies complexity by utilizing eventual consistency, that is often great for compensative transactions (ex: if request failed, just move on with transaction AND retry again later, by pulling unfinished request from cache)
+	- commonly used for it's ease of use and balanced tradeoffs
+	- high-ish coupling, due to orchestrator nature, BUT not high due to lack of atomicity
+	- great performance as for sync pattern
+	- scaling can be done independently
+- time travel saga (sec) - lowers complexity and coupling by removing mediator
+	- eventual consistency can take a while
+	- complexity has proportional relation to workflow's complexity
+		- it is true, because we need to keep more logic and state inside each participant, with more complex logic of workflow
+		- great for "fire and forget" style (high throughput)
+		- non-responsive fro complex workflows and error management
+	- you can go even deeper and choose anthology saga for additional general perfomance
+- fantasy fiction saga (aao) - epic saga analog, but with async communication
+	- not the best pattern, due to additional complexity (more state management, async problems management) of async with not so much benefits
+		- often you will be better with parallel saga
+	- extremely high coupling
+	- high complexity
+	- bad responsiveness
+	- bad scalability
+- horror story saga (aac) - the worst combination of characteristics :)
+	- the main problem is due to high coupling from atomicity, that combined with async and choreography, that are both loosely coupled approaches
+		- still not the worst coupling
+	- errors conditions are extremely difficult
+	- most time you will be better with anthology saga
+	- highly scalable
+	- low responsiveness
+- parallel saga (aeo) - high performant and kinda easy to implement for complex workflows
+	- great responsiveness and parallelization
+	- good for complex workflows
+	- additional data syncing in services may be required
+	- we have a bit high complexity due to async issues and harder error resolution, with potentially slower execution times, BUT it is acceptable tradeoff
+	- low coupling
+	- great scalability
+	- great responsiveness
+- anthology saga (aec) - highly performant, queue-based pattern
+	- each service need to have more logic, thus complex workflows can be harder to implement
+		- stamp coupling is almost only option for state passing
+	- high throughput, scalability, elasticity, and other beneficial operational architecture characteristics
+	- This pattern works best for simple, mostly linear workflows, where architects desire high processing throughput
+	- lowest coupling
+	- responsiveness is high
+- all sagas can be viewed as state machines
+	- In many cases, it’s useful to put the list of all possible state transitions and the corresponding transition action in some sort of table. Developers can then use this table to implement the state transition triggers and possible error conditions in an orchestration service (or respective services if using choreography)
+- to manage sagas you can either have docs, that describe saga in form of state machine OR you can utilize comments in code to denote which method of service is involved in saga and what state system is currently in AND what next step is going to be triggered and in what state
+	- you can even calculate impact of your change via some tooling and write test
+
+> Often developers are good checks on incomplete or confusing architecture solutions. If they are confused, there may be a good reason
+
+contracts - basically an agreement between services
+- contract format is chosen on software design, BUT will it be loose OR tight is chosen by architect
+- One constant factor in software architecture that cuts across and affects virtually every aspect of architect decision making is contracts, broadly defined as how disparate parts of an architecture connect with one another
+- This definition of contract encompasses all techniques used to “wire together” parts of a system, including transitive dependencies for frameworks and libraries, internal and external integration points, caches, and any other communication among parts.
+- some contracts can be stricter or looser (rpc -> rest -> simple JSON)
+	- a strict contract requires adherence to names, types, ordering, and all other details, leaving no ambiguity
+	- many architects like strict contracts because they model the identical semantic behavior of internal method calls. However, strict contracts create brittleness in integration architecture
+		- this means that strict contracts can be harmful for often changing systems
+	- Using such loose contracts allows for extremely decoupled systems, often one of the goals in architectures, such as microservices. However, the looseness of the contract comes with tradeoffs such as lack of contract certainty, verification, and increased application logic
+	- strictness
+		- benefits: fidelity, versioning, easy to verify at build time, contract as docs
+		- problems: coupling, versioning
+	- loseness
+		- benefits: decoupled, ease of evolution (you still need to change every affected part, but it is easier)
+		- problems: management & verification is hard due to lack of schema, requires fitness functions OR some e2e tests to verify contract
+- notes:
+	- include as least as possible into your contract and keep it minimal
+		- this will prevent unwanted breaking changes
+	- microservices often benefit from looser, but somewhat defined contracts, that are implementation agnostic
+		- you can keep contracts pretty loose AND system stable via fitness functions that could verify that contract is fulfilled, when provider of data for contract makes some changes
+			- note that teams need to be mature and don't ignore failed tests in order not to break others
