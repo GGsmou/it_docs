@@ -1171,4 +1171,136 @@
 </li>
 </ul>
 </li>
+</ul>
+<p>stamp coupling - pattern, when we pass some large state while sending messages between services</p>
+<ul>
+<li>note that we can pass only relevant data OR whole state, that will be partially used by each service
+<ul>
+<li>it this case it might become an anti pattern, if not used correctly</li>
+<li>ideally you should specify as little as possible to avoid brittleness and over coupling</li>
+<li>too much data passage hurts bandwidth and network utilization</li>
+</ul>
+</li>
+<li>stamp coupling is great for choreographic complex workflows</li>
+</ul>
+<p>managing analytics data - previous parts were about dealing with operational data, BUT analytics data is as important and have different ways to be dealt with</p>
+<ul>
+<li>operational and analytics data have different requirements, use-cases and thus different formats (often analytics will require aggregation and computation be done on data before hand)</li>
+<li>data warehouse
+<ul>
+<li>data extracted from all DBs into single source</li>
+<li>data’s schema is changes to fulfill analytics needs AND for performance reasons (ex: denormalization to simplify and speed-up queries)
+<ul>
+<li>note that it increases coupling between warehouse and every part of the system
+<ul>
+<li>this will also lead to partitioned domain knowledge, that spreads between all system and warehouse</li>
+<li>coupling is bad here, because we couple separate complex system to operational system</li>
+</ul>
+</li>
+<li>this pattern is called Star Schema and also includes computation of facts (organization’s quantifiable data) and associated dimensions (attributes/metadata for facts)</li>
+</ul>
+</li>
+<li>analytics is done inside warehouse</li>
+<li>data analytics in combination with domain experts extract (often via SQL interface) and transform raw data in some reports (pure reports, live charts etc etc)</li>
+<li>problems:
+<ul>
+<li>often system was quite complex, while having little business value</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>data lake - flips philosophy of data ware house and does data transformation in reactive way (on demand)
+<ul>
+<li>idea to do transformation on demand comes from fact that often transformed data either wasn’t suitable for required reports OR wasn’t utilized at all
+<ul>
+<li>this will also reduce complexity, coupling (which is still high) and lowers understandability of warehouse</li>
+</ul>
+</li>
+<li>data extracted from different parts of the system with little to no transformation</li>
+<li>data is transformed on demand by data scientist to answer business questions</li>
+<li>problems:
+<ul>
+<li>domain experts must be involved, because data is quite unstructured and hard to understand</li>
+<li>PII can be violated in indirect manner</li>
+<li>we partition our system technically, not by domain (like often done in microservice architecture)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>data mesh
+<ul>
+<li>utilizes similar methods as sidecar pattern that creates service mesh</li>
+<li>data is owned &#x26; shared by domain, not central source</li>
+<li>data treated as product, that must be good and suitable for consumer</li>
+<li>data is served via some platform solutions for better experience of sharing and consuming it</li>
+<li>data is governed in secure manner by imposed policies via tooling and testing</li>
+<li>data mesh introduces concept of data product quantum, separate service that lives inside domain and acts as tightly coupled to original service interface with external data consumers
+<ul>
+<li>can be:
+<ul>
+<li>native - contains only internal data</li>
+<li>aggregate - additional aggregate external data in sync/async manner</li>
+<li>fit-for-purpose - more complex variation, that additionally can do complex computations etc to fulfill requirements</li>
+</ul>
+</li>
+<li>often quantum will be called cooperative, because it is used (in loosely coupled manner) by other quantum (common example is analytics quantum (fit-for-purpose), that will do reporting etc)</li>
+<li>it should have eventual consistency and async communication with source of operational data to have little performance impact</li>
+<li>external and internal contracts often won’t match by design
+<ul>
+<li>still we need have loose coupling to original service</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>note:
+<ul>
+<li>prefer no data that incomplete data to avoid off analytics</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>build custom trade-off analysis - each system is uniq and requires some uniq approaches, and thus analysis, BUT you can have starting point in such form:</p>
+<ul>
+<li>find entangled dimensions, by looking at:
+<ul>
+<li>coupling - when we are changing X, what other Ys will change and in what way
+<ul>
+<li>create manual OR automated diagrams
+<ul>
+<li>static coupling include: OS dependencies, libraries, DB and other connections, sidecars, messaging requirements (do we need broker to enable communication)</li>
+<li>dynamic coupling includes: how services are coupled from communication, consistency, coordination standpoints</li>
+</ul>
+</li>
+<li>pick your main trade-offs and business requirements you need to fulfill and analyze which parts are coupled properly AND which are coupled in some non-desired manner</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>tradeoff techniques
+<ul>
+<li>qualitative vs quantative analysis - if you can, quantify and measure, if can’t, try to quantify qualities in some manner (ex: by comparison)</li>
+<li>MECE list - we need to avoid comparing different things, thus you can utilize
+<ul>
+<li>Mutually exclusive - capabilities can’t overlap between two items</li>
+<li>Collectively exhaustive - you analyzed all possible solutions</li>
+</ul>
+</li>
+<li>stay in context - when analyzing trade-offs, analyze only relevant once to current context, not all of them
+<ul>
+<li>choose narrow context</li>
+<li>strive for simplicity in your decisions</li>
+<li>iterate (ask “what if?” question, choose intermediate solutions etc)</li>
+</ul>
+</li>
+<li>model relevant domain cases - focus on domain, when making trade-offs, rather that doing it in vacuum</li>
+<li>prefer bottom line - collect as much data/knowledge, BUT, when doing analysis and sharing insights, reduce it to several aggregated key points, that represent problem
+<ul>
+<li>when sharing with non-tech peers, avoid technical details</li>
+</ul>
+</li>
+<li>always access trade-offs, avoid preferences OR magical problem solvers with no downsides</li>
+<li>always consult with involved parties to determine proper set of tradeoffs</li>
+</ul>
+</li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/security/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Security</span> </span> </a> <a href="/it_docs/all/software_engineering_at_google-oreilly/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Software Engineering at Google&quot; by O&#39;Reilly</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

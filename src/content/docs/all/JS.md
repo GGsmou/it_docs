@@ -586,6 +586,50 @@ There are list of JS specific or classical(with modifications) patterns
 			- user won't lag himself, by scrolling to long
 	- there is more native approach with CSS's `content-visibility:auto`, that acts as optimization matter for out of view content, but it is still better to do virtualization for dynamic pages(it is just more efficient)
 
+## Open Social
+Open Source software is common standard nowadays, which might be great example for social networks AND data in general and became an inspiration for AT Protocol (atproto)
+
+Common view of the web - each party has it's own data, enclosed inside their websites, while still can be shared and co-linked by other websites
+- in such model you can host your data via any provider AND don't depend on them, because you have stable addresses
+- BUT most often data is published into other party's website, thus you not only loose data ownership, but also vendor lock yourself to it
+	- and Close Social with our current social media apps emerge
+	- it has benefits:
+		- data can be turned into different representations
+		- data has single source, thus global search, ML, feeds, notifications etc is enabled
+	- Close Social creates tight social space
+	- > If you can’t leave without losing something important, the platform has no incentives to respect you as a user.
+	- you can't even export data (technically you can, but it won't be meaningful without other parts of social graph and representation)
+
+Open Social
+- each user will have domain-like identifier, that bounds data to him
+- data is stored in repo and server as signed JSON and could be freely moved from one vendor to other, while still preserving graph integrity
+	- basically we have same web structure, BUT not in form of hyperlinks, but it form of linked JSONs
+- other services can be integrated in this system, but letting them create records in your repo
+	- so you can interact with any system, BUT you can also represent and use their data in different formats
+	- services can easily interact with one another without need for API
+	- this leads to possibility of forking OR creating analogs of products
+- to query & aggregate data efficiently you can use websocket (with single user OR aggregated socked with data about many users) and clone data into your DB
+- all traffic is cryptographically signed, so you can verify it's legitimacy
+
+#### at://
+The technical details on how atproto works and resolves it's URIs
+- main part of at points to user, after which we specify format and some query
+	- this means that we need to some steps to locate where data is physically hosted
+- resolutions:
+	- handle -> identity
+		- handle might change, BUT identity can't and acts as stable point, so multiple handles can resolve to single identity
+		- you get identity by handle via DNS or HTTPS, BUT given identity need to verify back that it truly associated with given handle
+		- this means that you should store identity links, not human readable links
+		- to verify handle relation you identity provides data with list of owned handles
+			- it will also point to server address with data (identity -> host)
+		- you can have identities in `web` format OR in `plc` format
+			- `web` is standard, decentralized one, which creates risk of loosing access to your identity
+			- `plc` is on of vendor locked format, that acts as registry, thus has less decentralization
+	- host -> JSON data
+		- just combine server address with data from URI and query normally
+- you can just use SDK to do resolutions for you, BUT account that ideally you should hit local OR remote cache instead of DNS first
+
+
 ## You don't know JS book
 >I've also had many people tell me that they quoted some topic/explanation from these books during a job interview, and the interviewer told the candidate they were wrong; indeed, people have reportedly lost out on job offers as a result.
 

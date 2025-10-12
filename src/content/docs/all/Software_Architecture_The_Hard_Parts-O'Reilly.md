@@ -567,3 +567,72 @@ contracts - basically an agreement between services
 	- microservices often benefit from looser, but somewhat defined contracts, that are implementation agnostic
 		- you can keep contracts pretty loose AND system stable via fitness functions that could verify that contract is fulfilled, when provider of data for contract makes some changes
 			- note that teams need to be mature and don't ignore failed tests in order not to break others
+
+stamp coupling - pattern, when we pass some large state while sending messages between services
+- note that we can pass only relevant data OR whole state, that will be partially used by each service
+	- it this case it might become an anti pattern, if not used correctly
+	- ideally you should specify as little as possible to avoid brittleness and over coupling
+	- too much data passage hurts bandwidth and network utilization
+- stamp coupling is great for choreographic complex workflows
+
+managing analytics data - previous parts were about dealing with operational data, BUT analytics data is as important and have different ways to be dealt with
+- operational and analytics data have different requirements, use-cases and thus different formats (often analytics will require aggregation and computation be done on data before hand)
+- data warehouse
+	- data extracted from all DBs into single source
+	- data's schema is changes to fulfill analytics needs AND for performance reasons (ex: denormalization to simplify and speed-up queries)
+		- note that it increases coupling between warehouse and every part of the system
+			- this will also lead to partitioned domain knowledge, that spreads between all system and warehouse
+			- coupling is bad here, because we couple separate complex system to operational system
+		- this pattern is called Star Schema and also includes computation of facts (organization’s quantifiable data) and associated dimensions (attributes/metadata for facts)
+	- analytics is done inside warehouse
+	- data analytics in combination with domain experts extract (often via SQL interface) and transform raw data in some reports (pure reports, live charts etc etc)
+	- problems:
+		- often system was quite complex, while having little business value
+- data lake - flips philosophy of data ware house and does data transformation in reactive way (on demand)
+	- idea to do transformation on demand comes from fact that often transformed data either wasn't suitable for required reports OR wasn't utilized at all
+		- this will also reduce complexity, coupling (which is still high) and lowers understandability of warehouse
+	- data extracted from different parts of the system with little to no transformation
+	- data is transformed on demand by data scientist to answer business questions
+	- problems:
+		- domain experts must be involved, because data is quite unstructured and hard to understand
+		- PII can be violated in indirect manner
+		- we partition our system technically, not by domain (like often done in microservice architecture)
+- data mesh
+	- utilizes similar methods as sidecar pattern that creates service mesh
+	- data is owned & shared by domain, not central source
+	- data treated as product, that must be good and suitable for consumer
+	- data is served via some platform solutions for better experience of sharing and consuming it
+	- data is governed in secure manner by imposed policies via tooling and testing
+	- data mesh introduces concept of data product quantum, separate service that lives inside domain and acts as tightly coupled to original service interface with external data consumers
+		- can be:
+			- native - contains only internal data
+			- aggregate - additional aggregate external data in sync/async manner
+			- fit-for-purpose - more complex variation, that additionally can do complex computations etc to fulfill requirements
+		- often quantum will be called cooperative, because it is used (in loosely coupled manner) by other quantum (common example is analytics quantum (fit-for-purpose), that will do reporting etc)
+		- it should have eventual consistency and async communication with source of operational data to have little performance impact
+		- external and internal contracts often won't match by design
+			- still we need have loose coupling to original service
+	- note:
+		- prefer no data that incomplete data to avoid off analytics
+
+build custom trade-off analysis - each system is uniq and requires some uniq approaches, and thus analysis, BUT you can have starting point in such form:
+- find entangled dimensions, by looking at:
+	- coupling - when we are changing X, what other Ys will change and in what way
+		- create manual OR automated diagrams
+			- static coupling include: OS dependencies, libraries, DB and other connections, sidecars, messaging requirements (do we need broker to enable communication)
+			- dynamic coupling includes: how services are coupled from communication, consistency, coordination standpoints
+		- pick your main trade-offs and business requirements you need to fulfill and analyze which parts are coupled properly AND which are coupled in some non-desired manner
+- tradeoff techniques
+	- qualitative vs quantative analysis - if you can, quantify and measure, if can't, try to quantify qualities in some manner (ex: by comparison)
+	- MECE list - we need to avoid comparing different things, thus you can utilize
+		- Mutually exclusive - capabilities can't overlap between two items
+		- Collectively exhaustive - you analyzed all possible solutions
+	- stay in context - when analyzing trade-offs, analyze only relevant once to current context, not all of them
+		- choose narrow context
+		- strive for simplicity in your decisions
+		- iterate (ask "what if?" question, choose intermediate solutions etc)
+	- model relevant domain cases - focus on domain, when making trade-offs, rather that doing it in vacuum
+	- prefer bottom line - collect as much data/knowledge, BUT, when doing analysis and sharing insights, reduce it to several aggregated key points, that represent problem
+		- when sharing with non-tech peers, avoid technical details
+	- always access trade-offs, avoid preferences OR magical problem solvers with no downsides
+	- always consult with involved parties to determine proper set of tradeoffs
