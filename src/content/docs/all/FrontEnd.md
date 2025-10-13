@@ -546,3 +546,89 @@ Basic flow of implementing web component:
 - Credentials - used as interface for getting/retrieving emails, passwords and other tokens from/to user
 	- only with HTTPS
 - Auth - used to work with non-default auth methods, like PassKeys
+
+## Architecture on FE
+Architecture is a way to define general shape, guidance and structure to for application OR even system
+- architecture includes principles
+- every architecture is basically about system parts WITH system characteristics WITH decisions AND principles
+
+Architect must be as close to developer as possible
+- still you need a way to verify that your architecture is implemented by devs
+- architecture must be based on business needs
+
+Laws:
+- everything in SE is trade-off
+	- if you have no trade-offs, you just didn't found one
+- why > how
+- Hyrum - with sufficient amount of users, any observable behavior of system will be dependent on, despite the contract
+
+Main problems:
+- Scale
+- Quality
+- Performance
+- Risks
+- Role erosion (keep FE responsibilities in strict boundaries)
+
+Ways to keep project maintainable:
+- keep concerns separated AND interfaces between them clear
+- keep state local
+- composition > inheritance
+- DI
+- keep features close to one each other
+- infrastructure things must be generic and adapted for app needs
+- refactor early and iteratively
+- keep application layered
+
+Notes:
+- each decision will have impact in long run, SO some decisions should be evaluated and agreed upon
+- write ADRs to make decisions and preserve them for future read
+	- main structure: Context, Decision, Rationale, Status, Consequences
+
+## TS Patterns
+- benefits:
+	- tight feedback loop
+	- self-documented code
+	- autocomplete
+	- combinable with JS
+	- superset of JS
+- problems:
+	- build step
+	- vendor lock
+
+ecosystem:
+- compiler `tsc` (typecheck - compilation)
+	- there are `tsc` alternatives, BUT with only compilation
+	- can be used for project OR for single file with passed config as file OR as CLI params
+		- `--noEmit` will just check types
+		- note that default `tsconfig` is bad AND better use some opensource variant
+		- create different `tsconfig`s for different tasks (tests, node, browser etc)
+- tsserver - IDE integration OR done as plugin to work with TS autocomplete system etc
+- eslint plugin for TS for additional strictness and typesafety
+
+TS operates with concept of assignability
+- B is assignable to it's superset OR equal to it set, BUT not to subset
+
+TS has structural type system
+- differently named `type` declaration will be considered equal, if they identical type-wise
+- to mitigate this you can use branded type, which in some implementation may look like this: `type Brand<K, T> = K & { __brand: T }` AND be used to differ between type-wise similar, BUT logically different types (ex: `user.id: string` and `order.id: string` are logically different and can be branded accordingly)
+
+rules & recomendations:
+- bad code can't compiled
+- type inference is great, so utilize it
+- keep code type-safe by utilizing build AND runtime checks (parsing & validation)
+- use existing libraries for "well-known", but not built-in types
+- research types of your libs
+- don't use:
+	- `any`, `Function`, `Object`, `String`, `Number`, and `{}` for type-deffs
+		- exception for `any` is `(...args: any[]) => unknown` 
+
+Notes:
+- valid JS is valid TS, every error is just "lint" error
+- TS allows to pass union key into object and receive union type of it's values
+- enum should be defined as key <-> string for clarity and to avoid nuances
+	- sometimes it is better to use strings
+- discriminated union can't have `undefined` discriminator OR several discriminators
+- avoid `any` in favor of `unknown` 
+	- external data source should be validated first
+- TS allows to do type narrowing via: type guard fn (return `boolean`) OR assert fn (return `void | never`)
+- `throw` AND `try/catch` have no types, so use error as values where it is suitable (functional libraries can help here)
