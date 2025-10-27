@@ -561,6 +561,7 @@ Laws:
 	- if you have no trade-offs, you just didn't found one
 - why > how
 - Hyrum - with sufficient amount of users, any observable behavior of system will be dependent on, despite the contract
+- All systems tend to denormalization, so we need to avoid speeding-up this process and enforce opposite via rules
 
 Main problems:
 - Scale
@@ -632,3 +633,120 @@ Notes:
 	- external data source should be validated first
 - TS allows to do type narrowing via: type guard fn (return `boolean`) OR assert fn (return `void | never`)
 - `throw` AND `try/catch` have no types, so use error as values where it is suitable (functional libraries can help here)
+
+## Browser Internals
+Browser is an app that's main purpose it to enable interaction with web
+- it's main task is to render HTML+CSS pages and execute JS code
+- browser orchestrates number of processes, from interactions with it's UI to page rendering etc
+	- each process is separate thread
+	- each tab & iframe is separate process (parallel)
+- rendering overview
+	- get html, css, js, etc (network process)
+	- build DOM + CSSOM trees
+		- done on-fly, while fetching data from network
+	- parse & execute blocking JS
+		- use `async` or `defer` to prevent blocking
+	- build final render tree
+	- calculate computed styles and form final document styles
+	- form layout tree
+	- form paint records
+	- composite & rasterize (separate GPU thread)
+		- all elements are grouped into blocks to avoid re-rendering blocks, if their content wasn't changed
+	- display
+- critical blocking code is css and js in `head` element
+- to run JS code you need env (HTML page, worker thread) & engine
+	- env will provide isolated execution with separate heap, stack, queue, global var etc
+	- engine provides thin execution layer with general heap and stack
+- V8
+	- simple flow
+		- parse code
+		- build AST
+		- interpret
+			- run on CPU
+		- compile
+			- run on CPU
+		- \---
+		- interpreted and compiled code both can be ran on CPU, it is just generally slower to do compilation, BUT, if code is often executed, you can gain performance boost, because running compiled code is faster
+			- also you might need to run interpreted code due to loosey nature of JS
+	- most of values in V8 managed by pointer, except small ints
+		- this most operations are done on heap
+	- V8 reuses same strings to reduce RAM usage
+	- to avoid manual memory management V8 removes unused heap memory via GC algorithm (mark-sweep)
+		- there are two algorithms, fast and slow to partially and fully clean memory (young objects AND old objects with fragmented memory)
+			- basically we try to kill object, if it survives we copy it to old memory region, BECAUSE most of data will die young, but old living data probably will live quite a will, thus we don't need to re-check it often
+		- fresh memory has low fragmentation, unlike old one
+- event loop - a way to parallel single threaded app
+	- not part of ECMA, but still part of JS ecosystem as part of Node.js and browser
+	- queues
+		- task: JS parsing, HTML parsing, events, CBs, resource loading, reaction to DOM manipulation
+			- non-FIFO queue
+		- micro-task: Promises, MutationObserver, queueMicrotask
+			- used mostly to implement ECMA restrictions for Promises
+			- FIFO
+	- basic flow:
+		- get oldest task from Tasks (first one will be to parse & execute sync code)
+		- execute task
+		- clean Microtasks
+			- new microtasks will be executed in current iteration, so be careful not to block yourself
+		- run rendering
+
+## Basics of Functional Programing
+functions
+- pure - has no side-effects, timeouts and/or state
+	- always have same output for same input
+	- benefits: testability, simplicity, less bugs
+	- to achieve we often use immutability concept, by copying data and not modifying it
+		- testability, simplicity, possibility of time travel
+- first-class - function works identical to value (can be saved, passed as param etc)
+- high-order - accepts or returns fn
+
+functor - somethings that can store value AND have method, that allows to operate on it's values (by creating copy of operation result)
+- functor must provide value retrieving operation
+- utilizes chaining of operations in form of pipelines
+	- allows to declaratively describe data flow
+
+monad - functor with additional operations:
+- pack value into monad
+- unpack nested functors to flatten structure
+- examples:
+	- Maybe - nothing OR value
+	- Either - error (left) OR value (right)
+- benefits:
+	- side effects encapsulated
+	- same interface for different cases without imperative checks
+	- data pipelines
+	- testability
+
+`pipe` - get array of functions and call one by one passing result of prev to next to avoid nested fn calls
+
+libs: ts-belt
+
+## Security & Secure Coding Practices
+FE is real attack vector that must be properly handled
+
+Cross-Site Scripting (XSS)
+- classic - use unsafe user input as HTML for other users (risk of injecting script)
+	- avoid using pure input from user OR do clean-up, validation & stringification
+	- often handled by modern frameworks
+		- still avoid direct html manipulation and `unsafeHTML` usage
+- modern variations
+	- injected data into emails
+	- injected data into query params
+		- ex: get param and do redirect
+- what can be done with XSS:
+	- session tokens
+	- redirects to fishing pages OR injection of fishing forms
+	- keyloggers OR extension data stealing
+- what can be done to prevent XSS:
+	- never trust user input
+		- validate, filter
+	- avoid untrusted libs
+	- do ecranisation
+		- avoid direct injection of HTML
+			- at least use lib to encranise your injected data
+		- use as less external data as possible
+	- use CSP to avoid external scripts
+- notes:
+	- avoid unsafe state exposure (query, localStorage etc)
+	- XSS can happen in different variations (`script` tag, html tags that execute code, svg with executable code etc)
+		- alway validate inputed files
