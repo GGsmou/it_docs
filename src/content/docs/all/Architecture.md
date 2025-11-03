@@ -1242,3 +1242,8 @@ To reduce mental complexity in long run, it is important to use shared language
 - this language is related to domain, you are working in
 	- example: for University Management System we can't `delete` student, only `graduate` or `kick` him
 - achieved via global "Shared Language" document
+
+## Architect Path
+- try Team Leading first to change mentality from code & single contribution to managing and higher scope
+- you need to coordinate several teams
+	- create artefacts (tasks, docs etc) to create direction for dependent peers
