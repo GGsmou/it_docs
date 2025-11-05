@@ -837,9 +837,66 @@ common state problems
 - working with network & forms
 
 `zustand` 
+- based on atom concept
+- utilises Signal pattern
+- has concept of store, but, unlike context, it will trigger granular updates of UI
+
+state architecture patterns:
+- flux - data change in one direction, via actions+dispatcher+store (Redux)
+	- can be quite slow
+	- declarative style
+	- history revind
+- atomic - data changes granularly, in small atoms, based on Signal principle, when we subscribe to atoms and change them (Zustand)
+	- more imperative, BUT better observability of state usage
+	- can be proxy-based, when we hide Signal logic inside proxy of object in JS (MobX)
+- observer pattern - state changes in reactive way (RxJS)
+	- might be powerful for some cases, BUT also quite complicated
+	- declarative manner
+- local first - data lives on server, BUT can be accessed+modified locally and later automerged with conflict resolution
+	- similar to flux pattern, but has sync engine to do BG synchronization
+	- results in sync code with all server operations ran in bg
+	- quite complicated
 
 notes:
 - be careful with keeping logically similar state splitted (ex: two network call to receive data + some calculations over data)
 	- this could lead to inconsistent state
 - you can have several context provider to have DI
 - be careful with Context, it triggers global re-render, BUT it is great for tightly coupled components, tightly coupled components OR for passing dependencies
+- keep states separated:
+	- server state - tanstack query
+	- stable state - context
+	- global state - zustand/redux/etc
+	- local state - useState
+	- url state - router
+- state normalization is keeping state structure plain (state.user.tasks -> state.user + state.tasks)
+
+## API Integrations
+- RPC (Remote Procedure Call) - way to describe communication in form of calling external methods
+	- most popular framework is gRPC
+		- has built-in streaming
+		- has gRPC Web protocol to work with browser
+			- you need to use envoy, connectRPC or similar tooling to convert gRPC <-> gRPC Web
+		- uses Protobuf spec to define contract
+			- `protoc` with plugins from vender (often connectRPC) is used to transpile it to TS OR just via Buf
+			- we need to index fields to avoid sending full field names via network
+		- binary based, BUT can be wired via JSON too
+			- to debug binary, use special browser extension
+	- connectRPC is kinda it's own protocol, that can be used with gRPC, gRPC Web, allows to do binary streaming and overall has nice browser integration
+	- use when you need realtime communication, need optimize client/server communication
+- GraphQL - way to communicate in form of data queries (data is represented as graphs)
+	- great for multi-platform
+	- useful for complex data structures
+- SSE (Server Sent Events) - native to browser way to do streaming over http from server to browser (text only, we need to keep http connection always open)
+- WebSocket - protocol for bi-directional (channel won't be blocked by any event) communication with possibility to use binary data
+	- flow: ask server for websocket connection -> change connection type to WS
+	- better to use with some lib (often provides: fallback to short-polling, retries, reconnects etc)
+
+## Bundle, Build & Deploy
+bundlers:
+- dev run (with ESM for optimization)
+- transpiling (JSX -> JS, TS -> JS etc)
+- import aliasing
+	- you can also do import restrictions via linting
+- code splitting
+	- note that if you need to support long sessions you need to keep N previous releases & error detection that will ask user to reload too stale session
+- source maps
