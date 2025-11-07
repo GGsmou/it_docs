@@ -900,3 +900,42 @@ bundlers:
 - code splitting
 	- note that if you need to support long sessions you need to keep N previous releases & error detection that will ask user to reload too stale session
 - source maps
+	- avoid keeping source map open to public
+- envs
+- analyzers
+	- constantly analyzer bundle structure, splitting, size & lighthouse metrics
+- minificaiton & tree-shaking
+
+## DevOps & CI/CD
+DevOps is like QA, while it is often a separate position, this is also often about culture an process of development & delivery (ideally automatic) of changes
+- includes: automatization, CI/CD (similar to DevOps, but about practical things and tools), cooperation inside team, monitoring, culture
+- ideally DevOps must be kept as code OR config files (Pulumi, Terraform) for testability, traceability, ease of change etc
+
+tooling:
+- cloudflare (CDN, DNS, SSL, file storage, firewall, zero trust solutions)
+- kubernetes - platform to enroll containers (often via Docker)
+	- includes: API GW, Reverse Proxy, services etc
+- monitoring & alerting
+- canary & blue/green
+- metrics
+- tracing in-between requests via ids
+- logging
+
+## Performance
+Don't focus on performance for sake of it, if you have problem/requirement, measure & find weak spots AND only than fix
+
+Browser is doing layout etc in same thread as JS execution
+- in some cases browser can even pause sync code execution to do something more important
+
+Basic debugging of performance is to look what takes too long to load & what takes too long to execute
+- to reduce load:
+	- reduce static files size
+	- use compression
+	- reduce dependencies & use tree-shaking
+	- code splitting & lazy loading (load only critical CSS & JS)
+	- caching
+	- minification
+	- sprites instead of small images
+	- different image sizes per device
+	- pagination (network & server load reduction)
+	- prefetches
