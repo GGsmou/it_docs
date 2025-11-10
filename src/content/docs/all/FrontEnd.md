@@ -933,9 +933,54 @@ Basic debugging of performance is to look what takes too long to load & what tak
 	- use compression
 	- reduce dependencies & use tree-shaking
 	- code splitting & lazy loading (load only critical CSS & JS)
-	- caching
 	- minification
-	- sprites instead of small images
 	- different image sizes per device
 	- pagination (network & server load reduction)
 	- prefetches
+	- CDN
+		- keep content closer to user
+		- reduce own system load & complexity
+		- global caching for popular resources
+		- optimal network usage (client can have only 6 connections with single server)
+- to reduce number of requests
+	- sprites instead of small images
+	- bundling (often we have some common bundle + dependencies + one per page)
+	- caching
+	- GraphQL, RPC OR, at least, thin requests & responses
+	- inline critical CSS & JS (be aware that we can't cache it properly)
+	- reduce number of server redirects
+	- filters & paginations
+- to reduce execution time:
+	- avoid blocking operations
+	- multithreading
+	- defer/async
+	- optimize code
+	- reduce DOM manipulations
+		- when doing manipulations prefer transform & opacity
+	- reduce number of blocking requests to server (if possible, load things granularly with preloaders)
+	- preload, preconnect & prefetch
+
+## Design at Scale
+types of webpages:
+- award winning, often single use, pages that made for marketing & just to be impressive
+- service - long-living things, that bring value to user (need to be simple, understandable, properly designed (with design system) & have good structure)
+- funnels - landings/quizzes that try to get user to by your product
+	- treat them as products, optimize & do A/B testing
+
+design systems - collection of colors, fonts, sizes, components, spacings & grids etc
+- main point of debate with designer (after decision is made, you will just use it)
+- you can view system as collection of atom (single unit of design) -> molecules (abstract rules around atom usage) -> organisms (simple components) -> templates (combination of components) -> pages
+- design system is based upon ui kit, that have main fonts, sizes & colors with their description
+- keep coded design system in storybook
+
+accessibility (mainly used for gov sites, but also great to integrate everywhere)
+- optimize for screen readers
+- use WCAG rules checker to measure somethings like contrast
+
+notes:
+- design is subjective, so use objective metrics like user satisfaction, conversion etc to estimate it
+- use animations & microinteractions for better UX & more understandable UI
+	- don't overuse animations
+	- some animations can be done via JSONs (lottie) OR simplified by libs
+- do mobile first
+- find references & adapt them fro your cases
