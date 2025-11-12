@@ -318,3 +318,16 @@ Ecosystem:
 	- ts-morph - manipulation with TS code
 	- ts-node - direct TS execution in node env
 	- ts-jest - TS enabler for Jest(testing lib)
+
+## FullStack TypeSafe Monorepo
+stack:
+- turborepo
+- next.js
+	- use tanstack-query to work with network state
+- react native + expo
+- hono (server)
+- oRPC
+	- centralize it as single dependency for all repo + pin it per each consumer as `peerDependency` + avoid bundling it and use as external package
+	- `zod` can be used to have schema and type
+- Postgres + Drizzle ORM
+- Better-Auth

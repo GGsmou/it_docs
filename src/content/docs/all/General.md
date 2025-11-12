@@ -410,3 +410,13 @@ before pitching idea think if it is really that good OR time can be spent more w
 - find people with experience and ask for review
 	- ideally that people should have same problem as your, so they will be more involved in finding good solution
 - be data driven
+
+## Inventing on Principle
+- find principle that will guide you & what you will built upon
+	- find idea and fight for it
+- short feedback loop is critical
+	- ideally it must be near zero
+	- first of all show data and comparisons
+- ideas need time to grow
+- to find principle gain experience, experiment & find things you most interested about
+- principle can't be too vague
