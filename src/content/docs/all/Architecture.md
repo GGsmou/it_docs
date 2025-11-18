@@ -1247,3 +1247,13 @@ To reduce mental complexity in long run, it is important to use shared language
 - try Team Leading first to change mentality from code & single contribution to managing and higher scope
 - you need to coordinate several teams
 	- create artefacts (tasks, docs etc) to create direction for dependent peers
+
+## Architect vs Staff vs Principle
+- all roles branch from Senior dev as individual contributors (alternative branch is management with Engineering Managers (Team/Tech Leads etc))
+- architect organizes delivery of features & solutions (often involves indirect management and initiatives pushing)
+	- owns some features
+- staff is more modern version of architect with more focus on individual contributions
+	- companies often have many staffs
+- principle is higher then stuff with more responsibility
+	- companies often have couple of principles
+	- principle often has deep knowledge for some area

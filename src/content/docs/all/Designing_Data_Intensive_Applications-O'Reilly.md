@@ -115,3 +115,89 @@ dictionaries
 	- deduplication of stored data
 	- note that not always normalization is great, it has it's own tradeoffs
 - having dictionaries forces 1toN relationship, that requires joins (by DB or via multiple queries & application code)
+
+relational vs document DB
+- different fault tolerance
+- different concurrency handling
+- different data models (thus performance, schema flexibility, mapping, joins, relationship management)
+	- document is useful for
+		- not very deep tree-like 1toN data
+		- schemales data (no explicit schema, force by DB)
+			- relational can handle it via often migrations OR JSONB type
+		- cases when you use entire document (ex: render whole document on single page)
+			- performance boost & no need for aggregation
+			- if you often need only part of data omit such data model OR use small documents
+			- in some relational DBs you can describe locality to boost performance
+	- relational is useful for
+		- NtoN data
+		- join dependent data
+			- you can simulate it by app, but it will be less efficient, that SQL
+
+data querying
+- often don in declarative manner via som language like SQL
+	- you avoid implementation details, keep API simple & allow for optimizations and parallelization
+- techniques to parallelize & optimize query execution can be also introduced from outside, like MapReduce pattern (that rarely present as API for querying in modern solutions)
+
+graph-like model
+- common for complex NtoN data-sets
+- data consists of nodes, that connected by edges
+	- nodes & ecges can have same OR different type/meaning
+- sub-models
+	- property graph
+		- each node has: ID, incoming/outgoing edges, properties
+		- each edge has: ID, tail+head vertex, label, properties
+		- has no restrictions on connections
+		- we can traverse in any direction
+		- easy to extend & evolve
+		- great for complex queries, due to ease of traversions
+			- you need to have abstract query language to simplify traversion & allow for optimization (travers from more optimized part of graph to least)
+	- triple stores (conceptually same to property graph)
+		- consist of subject (Jim) predicate (likes) object (bananas)
+		- subject is always vertex, while object either other vertex OR primitive value, used to describe property of subject
+
+#### Storage & Retrieval
+- fundamental job of any DB
+- you need to understand to it understand trade-offs of solutions (and their settings) to match your case
+
+most basic engine can be viewed as log (append only sequence of records, stored in some file, that stores records and reads them from tale of file)
+- getting data is inefficient here, so we can utilize indexes
+	- it is additional structure, derived from main data & used as kind of metadata for optimization purposes
+	- it will often boost reads & downgrade writes
+	- types:
+		- hash index (same as hash map, but stored in memory & on disk, in form of snapshots) - common building block for more complex things
+- log file must be compacted over-time (process of removal of duplicated keys)
+	- to avoid hitting large sizes of single file we need to break it into several fixed sizes & basically merge them into new, while compacting
+- to make it more usable you need to have: concurrency management, recovery mechanisms etc
+- performance gains:
+	- sequential writes
+	- easier concurrency & crash management
+- problems:
+	- hash index must fit in-memory to be performant enough
+	- range queries are hard
+
+SSTables with LSM-Trees
+- Sorted String Tables (SSTables) is basically similar to log files, but we require to keep or keys sorted
+	- advantages over log with hash index:
+		- more efficient merging (like mergesort)
+		- you need to keep partial hash index, because data is sorted and you can traverse, based on neighbors
+			- we can compress this chunks before writing to trade-off CPU over I/O
+	- as data structure you can use red-black trees or AVL trees, to write data in any order & read ordered (in-memory structures)
+		- basically you write into memory for some time, then loadout tree as SSTable
+		- we use simple log to track in-memory tree & restore it, in case of a crash
+- Log-Structured Merge-Tree (LSM-Tree) is basically built upon SSTables
+	- problems:
+		- querying unknown words is slow - use bloom filters
+
+B-Trees (most common indexing data structure)
+- stores sorted key-value pairs (for range queries & fast lookups)
+- breaks storage into fixed-size blocks, that can refer in tree-like manner (but on disk)
+	- this blocks can be traversed by their ranges to find needed value
+	- number of branches is limited by storage
+	- updates are quite fast, additions may require rebalancing/restructuring the tree
+- to keep it crash resilient we store all commands in write-ahead log
+	- alternative is to copy modified chunks, instead of updating & keeping WAL
+		- great for version control
+- locks need to be done to prevent concurrent writes
+- for performance tree is laid sequentially on disk
+- for faster scanning we can include more pointers
+- pointer can be abbreviated to reduce size
