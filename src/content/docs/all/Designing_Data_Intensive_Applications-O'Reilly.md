@@ -201,3 +201,111 @@ B-Trees (most common indexing data structure)
 - for performance tree is laid sequentially on disk
 - for faster scanning we can include more pointers
 - pointer can be abbreviated to reduce size
+
+B-Trees vs LSM-Trees
+- read first vs write first
+	- B-Trees wears down SSDs faster
+	- LSM-Trees faster with HDD due to sequential writes nature
+		- modern B-Trees can mitigate this
+	- B-Trees have higher fragmentation thus take more storage
+- LSM problems
+	- compaction takes down I/O & CPU performance
+		- often negligible, but high percentiles are unpredictable
+	- compactions can downgrade performance at scale
+		- if you have improper config, compaction can be even slower, than incoming writes, thus failing out disk
+	- key might be duplicated, thus it is impossible to bind locks to tree (unlike in B-Trees)
+
+other indexing structures
+- for secondary index we can use both LSM & B -trees, BUT we need to account, that each key won't be uniq, so we need either add row number to ID or store keys in batches
+	- this index needed for faster joins
+	- values are often stored in heap, while each secondary index just stores pointer to avoid data duplication
+		- great for in-place updates, while suffer from heap-overflow (all indexes need to be rewritten to point to new heap)
+		- alternative to heap is clustered index, where you just store values in-place to boost reads
+			- will downgrade storage, writes & transaction integrity will require additional resource
+- to index multiple columns you can:
+	- concatenate their keys (impossible to find one key in index this way, BUT great, when you logically need to query for several values at once)
+- fuzzy index for efficient fuzzy searches (can be done via: algorithms for distance search, ML, document clasifications)
+
+it is easier to work with RAM, so some DBs are in-memory (first of all, because their not large enough)
+- often it is acceptable to loose data in such DBs, but it can be somewhat negated via logs on disk
+	- great for backups & analysis
+- main advantages:
+	- faster reads
+	- faster writes (we don't need to manage complex data structures on disk)
+		- can be async for cost of durability
+	- can be used to store complex data-structures
+
+DBs often operate with transactions (several reads and writes, that not necessarily ACID)
+- note that analytics tasks are problematic with classic transactions, because we often query only some columns within huge number of rows with need for some aggregations & transformations
+- we can use one DB for transactions & analytics, but often analytic queries are quite costly, so we better be having some dedicated solutions like warehousing
+	- data is dumped or streamed onto separate system in read-only format
+	- we can do pre-transformation of data (extract transform load - ETL) OR post-transformation
+- we need to use specialized DSs for analytics data for performance
+	- schemas
+		- star - we have central analytics goal (fact, ex: sales) & tables (dimensions), that are referenced by central table for additional data
+			- dates often can be encoded to store metadata, like: holidays
+		- snowflake - variation of star, but we break dimensions into sub-dimensions to avoid data duplication and just reference (ex: products)
+		- notes:
+			- tables are often wide to include all comprehensive info
+	- column based storage is used, because main use-case is to query only several out of 100+ columns, but in large amounts
+		- unlike transactional DBs, where we query complete rows at once
+		- all files have same ordering of data, so you don't need to store keys
+		- due to data been repetitive & contain some small number of distinct values we can use bitmaps & run-length encoding to compress data
+			- some queries can even directly operate with compressed data
+		- we can introduce sorting to speed-up reads (even sort several columns)
+		- if you do data duplication you can also sort it in different ways for different queries
+		- B-trees are ineffective here, so LSM is used
+	- for aggregate operations we can create materialized views (copy of data with additional calculations backed in, which might even effect, how we store data)
+		- downgrades writes
+		- not flexible, BUT has great read performance
+
+#### Encoding & Evolution
+Data evolve (extended OR reformatted)
+- ideally system & updates should be both backwards & forwards compatible
+
+data encoding
+- data can be either
+	- in-memory (CPU optimized, allows for DSs)
+	- encoded (changed to some self-contained format for transfer OR storage)
+- formats
+	- lang-specific formats (encode DS to bytes)
+		- tied to one lang
+		- have security problem, because we can manipulate bites & initialize arbitrary objects
+		- bad performance, bloated, has bad versioning
+	- standardized (JSON, XML, binary)
+		- > They are widely known, widely supported, and almost as widely disliked
+		- text based (XML, JSON, CSV)
+			- human-readable & simple, widely adopted & often good enough
+			- problems with: number encoding, binary encoding (base64 can save a bit), lack of schema, optimization problems (text is often larger then bytes)
+				- CSV is separate beast, because it is too vague
+		- binary
+			- binary is often more optimized (even JSON can be changed to BSON to be more optimized)
+			- great internally, because you don't need to conform to standard
+			- protobuf & similar to them formats have strict schema
+				- we avoid encoding field names, by using numbers (as aliases) and referencing schema
+					- aliases can never be reused
+			- your code is easily forward compatible, because older code will just skip unknown data, while backwards compatibility allows for appending optional fields only (deletion has reverse concerns)
+				- data types is risky, but possible to change, due to byte size diffs
+				- you can evolve single to multi values in protobuf
+			- some format like Avro allows for two schemas (reader & writer), that may differ, but must be compatible to do translation
+				- writer schema can be stored directly with data, referenced or exchanged
+				- works great for dynamically generated schemas, because we don't need to manage aliases
+			- for statically typed langs you need codegen to view data, BUT for dynamically typed or to just view the data you can convert it on fly to something operable / readable
+			- schema is great docs & can be statically checked for breaking changes & inside programing language
+- data flow - how data transferred from one thing to other
+	- via DBs - writer encodes data to DB and reader decodes it from
+		- forward & backward compatibility is required
+		- be careful with updates, you need to preserve unknown fields
+		- for evolution you can: do migration, add defaults, add computed defaults
+		- try to normalize schema & add analytically adapted data when archiving
+	- via REST/RPC - common way to transfer data over the network
+		- REST is common for web, but may be used anywhere (basically you app need to become client to connect to server)
+			- allows for microservice architecture, where you chain requests+responses
+				- each service can impose business rules & restrictions on it's clients
+				- each service must be owned by some team & evolve independently from other services
+			- alternative to REST is SOAP, that is compatible, BUT not dependent on HTTP and uses custom XML format, based upon Web Services Description Language (WSDL)
+				- allows for codegen
+				- impossible to operate with without tooling
+				- have many flavours
+				- often more complex, than just REST
+	- via messaging
