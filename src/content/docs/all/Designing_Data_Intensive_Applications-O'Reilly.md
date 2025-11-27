@@ -308,4 +308,93 @@ data encoding
 				- impossible to operate with without tooling
 				- have many flavours
 				- often more complex, than just REST
+		- RPC
+			- problems:
+				- main problem that it seems like calling a fn, while been over the network
+					- hides network layer under abstraction, while we still need to handle network problems
+					- response may not been returned due to timeout or error
+						- in general function can take a lot of time
+					- has no idempotence
+					- translation between languages is messy
+				- more complex, harder to debug, problems with support, can't be used as public API
+		- versioning:
+			- by number inside URL
+			- by number inside HTTP Accept Header
+			- by mapping client <-> version, if endpoint is authorized
 	- via messaging
+		- data is transferred over the network & managed by intermediate entity, called message broker
+		- allows for async communication
+			- note that this implies one way communication, HOWEVER we still can built quests in two ways
+		- benefit:
+			- improves availability by acting as buffer
+			- auto-redirect messages to active processes
+			- acts as API-GW
+			- message duplication for several receivers
+			- low coupling
+		- actor model - model when we avoid dealing with concurrency, by working only with set of entities, that has message communication, BUT scheduled one at a time
+			- this can be transformed to distributed actor model via network messaging
+		- notes:
+			- preserve unknown fields to compatibility
+			- message is just bytes with any encoding on top
+
+notes:
+- compatibility is important due to impossibility to force client update & requirement for rolling updates
+
+## Distributed Data
+We need to distribute data over several machines for:
+- scalability
+- fault tolerance
+- latency reduction
+
+it is possible to scale vertically OR have array of disks, but you often will hit bottlenecks, so distributing data might become a necessity
+
+ways:
+- replication - data is copied
+	- improves availability, latency & throughput
+	- single leader
+		- each node with data is replica
+		- only one replica can do writes & tell other replicas via some stream of logs to do same action
+			- this can be done in sync, by blocking the response from leader OR in async manner
+				- sync can be quite slow, because some replicas can be under high load OR recover flor failure (thus need to reapply huge log)
+				- for sync data is always in sync, thus leader can fail & we have no consistency issues
+				- you can mix approaches, by having 1+ sync followers & other async, so data is always in sync, while keeping with normal speeds
+					- sync followers can be rotated with async
+			- to add follower you need to take consistent snapshot of leader, apply snapshot to follower, start applying changes from log after snapshot
+		- follower replicas can be used for reads
+		- recovery:
+			- follower failure - follower keeps track of last operation, so it can re-apply needed operations from leader's log
+			- leader's failure (failover) - some follower is promoted to leader with reconfigurations of other followers
+				- can be detected by timeouts (need to be properly configured)
+				- all nodes need to agree on new leader via consensus (often the most up-to-date node wins)
+				- all nodes need to listen for writes from new leader (& ignore old one, if it reboots and thinks, that it is leader)
+				- notes:
+					- in async systems we often ignore failed writes, because we often can't save them OR merge with new writes
+					- data in system might become inconsistent, because new leader might have older state, then some cache etc
+					- split brain might happen, when you have several leaders in single-leader system (meaning you don't have any resolution of conflict writes)
+						- ideally system must downgrade one leader, BUT not both
+		- methods:
+			- leader duplicates raw SQL strings
+				- will basically work, BUT be aware that:
+					- if query depends on data (`WHERE smth`), it must be executed in order as leader
+					- if query has non-deterministic function (`NOW()`), they must be replaced by values from leader
+					- if query has side-effects, they must be predictable
+			- write-ahed log (WAL) - leader shares it's log over the network
+				- great way, but main problem is that this protocol is low level & often disallows version mismatch between replicas (thus zero downtime upgrades are impossible)
+				- alternative is logical log, which is somewhat similar, but describes in higher level changes to each row
+					- also such log can be used to share data internally
+			- via triggers - we can execute, code to change our write in someway, before replicating it
+				- quite complex & error prone, but great for filexibility reasons
+		- replication lag - to allow for read-heavy workflows you need to have many follower & async replication, which will lead to replication lag inside the system due to eventual consistency
+			- common problems:
+				- data is not seen for some time after write
+				- data appears inconsistently (first you see data, than you refresh & see no data, that you refresh & see unordered data)
+			- to mitigate (not all solutions can work for multi-device setups due to local state):
+				- read your write - user, who made a write, is guaranteed to read same data
+					- great for info, like user profile, that only user can edit, so we always know what requests to route to leader
+					- always read from reader data for short period of time to mitigate replication lag (suitable for small lags)
+					- client remembers timestamp of write & requests only up-to-date data
+						- query can be held, until replication lag is mitigated (suitable for small lags)
+				- monotonic reads - to mitigate problem, when different requests are sourced from different replicas, you can assign replica per user
+				- consistent prefix reads - to mitigate data been unordered, you can batch writes into single operation & write them in order
+				- distributed transactions - execute distributed operations in transaction-like manner with guarantees from DB (not application code), that operation is fully done
+- partitioning/sharding - splitting data into separate chunks
