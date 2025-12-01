@@ -397,4 +397,72 @@ ways:
 				- monotonic reads - to mitigate problem, when different requests are sourced from different replicas, you can assign replica per user
 				- consistent prefix reads - to mitigate data been unordered, you can batch writes into single operation & write them in order
 				- distributed transactions - execute distributed operations in transaction-like manner with guarantees from DB (not application code), that operation is fully done
+	- multi-leader replication
+		- each node acts as leader & also follower to other leaders
+		- use-case (often redundant, due to complexity spike):
+			- multi-datacenter setup (leader per datacenter)
+				- in comparison with single-leader:
+					- faster writes due to lower delay
+					- higher fault tolerance, because each center is independent
+					- higher network problems tolerance, because local network of center is more reliable
+			- local-first applications (each app instance is basically a leader with it's state, that later must be synced with "true" leader, app's backend)
+				- sub-variation is app that needs collaborative-editing support
+					- to keep it simpler, you can force locking of documents and convert it to a single-leader situation
+		- problems:
+			- write conflicts between leaders (in single-leader case we resolve conflicts when writing, while in multi-leader we need to do it in async manner, if you will try to do it in-sync, you will mitigate all the benefits)
+				- resolution algorithms
+					- avoidance - if data can be only changed by on user, link user to fixed leader, that can't change, so no conflict can occur
+					- last write wins - identify writes via timestamp & save last one
+					- some replicas always win
+					- merge values (depends on business needs)
+					- save all values and later ask user to resolve conflicts
+					- use two-way or three-way automatic merges
+				- DBs often allow to resolve conflicts:
+					- on write - when conflict occurs you resolve it via some function automatically
+					- on read - when data is read and conflict detected you resolve it via some function automatically or by prompting the user
+					- \---
+					- often stays at level of row, not transaction
+				- conflicts can be just conflicting writes OR business conflicts, because some rule is broken
+			- general problems when working with state & dirty fn
+		- topologies - for 2+ reader cases we have to decide how to propagate changes:
+			- all-to-all - common approach
+				- less error prone, because replication won't break if some (or even one) node fails
+				- it is possible that several writes conflict in such way, that older writes will be processed later then newer, so we need to resolve it (ex: via version vectors)
+			- star/tree
+			- circular
+			- \---
+			- both star & tree need to keep track of applied changes to avoid re-application in case of duplication
+	- leaderless - client is manually sending writes to all replicas OR to node, that relays it to several writers
+		- writes will be unordered
+		- if some replicas are unavailable we can ignore them (to get ok from operation, we need to have N number of ok responses from replicas)
+			- this means, that some replicas can become stale, thus you need to also do several writes and resolve most recent via versioning
+			- to fix stale replicas client can either:
+				- write correct info, if read is stale (great for often read data)
+				- have bg process to actualize data (replication lag is quite large)
+			- to avoid stale reads we need to configure DB in such way, that it must achieve quorum, before processing operation, quorum is achieved when (n (replicas), w (write oks), r (read oks)):
+				- n - odd
+				- w + r > n
+				- commonly w = r = (n+1) / 2, but we can reduce w OR r for write or read first cases
+				- if we have lower number for w/r, then configured OR gives more then n, operation will fail
+					- if node temporary fails, all operations may fail, so be careful with low numbers
+					- alternative, for higher availability, is to allow w+r <= n, this way we might get stale data, but can operate with may failed nodes
+				- edge-cases:
+					- sloppy quorum
+					- concurrent writes need to be resolved (note that timestamp ordering won't work due to possible clock skew)
+					- concurrent read & write will have undetermined behavior
+					- in case of failed write, other successful writes need to be rolled back
+					- if fresh node fails, it can become stale, failing quorum rule
+					- many other shitty things
+	- notes:
+		- monitor health of DB, by checking data staleness thought nodes
+			- easy for leader cases, because we have log, BUT problematic for leaderless
+		- sloppy quorums - default quorum implies that w&r nodes must be amount some cluster, while sloppy allow storing data in different clusters
+			- we need to sync data via hinted handoff, after connection to main cluster is restored
+		- for leaderless setup, in case of multi-datacenter, you can have two n values, global and local, so you can mitigate latency via local quorum, which implies async sync process of data-centers
+		- handling concurrent writes in leaderless setup
+			- last write wins (to achieve it we can attach some form of timestamp to write, because we don't have natural ordering)
+				- durability is lost
+			- concurrent means that both operations can happen in any order
+				- if operations aren't concurrent, we can built ordering from knowledge that one operation depends on other
 - partitioning/sharding - splitting data into separate chunks
+ 
