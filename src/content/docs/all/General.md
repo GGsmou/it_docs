@@ -420,3 +420,19 @@ before pitching idea think if it is really that good OR time can be spent more w
 - ideas need time to grow
 - to find principle gain experience, experiment & find things you most interested about
 - principle can't be too vague
+
+## Sound Algorithms
+- sound need to be transformed from analog to digital
+	- microphone coverts physical waves to electric
+	- electric wave changes to digital data via discretization & quantization
+	- digital result is filtered and amplified via Fourier algorithm
+- sound can be fingerprinted by saving a set of points (this results in uniq fingerprints for different audio tracks)
+	- this allows to save a set of small samples for tack and match against input sample
+- recommendations styles:
+	- by track metadata
+	- by what other listens
+	- via many params by AI
+- AI:
+	- sound improvement
+	- deep search
+	- fingerprinting

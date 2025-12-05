@@ -929,6 +929,14 @@
 <li>concurrent means that both operations can happen in any order
 <ul>
 <li>if operations aren’t concurrent, we can built ordering from knowledge that one operation depends on other</li>
+<li>time of occurring can’t tell that something is concurrent or not, because network, clock difference etc can result in different time, for operations that happened simultaneously</li>
+</ul>
+</li>
+<li>algorithm to handling concurrent requests (in leader setup)
+<ul>
+<li>all writes have uniq, incremented version number</li>
+<li>client reads key+data, merges current &#x26; received state, sends key+data to server, write returns key+data</li>
+<li>when server receives key it can overwrite it’s related data</li>
 </ul>
 </li>
 </ul>

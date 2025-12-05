@@ -1257,3 +1257,18 @@ To reduce mental complexity in long run, it is important to use shared language
 - principle is higher then stuff with more responsibility
 	- companies often have couple of principles
 	- principle often has deep knowledge for some area
+
+## Finding problems
+- use metrics to identify problematic zones
+	- no OR not enough metrics is problem on it's own
+	- types:
+		- performance (resource consumption)
+			- http, DB, application
+			- realtime-ish, often approximated
+			- first you need storage (VictoriaMetrics is commonly used)
+			- you can react to trend changes (Grafana can be used)
+		- business
+			- often collected via custom OR ready-to-use (ex: GTag) tracking tools
+			- storage - redshift
+- gut feeling & prev experience to see problems and solve them
+	- still use metrics to justify problem & prioritize it

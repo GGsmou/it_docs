@@ -464,5 +464,10 @@ ways:
 				- durability is lost
 			- concurrent means that both operations can happen in any order
 				- if operations aren't concurrent, we can built ordering from knowledge that one operation depends on other
+				- time of occurring can't tell that something is concurrent or not, because network, clock difference etc can result in different time, for operations that happened simultaneously
+			- algorithm to handling concurrent requests (in leader setup)
+				- all writes have uniq, incremented version number
+				- client reads key+data, merges current & received state, sends key+data to server, write returns key+data
+				- when server receives key it can overwrite it's related data
 - partitioning/sharding - splitting data into separate chunks
  
