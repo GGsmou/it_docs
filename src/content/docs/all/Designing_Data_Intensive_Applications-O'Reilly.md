@@ -469,5 +469,24 @@ ways:
 				- all writes have uniq, incremented version number
 				- client reads key+data, merges current & received state, sends key+data to server, write returns key+data
 				- when server receives key it can overwrite it's related data
+				- when merging data you can either use last write or merge values as union (note that deleted values can't be just removed, they need to be marked as removed via tombstone to avoid misinterpretation with not selected value)
+				- to do it in leaderless setup you need to have second version number per replica (which, in combination with key version give version vesctor)
 - partitioning/sharding - splitting data into separate chunks
- 
+	- simple replication might not be sufficient for high-load cases OR when we just need to store too much data
+		- potentially queries can be parallelized
+		- replication is often used in combination with partitioning
+	- commonly:
+		- each piece of data is stored on one partition
+		- each partition is DB, but system can operate on multiple partitions
+	- partitioning must be properly balanced to distribute load across all nodes & avoid hot spots (ideally partition should rebalance itself)
+		- simplest approach is random distribution, BUT you won't be able to query data back
+		- you can partition by ranges of data (alphabetic, numeric etc)
+			- improper ranges may lead to distribution load only to one partition (ex: if you distribute time records per days, all load will go to only one partition)
+			- great for range queries
+		- partition by hash of a key (great distribution)
+			- you also can use consistent hashing for better rebalancing
+			- we can't query by ranges
+				- there are exceptions for compound keys (first part is hash, other parts are plain values, that can be range queried)
+		- "celebrity problem" still can cause hot spots, so you may additionally partition "celebrities" separately from other entities OR place one "celebrity" in several partitions
+			- if you splitting one entity, you now need to do additional queries among several partitions
+			 
