@@ -489,4 +489,128 @@ ways:
 				- there are exceptions for compound keys (first part is hash, other parts are plain values, that can be range queried)
 		- "celebrity problem" still can cause hot spots, so you may additionally partition "celebrities" separately from other entities OR place one "celebrity" in several partitions
 			- if you splitting one entity, you now need to do additional queries among several partitions
-			 
+	- it is problematic to partition DB with second indexes
+		- ways:
+			- by document (local index) - keep separate secondary index per partition
+				- read will become expensive, because you need to query each partition
+				- ideally to store values with single attribute only in one partition, but it is often impossible with several secondary indexes
+			- by term (global index)
+				- we have single secondary index, that partitioned similarly to main index and can be efficiently queried to retrieve data
+				- this makes writes less efficient, because we may need to write to several partitions
+				- it might have transactional integrity OR can be done in async manner
+	- rebalancing - changing how data is partitioned
+		- properties: evenly distribute load between set of nodes, zero downtime, it must be as fast as possible and avoid excessive data transfer
+		- stratagies:
+			- hash % N - worst strategy, because change in N has dramatic effect for final result, thus rebalancing is expensive
+			- static number of partitions - has more partitions then nodes, so each node can hold several partitions
+				- in case of transfer, each node can give some number of partitions to other node
+				- we transfer only partitions
+				- more powerful machines can handle more partitions
+				- too high number is not efficient due to overhead, too low number can become bottleneck, because not all DBs allow to change it in the future
+			- dynamic number of partitions - partitions are split and merged when meeting some thresholds
+				- useful for key range partitions
+				- each node can have multiple partitions & each partition can be transferred between them
+				- we can pre-split data from the start to distribute the load
+			- number of partitions by node - we have fixed number of partitions per node, which changes only by changing number of nodes
+		- be careful with auto rebalancing, because, if done purely, it can self-ddos the system
+			- it may be reasonable to have human in the rebalancing loop
+	- routing - common service discovery problem
+		- solutions:
+			- client can call any node via simple load-balancer, node can accept or forward request to other node
+			- use partition-aware load balancer to properly route requests
+			- make client directly connect to any node and route by itself
+		- other problem is to have consensus over where to route request
+			- industry standard is ZooKeeper, that manages metadata of whole distributed system of nodes
+			- alternative is gossip, so each node knows info about other nodes
+			- also simple DNS or static configs (for no dynamic rebalancing) can be used
+
+#### Transactions
+- transaction is a concept that groups several writes & reads into one operation
+	- transactions can be retried & never execute partially
+- transactionality can be neglected or replaced with simpler concept to improve performance
+	- it is all about tradeoffs
+- transactions are often described via:
+	- Atomicity - operation can't be broken into smaller parts, if part of it fails we roll back whole operation
+	- Consistency - operation starts in valid state and ends in valid state (valid means all invariants are passed by data)
+	- Isolation - same data can't be simultaneously operated upon by different applications
+		- if you need strong isolation you can use serializable flow (guaranteed to execute one-after-other)
+		- for weaker guarantees snapshot isolation can be used
+	- Durability - data is successfully preserved and stored
+		- depending on context may mean: transferred to HDD/SSD OR replicated by number of nodes
+	- white notice that different implementations may have different implications
+- multiple reads and writes are detected as same transaction via `BEGIN TRANSACTION` and `COMMIT` statements, that belong to single TCP connection
+- isolation and atomicity is also relevant to single write (write won't be lost, partially done or interrupted via other write)
+	- some DBs allow to do "compare and set" or "increment" operations as single write
+	- such single writes aren't real transactions, they are similar to them, because real transactions have more then one operation
+- transactions are needed to:
+	- preserve relations between data
+	- keeping denormalized data in sync
+- transactions can be safely retried, so this logic can be included into your client
+	- note that successful transaction, that failed due to network can't be retried and will cause duplication
+	- failures due to DB overload will worsen overload
+	- retries due to constraint failure is pointless
+	- transactions with side-effects will trigger side-effect twice on retry
+		- to mitigate it you can use two-phase commit
+- isolation can be weakened for some cases, where concurrency is less of a concern to gain performance, BUT be careful with that
+	- read committed (most basic level)
+		- you will only read committed (clear) data
+			- DB stores old value to be read AND new, while transaction is ongoing
+			- locking is too inefficient here
+		- you will only overwrite committed (clear) data
+			- locking is done on per-row level
+		- problems:
+			- one write may be done in-between two reads, resulting in incorrect result
+				- critical when performing backups OR larges-scale queries
+				- fixed via snapshot isolation, where you read only committed data for this snapshot, not the committed data of different snapshots
+					- implemented via multi-version concurrency control mechanism to ensure data for each snapshot (avoids locking)
+					- MVCC states that transaction can see data if it is not deleted AND the version of it that is created prior to transaction beginning
+						- deleted data marked as deleted and later removed from DB via GC
+			- write skew - read data and save to variable, verify condition, conditionally write
+				- common fix is to lock rows `FOR UPDATE`, BUT it won't help if we check for absence of data, because there is nothing to lock
+					- to fix use serializable transactions OR materialize conflicts (revers DB structure, ex: store available slots, instead of storing reserved slots, so you have something to lock)
+		- preventing lost updates - it is common problem to do concurrent read-modify-write operation without loosing data
+			- implementations:
+				- atomic write - read+write in single operation
+					- done via exclusive locks OR single-threading writes
+				- explicit locking (similar to DB locking, BUT on application level)
+					- SQL allows it via adding `FOR UPDATE` to your query
+				- automatic detection - DB automatically tries to detect lost update and abort offending operation
+				- compare and set - check if current content is same as read content and only then update
+					- may not work, depending on DB implementation
+				- conflict resolution on application level
+- serializability - concept of strict transactions, that is equivalent to executing transactions one by one as series for high isolation level
+	- DB prevents all race conditions
+	- implementations (for single node):
+		- actual series execution - literally execute transactions 1by1
+			- long-running queries are still better be ran on snapshots
+			- suffers from efficiency
+			- sufficient only for stored procedure, meaning we first collect all needed data and only then execute transaction, not iteratively (because it will overwhelm the DB)
+			- potentially you can scale DB on single CPU, by creating partition per core
+				- note that you need to partition data to avoid multi-partition operations
+			- in-memory data only
+		- two-phase locking (2PL) - multiple reads can be done, while write is done exclusively to writes and reads
+			- reading snapshot is not allowed here
+			- basically a readers-writer exclusive mutex
+			- lock is held in transaction lifespan
+			- deadlocks are common, so DB has mechanisms to auto-kill one of the locking process (it must be retried by an application)
+			- performance is pain here
+				- one slow operation can influence others
+				- often deadlocks drain performance
+			- for some cases you need to have predicate locks to lock no on row level, but all rows that match some condition
+				- fixes phantoms and write skews
+				- to simplify checks you can utilize index-range locking - add lock per index entry instead of values (simplifies checks, locks additional values)
+					- gains performance due to index speed benefits
+		- serializable snapshot isolation (SSI) (new approach that provides serializability with quite low performance overhead)
+			- based on optimistic approach (expect everything to go alright, abort if bad situation detected)
+				- optimistic approach is commonly bad, because too many aborts and retries drain resources
+					- atomic writes, performance overhead & not too much conflicts lead to great performance
+			- reads are based on snapshots
+			- writes are aborted on conflicts
+				- if we used value from uncommitted MVCC and then it became committed (avoiding early aborts allows doing long running queries and read-only queries efficiently)
+				- verify that read values, that used in transactions, wasn't changed
+			- performance:
+				- great for read-heavy flows
+				- predictable latency
+				- has room for optimization in future
+				- multi-core
+			- problematic for long-running writes
