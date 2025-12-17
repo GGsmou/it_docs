@@ -614,3 +614,48 @@ ways:
 				- has room for optimization in future
 				- multi-core
 			- problematic for long-running writes
+
+#### Transactions in Distributed Systems
+- anything that can go wrong will go wrong given large-enough scale
+- failures
+	- when working with monolith we expect system either to work OR doesn't, BUT in distributed systems it might partially fail, bringing edge-case results
+		- network, machines etc might fail us
+	- failures in distributed system is mostly non-deterministic
+	- problem space
+		- most of the time we need the system to be online and serve users with low latency (expect something like batch processing units)
+		- hardware & network will fail you
+		- large-enough system will most of the time has at least one broken module
+			- your system need to tolerate at least some partial failures
+			- if you aren't expecting errors, the behavior of software is unreliable
+		- you might need to support hops between data centers
+		- rolling updates often required
+		- you need to build reliable system from unreliable components (common practice in SE space, like: TCP add corrections and reliability on top of IP)
+	- problems with network:
+		- delays, missing responses (due to several factors)
+			- fixed via sane timeouts
+		- some software (ex: load balancer) need to know if server is still alive, thus we need to have some way of knowing it (usually by pinging some endpoint with timeout)
+			- when killing nodes remember:
+				- don't kill too often
+				- kill is not free, you need to distribute existing load
+				- some operations have side-effects, that might be duplicated on retries
+			- timeout need to account network time (both ways) & processing time
+				- requests also might get queued
+				- all-in-all, timeout need to be figured experimentally and (ideally) set up dynamically
+		- most of networks have unbounded delays, meaning that they try to serve data ASAP, but have no time limit to execute
+			- some networks can establish fixed capacity to server data, but they won't handle bursty traffic this way (resource utilization is potentially lower this way)
+			- to have more reliable delays you need to have proper scheduling & limiters on clients
+	- problems with clocks (we measure time for many reasons):
+		- communication isn't sync and takes time (we only know that message will be delivered in future)
+		- clocks between machines aren't 100% sync (they synced via Network Time Protocol, but it not ideal)
+	- types of clocks:
+		- time of day (measure time, often as a stamp in ms from unix zero time)
+			- might not be in sync
+			- ignore leap seconds
+			- resolution might be coarse
+			- might jump back in time as result of sync with NTP
+		- monolithic (clock that used to calculate time diff between two points)
+			- have no meaning on it self
+			- often even bound to single CPU core
+			- have great resolution
+			- speed might be adjusted by NTP (but this won't cause back in time jumps)
+			- great for timeouts
