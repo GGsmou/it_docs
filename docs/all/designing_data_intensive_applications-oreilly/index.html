@@ -1265,8 +1265,11 @@
 </ul>
 <h4 id="transactions-in-distributed-systems">Transactions in Distributed Systems</h4>
 <ul>
-<li>anything that can go wrong will go wrong given large-enough scale</li>
-<li>failures
+<li>
+<p>anything that can go wrong will go wrong given large-enough scale</p>
+</li>
+<li>
+<p>failures</p>
 <ul>
 <li>when working with monolith we expect system either to work OR doesn’t, BUT in distributed systems it might partially fail, bringing edge-case results
 <ul>
@@ -1321,20 +1324,40 @@
 </li>
 </ul>
 </li>
-<li>problems with clocks (we measure time for many reasons):
+<li>problems with clocks (we measure time for many reasons, we must be prepared to failure of clocks same as for network failures):
 <ul>
 <li>communication isn’t sync and takes time (we only know that message will be delivered in future)</li>
 <li>clocks between machines aren’t 100% sync (they synced via Network Time Protocol, but it not ideal)</li>
+<li>if we compare local value and external timestamp for any reason (ex: check if lease to be leader node is still active) we might get problems, when application checked that it is leader, but
+<ul>
+<li>din’t executed request in given by lease time
+<ul>
+<li>GC started and caused code to stop for some time</li>
+<li>requests was too complex</li>
+<li>VM suspended execution</li>
+<li>user (on client) closed app</li>
+<li>thread change on CPU</li>
+<li>I/O &#x26; network latency</li>
+<li>(all in all, system must have built-in guarantees to avoid freezes in execution, BUT it is often not the case in hardware, except specialized one)</li>
+</ul>
+</li>
+<li>clocks were out of sync</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>types of clocks:
 <ul>
 <li>time of day (measure time, often as a stamp in ms from unix zero time)
 <ul>
-<li>might not be in sync</li>
+<li>might not be in sync (often we could receive only approximate value of time, thus strategies like Last Write Wins might loose sequential data)</li>
 <li>ignore leap seconds</li>
 <li>resolution might be coarse</li>
 <li>might jump back in time as result of sync with NTP</li>
+<li>NTP server might be misconfigured</li>
+<li>most systems don’t support leap seconds</li>
+<li>VM’s clock can jump, because of virtualization</li>
+<li>client’s clock can’t be trusted at all</li>
 </ul>
 </li>
 <li>monolithic (clock that used to calculate time diff between two points)
@@ -1348,6 +1371,77 @@
 </li>
 </ul>
 </li>
+<li>living with broken clocks &#x26; system pauses
+<ul>
+<li>monitor clock drift</li>
+<li>use providers with in-house atomic clocks (or similar instruments), that ensure low time drift &#x26; account for it, when commiting changes to DB, so sequential writes are properly ordered</li>
+<li>treat node as temporary suspended right before GC kicks in</li>
+</ul>
+</li>
+<li>distributed system isn’t ideal, BUT we only need for it to be functional, meaning it must provide set of guarantees
+<ul>
+<li>majority holds the truth - to achieve agreement between nodes quorum is used (N number of nodes must agree on smth for it to be considered truth)
+<ul>
+<li>ex: alive node must agree that it is dead and do smth with it, if majority decided so (ex: due to delay)</li>
+<li>common use-case is leader election, with it’s common pitfall, when some node thinks that it is the leader, while quorum re-elected leader
+<ul>
+<li>you can’t trust node that it is actual leader, you need to double check (ex: use increasing number to reject older operations(works only if node is always telling the truth))
+<ul>
+<li>to work around lie problem you need to build Byzantine fault-tolerant system, that assumes that some parties in system can lie (it only relevant in p2p &#x26; high risk systems, where hardware might get damaged, but still need to operate)</li>
+<li>weak lies, like corruptions, can be handled via: checksum, sanitization &#x26; validation, use of multiple sources of truth</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>common system models
+<ul>
+<li>by time
+<ul>
+<li>sync - system can have delays and drifts with upper bound (unrealistic in scope of topic)</li>
+<li>partially-sync - system is sync most of time, but we expect that something wrong might happen</li>
+<li>async - we can’t make any time assumptions (used in specific cases only)</li>
+</ul>
+</li>
+<li>by fault-tolerance
+<ul>
+<li>crash-stop - node can only crash &#x26; never go back to life</li>
+<li>crash-recovery - node may crash &#x26; start responding again (we assume to have stable storage &#x26; some loosable in-memory state)</li>
+<li>arbitrary faults (Byzantine) - anything can go wrong, including node trying to compromise the system</li>
+</ul>
+</li>
+<li>we often design partially-sync crash-recovery systems
+<ul>
+<li>we design by creating algorithms, that have some defined properties
+<ul>
+<li>properties are either about safety (nothing bad ever happens to system) or liveness (we eventually recover from bad state)</li>
+</ul>
+</li>
+<li>note that most real world systems are Byzantine systems, BUT we simplify them to be crash-recovery for optimization reasons</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>consistency &#x26; consensus</p>
+<ul>
+<li>the easiest solution is to fail on some internal failure, BUT better systems can tolerate some failures and operate upon them
+<ul>
+<li>often we achieve this via algorithms that provide guarantees &#x26; hide complexity</li>
+</ul>
+</li>
+<li>you can choose different consistency levels, provided via algorithms (some of them explained further)
+<ul>
+<li>always be aware, when working with weak guarantees</li>
+<li>it is somewhat similar to transaction consistency, but with focus on fault tolerance</li>
+</ul>
+</li>
+<li>linearizability - we treat distributed system as single node (ex: we avoid pitfalls like replication lag)</li>
 </ul>
 </li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/design/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Design</span> </span> </a> <a href="/it_docs/all/domain_driven_design-evans/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Domain Driven Design&quot; by Evans</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

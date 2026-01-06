@@ -644,18 +644,64 @@ ways:
 		- most of networks have unbounded delays, meaning that they try to serve data ASAP, but have no time limit to execute
 			- some networks can establish fixed capacity to server data, but they won't handle bursty traffic this way (resource utilization is potentially lower this way)
 			- to have more reliable delays you need to have proper scheduling & limiters on clients
-	- problems with clocks (we measure time for many reasons):
+	- problems with clocks (we measure time for many reasons, we must be prepared to failure of clocks same as for network failures):
 		- communication isn't sync and takes time (we only know that message will be delivered in future)
 		- clocks between machines aren't 100% sync (they synced via Network Time Protocol, but it not ideal)
+		- if we compare local value and external timestamp for any reason (ex: check if lease to be leader node is still active) we might get problems, when application checked that it is leader, but
+			- din't executed request in given by lease time
+				- GC started and caused code to stop for some time
+				- requests was too complex
+				- VM suspended execution
+				- user (on client) closed app
+				- thread change on CPU
+				- I/O & network latency
+				- (all in all, system must have built-in guarantees to avoid freezes in execution, BUT it is often not the case in hardware, except specialized one)
+			- clocks were out of sync
 	- types of clocks:
 		- time of day (measure time, often as a stamp in ms from unix zero time)
-			- might not be in sync
+			- might not be in sync (often we could receive only approximate value of time, thus strategies like Last Write Wins might loose sequential data)
 			- ignore leap seconds
 			- resolution might be coarse
 			- might jump back in time as result of sync with NTP
+			- NTP server might be misconfigured
+			- most systems don't support leap seconds
+			- VM's clock can jump, because of virtualization
+			- client's clock can't be trusted at all
 		- monolithic (clock that used to calculate time diff between two points)
 			- have no meaning on it self
 			- often even bound to single CPU core
 			- have great resolution
 			- speed might be adjusted by NTP (but this won't cause back in time jumps)
 			- great for timeouts
+	- living with broken clocks & system pauses
+		- monitor clock drift
+		- use providers with in-house atomic clocks (or similar instruments), that ensure low time drift & account for it, when commiting changes to DB, so sequential writes are properly ordered
+		- treat node as temporary suspended right before GC kicks in
+	- distributed system isn't ideal, BUT we only need for it to be functional, meaning it must provide set of guarantees
+		- majority holds the truth - to achieve agreement between nodes quorum is used (N number of nodes must agree on smth for it to be considered truth)
+			- ex: alive node must agree that it is dead and do smth with it, if majority decided so (ex: due to delay)
+			- common use-case is leader election, with it's common pitfall, when some node thinks that it is the leader, while quorum re-elected leader
+				- you can't trust node that it is actual leader, you need to double check (ex: use increasing number to reject older operations(works only if node is always telling the truth))
+					- to work around lie problem you need to build Byzantine fault-tolerant system, that assumes that some parties in system can lie (it only relevant in p2p & high risk systems, where hardware might get damaged, but still need to operate)
+					- weak lies, like corruptions, can be handled via: checksum, sanitization & validation, use of multiple sources of truth
+		- common system models
+			- by time
+				- sync - system can have delays and drifts with upper bound (unrealistic in scope of topic)
+				- partially-sync - system is sync most of time, but we expect that something wrong might happen
+				- async - we can't make any time assumptions (used in specific cases only)
+			- by fault-tolerance
+				- crash-stop - node can only crash & never go back to life
+				- crash-recovery - node may crash & start responding again (we assume to have stable storage & some loosable in-memory state)
+				- arbitrary faults (Byzantine) - anything can go wrong, including node trying to compromise the system
+			- we often design partially-sync crash-recovery systems
+				- we design by creating algorithms, that have some defined properties
+					- properties are either about safety (nothing bad ever happens to system) or liveness (we eventually recover from bad state)
+				- note that most real world systems are Byzantine systems, BUT we simplify them to be crash-recovery for optimization reasons
+
+- consistency & consensus
+	- the easiest solution is to fail on some internal failure, BUT better systems can tolerate some failures and operate upon them
+		- often we achieve this via algorithms that provide guarantees & hide complexity
+	- you can choose different consistency levels, provided via algorithms (some of them explained further)
+		- always be aware, when working with weak guarantees
+		- it is somewhat similar to transaction consistency, but with focus on fault tolerance
+	- linearizability - we treat distributed system as single node (ex: we avoid pitfalls like replication lag)
