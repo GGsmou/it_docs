@@ -705,3 +705,13 @@ ways:
 		- always be aware, when working with weak guarantees
 		- it is somewhat similar to transaction consistency, but with focus on fault tolerance
 	- linearizability - we treat distributed system as single node (ex: we avoid pitfalls like replication lag)
+		- basic example is: if value of data changed, it can't flip to old one (happens due to distributed nature of replicated DBs) (it must be possible to arrange responses into valid linear sequence)
+		- use-cases: leader election, single source of truth for state when different processes need to communicate in async-manner, uniqueness constraint (foreign key constraint can be implemented without linearizability)
+		- only possible with consensus algorithm
+		- problems:
+			- in multi-datacenter setup, clients need to be able to connect to both data centers
+				- basically your trade-off is between availability and consistency (for linearizability availabilty suffers from network delays)
+		- linearizability enables ordering of operations, which is important, because some operations may depend on each other & specific order OR consumer might expect certain in certain order
+			- weaker form, that allows for ordering, is causality ordering, which allows to compare some operations (via happens-before relationship), while some operations may be concurrent or just not comparable
+				- if happens-before requirement is met, all replicas must execute operations in order, otherwise we don't care
+			- linearizability avoids passing and comparing timestamps between different parts of system

@@ -1441,7 +1441,32 @@
 <li>it is somewhat similar to transaction consistency, but with focus on fault tolerance</li>
 </ul>
 </li>
-<li>linearizability - we treat distributed system as single node (ex: we avoid pitfalls like replication lag)</li>
+<li>linearizability - we treat distributed system as single node (ex: we avoid pitfalls like replication lag)
+<ul>
+<li>basic example is: if value of data changed, it can’t flip to old one (happens due to distributed nature of replicated DBs) (it must be possible to arrange responses into valid linear sequence)</li>
+<li>use-cases: leader election, single source of truth for state when different processes need to communicate in async-manner, uniqueness constraint (foreign key constraint can be implemented without linearizability)</li>
+<li>only possible with consensus algorithm</li>
+<li>problems:
+<ul>
+<li>in multi-datacenter setup, clients need to be able to connect to both data centers
+<ul>
+<li>basically your trade-off is between availability and consistency (for linearizability availabilty suffers from network delays)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>linearizability enables ordering of operations, which is important, because some operations may depend on each other &#x26; specific order OR consumer might expect certain in certain order
+<ul>
+<li>weaker form, that allows for ordering, is causality ordering, which allows to compare some operations (via happens-before relationship), while some operations may be concurrent or just not comparable
+<ul>
+<li>if happens-before requirement is met, all replicas must execute operations in order, otherwise we don’t care</li>
+</ul>
+</li>
+<li>linearizability avoids passing and comparing timestamps between different parts of system</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/design/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Design</span> </span> </a> <a href="/it_docs/all/domain_driven_design-evans/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Notes of &quot;Domain Driven Design&quot; by Evans</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
