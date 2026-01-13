@@ -714,4 +714,94 @@ ways:
 		- linearizability enables ordering of operations, which is important, because some operations may depend on each other & specific order OR consumer might expect certain in certain order
 			- weaker form, that allows for ordering, is causality ordering, which allows to compare some operations (via happens-before relationship), while some operations may be concurrent or just not comparable
 				- if happens-before requirement is met, all replicas must execute operations in order, otherwise we don't care
+			- more practical implementation can be done via sequential number ordering, that is done via sequence number or timestamp (from logical clock)
+				- always implies causality ordering in single-leader systems
+				- for multi-leader system different approaches can be used:
+					- physical clock timestamps with high resolution
+					- sequential number per node WITH embedded uniq node id
+					- allow only some ranges per node (A - 1-1000, b - 1001-2000)
+					- all approaches prior aren't imply causality, BUT Lamport's Timestamp will, by adding uniq node ID and counter, that increased per operation and can be overwritten, if request contains higher value counter then current (client must also remember current counter and pass it with each request)
+						- edge cases:
+							- can be used to calculate Nth write wins strategy, BUT only after the fact all writes happened, we can't do calculation in scope of current request
 			- linearizability avoids passing and comparing timestamps between different parts of system
+			- total order broadcast - related topic, that allows to order messages in distributed system
+				- implies:
+					- reliable delivery to each node (messages can be buffered in case of network fault OR operations can be held, depending on use-case)
+					- all orders delivered in same order to all nodes
+				- allows for consistent ordering of operations AND enable some constrains like uniqueness of key in distributed system
+				- use-cases:
+					- fencing token, leader selection, locks
+				- differs from proper linearizability, because we have replication lag here (linearizability in writes, but not in reads)
+					- reads can be fixed by: queuing reads as writes, reading all latest writes, read from leader
+	- distributed transactions & consensus
+		- use-cases of consensus: leader election, distributed transactions (including sync of secondary index)
+		- most popular algorithm is two-phase commit, BUT it is not the best due to fault-tolerance issues and can be replaced by Raft or similar
+		- 2PC
+			- flow: receive transaction, ask if all nodes prepared, ask all nodes to commit if each node agreed on been prepared
+			- flow notes:
+				- all transactions are trackable via uniq transaction ID
+				- node saying it is prepared means that it WILL commit (even if power goes off, because data already written to storage)
+				- coordinator keeps log of it's decisions
+				- if decision was to commit coordinator will retry until it succeeds (if node crashes we need to restore it's state via log)
+				- failure of coordinator will result in system been temporarily stuck, until it restores and can continue operations (if operator misses transaction data in it's log, transaction is automatically marked as aborted)
+					- this is main pitfall of algorithm
+					- note that failure in really broken state may require human intervention to roll-back changes & release locks
+			- often safety doesn't worst the cost of operational problems & performance penalty
+			- problems:
+				- coordinator is itself a DB that must be replicated for scalability and fault tolerance
+					- also this adds additional state and it's management to system
+		- exactly-once message processing
+			- alternative way to implement distributed transactions is by introducing messaging queue with retries and idempotency guarantees, so we eventually will have consistent state
+				- be careful with idempotency in cases of side-effects (like email service)
+			- supports heterogeneous systems (where we have different technologies in place)
+				- 2PC also has this support via protocols like XA
+		- more robust alternatives are built on top of total order broadcast with leader election
+			- basically nodes elect leader, that can control decision making, BUT nodes can reject decision by quorum from old leader, if new leader is elected
+		- consensus is great, but can't be universally used due to:
+			- performance penalty
+			- fault-tolerance
+			- often impossibility to dynamically change number of nodes
+			- timeout dependency to detect failed leaders (even more performance downgrade)
+			- operational problems
+		- most straightforward way to (in low level) allocate working nodes, do service discovery, do leader election, do consensus, do rebalancing & keeping track of dead/alive nodes is to use membership service (ex: ZooKeeper)
+
+#### Batch Processing
+
+types of systems
+- online service - common web page, that requires fast response times and high availability
+- batch processing - service to process in async manner large amount of data, that requires great throughput
+- stream processing - near real-time system that works similar to batch processing, but does processing in real-time ASAP
+
+batch processing with Unix
+- by Unix philosophy you can do batch processing by piping data from one command to other to do some transformations
+	- this allows for ease of modification & composability
+	- piping enable optimized large data processing
+	- Unix utilizes both in-memory operations & I/O operations to avoid memory overflows
+- Unix pushes usage of uniform I/O interfaces for programs in order to establish composability
+	- additionally I/O is mostly done via `stdin` & `stdout` concepts, which allows for loose coupling between programs (despite it's beauty it can be hard to wire multiple connections)
+
+MapReduce & distributed file systems
+- single MapReduce job can be viewed as single Unix process (jobs often chained into workflows, input is not mutated in-place (allows for reusability, safe retries and fast reverts))
+	- it is quite low-level, but powerful and, combines Unix's strong parts with distributed systems
+	- practical implementation, that enables MapReduce is HDFS, which allows to execute distributed data processing over number of machines with durability (via replication) in mind
+	- unlike Unix, MapReduce often utilizes schemas to store data
+- chaining is often done by saving previous result and running next job over it, which materializes intermediate state
+- when doing joins, you can either do 1by1 lookups (often not optimal), OR do denormalization (often wasteful) OR, for large enough dataset, simply do full table copy onto local machine
+	- additionally you can do sort-merge joins, where you have two map pipelines that prepare and sort data, then map both results into single source, that sorted by both values and can be easily reduced
+- map-side joins is more optimized way to do join, which is basically just a map operation with no sorting
+	- possible only if you know insights about data been processed
+	- example
+		- load one DB in memory (or index and keep on disk) as look-up table and join it with processed data
+		- partition data in same places, so you can read single partition as source
+		- if data is sorted map-side join can performe role of reduce
+- use-cases:
+	- heavy analytic queries
+	- building search indexes
+	- ML/AI training
+	- \---
+	- often results need to be served on demand via server, so you need to build DB from output (you can do it realtime, but it is not optimal due to large volume of job results, SO it is better to build new DB in MapReduce system and then copy over for read-only queries to server)
+- notes:
+	- output of mapper can optimally (and often will) be sorted, before reducing
+	- often data is stored on machine and map/reduce task is copied their and executed to reduce data transfer
+	- in classical implementation reducers are chosen based on hash of a key, BUT, to mitigate hot keys, such data can be split among several keys (this keys are ether listed beforehand OR calculated on fly)
+		- this will cause reduce to be done in two stages
