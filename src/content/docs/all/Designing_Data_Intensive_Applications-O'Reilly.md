@@ -786,6 +786,12 @@ MapReduce & distributed file systems
 	- practical implementation, that enables MapReduce is HDFS, which allows to execute distributed data processing over number of machines with durability (via replication) in mind
 	- unlike Unix, MapReduce often utilizes schemas to store data
 - chaining is often done by saving previous result and running next job over it, which materializes intermediate state
+	- benefits:
+		- possibility to reuse state
+		- ease of wiring different jobs
+	- problems:
+		- some state is not useful, thus don't need to be materialized (it becomes even more overkill when we have high level of replication)
+		- next job need to wait until previous is finished
 - when doing joins, you can either do 1by1 lookups (often not optimal), OR do denormalization (often wasteful) OR, for large enough dataset, simply do full table copy onto local machine
 	- additionally you can do sort-merge joins, where you have two map pipelines that prepare and sort data, then map both results into single source, that sorted by both values and can be easily reduced
 - map-side joins is more optimized way to do join, which is basically just a map operation with no sorting
@@ -800,6 +806,35 @@ MapReduce & distributed file systems
 	- ML/AI training
 	- \---
 	- often results need to be served on demand via server, so you need to build DB from output (you can do it realtime, but it is not optimal due to large volume of job results, SO it is better to build new DB in MapReduce system and then copy over for read-only queries to server)
+- somewhat predecessor to MapReduce based distributed system is massive parallel processing system, that was focused to provide DB, that can execute heavy analytical queries
+	- MapReduce is more general and allows to:
+		- execute divers programs
+		- store data in different formats
+		- store data in raw format before applying schema
+	- MapReduce avoids data moving
+	- MapReduce have less focus on in-memory data storage & more fault tolerance (note that alternative have less fault tolerance to avoid some CPU load, because often it is less of a requirement (unlike it was originally in Google))
+- data flow engine is alternative to map reduce system, it operates on concept of operators (simple jobs), that combined into workflow (unlike MapReduce's workflow, this one can be viewed as single unit of work)
+	- while workflow is single unit of work, engine still can partition input and break operators to be executed on different machines (this requires network transfer of files)
+		- network transfer is often avoided as much as possible by engine
+		- intermediate state storage is mostly avoided
+			- engine can sometimes create intermediate state as checkpoints to do re-computation, if failure occurred
+	- differences:
+		- sorting often done in-place on demand
+		- no map tasks, mapping is done as part of job on demand
+		- data flow is pipe-like, no need to wait for previous operation finishing
+	- notes:
+		- operations should be deterministic to avoid cascading effect of re-computation on failure
+- MapReduce can be implemented to work with & process graph-structured data
+	- often it is used in style of "execute until finished" jobs, which can be implemented in default MapReduce, but won't be efficient (ex: we can't do partial graph traversals)
+	- it is often implemented by traversing each vertex by edges (do computation, hold some data, travers to next edge)
+		- Pregel engine makes system fault tolerant by ensuring message been sent and processed only once & all messages will be delivered in scope if single iteration
+			- has similar behavior to modern dataflow engines
+		- it has significant performance penalty, due to impossibility (as for now) to properly co-locate graph in distributed system (if you can fit graph in single machine - just do it)
+- modern MapReduce based frameworks introduce high-level APIs
+	- enables:
+		- ease of use
+		- possibility to introduce optimizations & do underlying algorithm migrations
+		- domain focused APIs
 - notes:
 	- output of mapper can optimally (and often will) be sorted, before reducing
 	- often data is stored on machine and map/reduce task is copied their and executed to reduce data transfer
