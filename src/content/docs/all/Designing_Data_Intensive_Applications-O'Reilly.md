@@ -766,7 +766,6 @@ ways:
 		- most straightforward way to (in low level) allocate working nodes, do service discovery, do leader election, do consensus, do rebalancing & keeping track of dead/alive nodes is to use membership service (ex: ZooKeeper)
 
 #### Batch Processing
-
 types of systems
 - online service - common web page, that requires fast response times and high availability
 - batch processing - service to process in async manner large amount of data, that requires great throughput
@@ -840,3 +839,101 @@ MapReduce & distributed file systems
 	- often data is stored on machine and map/reduce task is copied their and executed to reduce data transfer
 	- in classical implementation reducers are chosen based on hash of a key, BUT, to mitigate hot keys, such data can be split among several keys (this keys are ether listed beforehand OR calculated on fly)
 		- this will cause reduce to be done in two stages
+
+stream processing
+- similar to batch processing, but with unbound input, that processed in realtime
+	- sort operation in MapReduce becomes impossible in prev form
+- most often data flow is constant, so doing batch processing per some period may be unwanted
+- stream sends data in form of small, self-contained objects, called events
+	- event can be encoded in any format
+	- event is often emitted by many publishers & consumed by many subscribers of topic (way of grouping events)
+	- subscribers have direct channel to receive notifications about new events to avoid pooling
+- questions for system to solve
+	- back pressure problem: drop events, queue (how to deal with queue growth), disallow new events
+	- durability & throughput tradeoff
+		- do we need to replicate and write on disk messages or they might disappear on crash/reboot
+		- can we choose UDP (durability can be boosted via application level algorithms) or TCP is required
+	- will pub/sub members communicate directly or via broker
+		- direct communication may be faster, BUT implies risk of lost messages in case of crashes or network issues
+		- broker is a form of DB to store & manage events
+			- notes:
+				- will delete processed events
+				- might have performance degradation due to queue size increase
+				- have simpler search mechanisms then classical DB
+- webhooks is a form of public streaming
+- consuming stream
+	- types:
+		- load balancer - queue acts as load balancer and distributes events to subs
+			- may lead to unordered messages (can be fixed with additional queuing, because event ordering is often requirement of a system)
+		- fan-out - queue send same event to all subs
+	- consumer should acknowledge then event is processed, otherwise broker will retry with current or other consumer
+		- note that atomic commit protocol must be used to avoid duplication in case of network faults (sub processed event, bud din't send acknowledgement)
+	- commonly previous events are deleted, so new consumers can read old events
+		- to change that append-only log can be used
+		- log can be distributed, BUT we will loose ordering between partitions
+		- log is great for fan-out, BUT trickier to load-balance
+			- one way is to do it in a way of 1 node to 1 partition, BUT this way we limited to number of partitions AND can have hot partition problem AND slow nodes will slow done whole partition
+		- append-only log reduce acknowledgement overhead by keeping offset of each consumer
+			- in it's plain form this might cause processing same message second time, if offset wasn't synced with broker before failure
+		- log still won't be infinite and deletion/archival of old values is allowed
+			- to determine size you can alert on consumers that felt behind too much
+			- this allows to safely delete consumer before queue (in other approaches, missing consumer might turn on safety mechanisms and lock the broker)
+		- allows for easier recovery
+- modern application requires several tools, that each act as data source (ex: DB & warehouse) and all of them need to be synced
+	- ways of syncing (all ways imply replication lag)
+		- keep one source of truth and load it out from time to time in bulk to other systems
+			- won't scale after some size
+			- isn't realtime
+		- write to all systems at once (multi-leader problem)
+			- concurrency issues (writes in one system may be in other order then in other)
+			- fault tolerance (write to one system may succeed and to other fail)
+				- can be solved with atomic commits
+		- change data capture - mechanism of streaming data changes from DB (leader, single source of truth) to other data storages
+			- can be done via parsing change log (may be internal implementation of DB) OR via triggers (performance overhead & fragileness)
+			- logs are truncated, so to set followers you need to start with proper snapshot
+				- alternative is to use just log, if it is never truncated and compacted otherwise
+					- this will also allow to use message broker as durable storage
+- storing data as timeline of immutable events is separate useful data model
+	- it is commonly used in finance systems, BUT also can be beneficial for ease of modeling (event sourcing in DDD), observability (ex: for analytical reasons track all users actions), flexibility (same events can be used to construct different views of data), ease of migrations (potentially you can built new systems from logs and kill old one)
+	- note that non-compacted logs must have snapshots in some form
+	- concurrency is main issue
+		- BUT it also simplifies multi-object writes, because one write can contain all needed info AND writes are done in order
+	- problematic with data that frequently changes AND data that is under data retention policy
+- consuming streams
+	- saving changes to some form of storage
+	- push events to user (ex: emails, dashboards etc)
+	- process stream(s) and output stream
+		- often called operator/job
+		- it is quite similar to MapReduce functionally & to Unix philosophically
+			- except no possibility to restart from beginning, do sorting
+		- implementations:
+			- store queries/patterns/MLs to match against incoming events
+				- similar to this is to do matching against aggregation of events
+- timing (same problems exist in butch processing)
+	- events have embedded time on them, BUT it can and often will be different from time the event is been processed
+	- timing diff is often negligible, but delays may cause problems (in last 5 minutes there were 10 events, but actually they all occurred 10 minutes prior)
+		- you can log number of such events and drop them OR you can re-calculate, based on new info
+		- publisher can notify that it won't send new events in current window, but multiple publishers & publisher rotation is tricky this way
+	- it is problematic to track true event time, because client-based events are dependent on client clock, that can be falsy
+		- we can measure both timing on client & server and calc some meaningful value from it
+	- window types:
+		- tumbling - fixed size
+		- hopping - fixed size, with fixed size overlap
+		- sliding - contains all events in any period of fixed size
+		- session - contains all related events to some app defined "session" (ex: auth session)
+- joins - sometimes we need to join data
+	- types
+		- stream-stream - data is joined from both streams by some factor in given window
+			- often done by storing state in given window
+		- stream-table - stream is enriched with existing data
+			- similar to MapReduce, BUT we also need to listen fro DB changes and update local copy (if we have one)
+		- table-table - data is stored in DBs & listened by stream
+			- basically a result is series of caches for JOIN query (kind of materialized view)
+	- main problem is that we need to keep track of historical data (ex: apply tax rate on moment of sale, when doing historical re-calculation)
+		- if system allows we can keep joins non-deterministic
+		- otherwise we need to embed ID or version tag that signifies what data version must be joined with this event
+- use-cases:
+	- monitoring & alerting
+	- view materialization
+- notes
+	- streams allow async style of communication
