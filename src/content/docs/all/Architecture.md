@@ -164,10 +164,10 @@ Code smell is indicator of some deep/shallow problem in code, that can be spotte
 			- inherit from same interface or move duplicated logic into superclass
 			- delete unneeded class(optional)
 		- payoffs: less duplication, easier to read and understand
-			- be careful with over engineering and merging classes, where the is no scenes to it
-- change preventers - it is harder to introduce new functional, because change in many other places is needed
+			- be careful with over engineering and merging classes, where there is no scenes to it
+- change preventers - it is harder to introduce new functional because change in many other places is needed
 	- divergent change - when changing one class, many changes to class's unrelated methods are needed
-		- comes from copy-paste programing, pure abstractions and structure
+		- comes from copy-paste programming, pure abstractions and structure
 			- introduce abstractions to your code
 		- payoffs: less code duplication, faster development, better organization
 	- shotgun surgery - when changing one party of code, many changes to other parts are needed
