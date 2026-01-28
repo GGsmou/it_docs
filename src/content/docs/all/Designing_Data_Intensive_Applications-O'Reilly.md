@@ -935,5 +935,35 @@ stream processing
 - use-cases:
 	- monitoring & alerting
 	- view materialization
+- fault tolerance (similar to batch system, where you need to process event only once, but less straightforward)
+	- if we don't care about external side effects, we can do checkpoints per some time period to restore system's state OR process fixed window of tasks as one batch and then output it to the world (if it was successful)
+	- otherwise we can utilize atomic transactions between stream and external system
+		- it is not so costly due to possibility to batch events in single transaction
+		- alternative is to ensure idempotency in system (concurrency must be handled, some operations may not be idempotant SO metadata is used to fix it)
+	- state is often kept in-memory & on device with additional replication
+		- alternative is to rebuild state from input stream (in case of short term failure)
 - notes
 	- streams allow async style of communication
+
+future of data systems (what can be changed to improve current state)
+- modern systems may require several data representations, stored in different formats, so we need to build some system to integrate all of this sources in consistent & reliable manner
+	- it would be nice to have some standardized protocol to do messaging and distributed transactions
+	- messaging is easier to implement then distributed transactions, BUT you need to deal with eventual consistency (alternatively you can make system sync and less robust)
+		- messaging, that relies on total ordering will suffer from scalability OR from miss-ordering on different replicas AND systems with microservices and/or clients with state can't guarantee proper order
+	- causality between different systems is not trackable on software level easily
+		- conflict resolution algorithms, logical timestamps, recording read as event may help
+- batch processing and streams
+	- framework is always done in func style for ease of reasoning and fault tolerance (easy to retry clean function)
+		- secondary index also might be implemented in async manner
+	- lambda architecture - historical-ish style of system, where we save all events in log structure, optimized for reads, stream events ASAP, do heavy batch processing on data from time to time
+		- problems:
+			- need to maintain two systems (unified framework can help)
+			- stream and batch outputs need to be merged (fault tolerance mechanisms may help)
+			- timing problems in batch part (need to have ability to process by event time)
+- unbundling DBs (in future, it might be beneficial to treat all data in system as one large DB, which composed of smaller data management systems, integrated with some framework)
+	- to achieve systems must have:
+		- high level query language
+		- low level unified protocol to access data
+	- data in such system can be managed via reactive model (change in one place triggers required recalculations)
+		- todays DBs allow to run code on change (ex: triggers), but it is more of an afterthought AND not greatly implemented (consider deploying your app inside DB env somehow, instead of Docker)
+		- it is ok to keep code and state separate, BUT your app might potentially subscribe to changes in DB and update it's internal state

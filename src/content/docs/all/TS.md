@@ -331,3 +331,24 @@ stack:
 	- `zod` can be used to have schema and type
 - Postgres + Drizzle ORM
 - Better-Auth
+
+## Branded Types
+TS has structured type system, meaning it allows interchangeable usage of equivalent types
+- to omit this style we can add virtual (never appears in compiled code) property to type, ex: `type Email = string & {__brand: "Email"};` 
+	- such style of type creation will cause constant `as` casting of values, ex: `const email = 'example@email.com' as Email;` 
+	- also `string` property is unsafe, because it will be marked in IDE as property and can cause runtime errors, so better to use uniq symbols
+
+Branded type was introduces as way to bake some runtime knowledge into types, that can't be represented with pure TS
+- often branded type can have pure functions to do operations with them (like properties on object), ex:
+	- function to check if primitive is branded type (adds documentation, removes `as` casting, adds assertion via `is`)
+	- function to assert if primitive is branded type
+	- function to parse primitive into branded type
+	- function to generate branded type from primitives
+- branded types are usable for primitives, object can define complex type by themselfs (ex: add runtime field on it with needed info)
+	- if you don't want to bind runtime fields you can brand your object with virtual type
+
+notes:
+- branded type must have one of this properties to be considered valuable:
+	- have structure
+	- refer to nominal type (ex: `typeof user.id // UserId (string)`)
+- branded types can be combined into new branded types

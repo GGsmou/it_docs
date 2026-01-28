@@ -1272,3 +1272,39 @@ To reduce mental complexity in long run, it is important to use shared language
 			- storage - redshift
 - gut feeling & prev experience to see problems and solve them
 	- still use metrics to justify problem & prioritize it
+
+## Shopify Checkout Architecture
+- checkout page is critical part of user flow (must be smooth), WHILE been the most vulnerable from security standpoint
+	- CSP is one of many PCI DSS requirements, that must be met, that makes "smooth" requirement harder
+- main way to achieve security and flexibility is sandboxing (keep checkout in separate sandboxed env from other parts of page)
+	- in browser sandboxing can be achieved via:
+		- web workers - execute third-party scripts in separate isolated thread
+			- separate script won't block main page in case of some bug
+		- iframes - embed third-party content in separate isolated context
+		- post messaging - browser protocol to send serializable messages between contexts
+			- don't forget message validation technique AND signing for critical messages
+			- build proper API
+
+## Keeping Figma Fast
+- good practices
+	- run most tests per code change and not on some interval (still great for healthchecks) to detect problems early in the pipeline
+	- keep tests quick (ideally under 10 minutes)
+		- achieved via parallelization
+	- for performance testing consider testing on different devices
+		- alternative approach is to count CPU operations, BUT it can be used to only test CPU & problematic in world of interpreted languages
+- figma split performance testing into two systems
+	- VM based
+		- runs many tests in parallel on every commit
+		- used to detect big performance downgrades (due to flaky nature of VM we can't rely more on them)
+		- uses GPU to do testing with headless browser
+	- hardware system
+		- small array of older laptops with different hardware configs
+		- slower, requires manual run, BUT gives better results
+		- also used to do regular healthchecks
+- performance system testing should have:
+	- CPU profiling
+	- human-readable reports
+	- different testing scenarios
+
+notes:
+- > Running tests on a single laptop is common practice for smaller companies. Try to keep processes lean and avoid over-engineering.
