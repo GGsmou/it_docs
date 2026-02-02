@@ -967,3 +967,39 @@ future of data systems (what can be changed to improve current state)
 	- data in such system can be managed via reactive model (change in one place triggers required recalculations)
 		- todays DBs allow to run code on change (ex: triggers), but it is more of an afterthought AND not greatly implemented (consider deploying your app inside DB env somehow, instead of Docker)
 		- it is ok to keep code and state separate, BUT your app might potentially subscribe to changes in DB and update it's internal state
+		- for such system ordering of events & fault tolerance is key, because getting data out of sync is bad for derived data
+		- streaming allows building system, where each service can maintain local copy of external DB and query it, instead of doing API calls
+			- time dependency can be hard to solve here
+		- if client has state, it can be also part of reactive model with it's materialized state
+			- it will optimize offline flow and make clients more reactive, BUT it is not so easy due to lack of tooling and paradigm shift
+	- system often has two paths (write - computation is done over data and saved, read - data is read with possibility of computation)
+		- we can optimize both paths, ex:
+			- doing more computation on write (basically building a cache) or more on read
+			- common form of optimization is index
+	- treating reads as events and storing them will enable casual dependency detection & possibility to find state of reader (ex: what user saw on page, before he done some write)
+		- adds I/O cost
+- making DBs "correct"
+	- correctness guarantee is often achieved with transactions, but in distributed systems it is often harder guarantee and often badly understood
+		- poor configs can lead to data corruption
+	- while we still rely on transactions, some paradigm shifts may apply
+		- data corruption examples
+			- data deletion (stream-like immutability can help)
+			- double writes with side effects (idempotence will help)
+			- data duplicate (use uniq ID per operation)
+				- ex: user is doing operation twice, because response was never received
+		- many systems implement low level corrections (TCP orders & deduplicates packets, we have checksums in protocols), BUT it is not sufficient to provide e2e correctness and additional application level mechanisms must be involved
+	- to ensure constraints (ex: only positive balance, uniquness) we rely on consensus
+		- solutions (always sync OR with conflict resolution in async model):
+			- single leader
+			- routing requests to same replica
+			- total order broadcast (works for single partition, BUT can also work for multiple, where you have single message, that triggers reads from multiple partitions down the line)
+		- constraints is often about consistency, which itself is about:
+			- timeliness (can be violated in favor of eventual consistency) - data is viewed in up-to-date state
+			- integrity (can't be violated) - data is not corrupted
+			- \---
+			- loosely constraints can in async system can be achieved via compensational transactions
+		- > Another way of looking at coordination and constraints: they reduce the number of apologies you have to make due to inconsistencies, but potentially also reduce the performance and availability of your system, and thus potentially increase the num‐ ber of apologies you have to make due to outages. You cannot reduce the number of apologies to zero, but you can aim to find the best trade-off for your needs—the sweet spot where there are neither too many inconsistencies nor too many availability problems.
+	- more about corruptions
+		- remember that disc, CPU etc can get corrupted, BUT, like many other events we omit consideration of them, due to low possibility of them
+		- remember that many things can fail and after some level you might need to do data auditing AND backups
+			- remember that backups may degrade, do chaos & backups testing
