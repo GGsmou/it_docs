@@ -1308,3 +1308,14 @@ To reduce mental complexity in long run, it is important to use shared language
 
 notes:
 - > Running tests on a single laptop is common practice for smaller companies. Try to keep processes lean and avoid over-engineering.
+
+## Histograms
+- histograms can be used to track sums of values and their count by some period of time
+	- histograms can be formed via buckets (ranges of values)
+	- histograms can have actual labels, forming multi-dimensional vector
+- summaries & historgrams can be used to track quantiles
+	- if you calculating summary on client, you can't aggregate multiple summaries into single metric
+	- quantiles have approximation error in them caused by buckets size (many small buckets aren't ideal solution, because it is costly, WHILE adding the resolution)
+
+notes: 
+- metrics can be stored and collected in different formats, SO connector patter can be used to integrate systems with different formats

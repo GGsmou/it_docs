@@ -25,6 +25,7 @@ title: IT
 - [Domain_Driven_Design-Evans](Domain_Driven_Design-Evans.md)
 - [Software_Architecture_The_Hard_Parts-O'Reilly](Software_Architecture_The_Hard_Parts-O'Reilly.md)
 - [Designing_Data_Intensive_Applications-O'Reilly](Designing_Data_Intensive_Applications-O'Reilly.md)
+- [Management](Management.md)
 
 ## Materials
 - [engineeringladders.com](https://www.engineeringladders.com/) - grows of tech specialist

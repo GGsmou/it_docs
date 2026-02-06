@@ -1001,5 +1001,13 @@ future of data systems (what can be changed to improve current state)
 		- > Another way of looking at coordination and constraints: they reduce the number of apologies you have to make due to inconsistencies, but potentially also reduce the performance and availability of your system, and thus potentially increase the num‐ ber of apologies you have to make due to outages. You cannot reduce the number of apologies to zero, but you can aim to find the best trade-off for your needs—the sweet spot where there are neither too many inconsistencies nor too many availability problems.
 	- more about corruptions
 		- remember that disc, CPU etc can get corrupted, BUT, like many other events we omit consideration of them, due to low possibility of them
-		- remember that many things can fail and after some level you might need to do data auditing AND backups
+		- remember that many things can fail and after some level you might need to do data auditing (as more e2e as possible) AND backups
 			- remember that backups may degrade, do chaos & backups testing
+			- most of systems doing audit from point of trust (we trust that most of time system is correct, while some systems may need to implement more cryptography to verify correctness)
+- privacy
+	- remember that data belongs to humans and need to be treated properly, like human bean
+	- be careful with algorithmic predictions, it may cause critical biases towards some groups
+		- data-based decisions are great, BUT be careful with them
+	- data is valuable to every company, SO it must be treated properly & securely
+	- provide control over data to end user
+	- delete data completely after some time
