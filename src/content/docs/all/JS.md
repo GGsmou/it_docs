@@ -233,6 +233,32 @@ Other
 	- it is better to setTimeout earlier in code, because even zero second timeout has some delay in it
 	- you can show some loading via this split, because otherwise change in DOM will be shown after whole process is finished
 
+## Garbage Collector
+- done automatically and shouldn't often be considered by engineer or tried to be optimized, BUT there are always nuances
+- memory (RAM)
+	- most of things (objects, fns etc) stored here
+	- manipulated by V8
+	- broken into small fast stack AND large slow heap (GC acts here)
+		- small objects can be stored on stack
+	- GC is acts on several concepts
+		- find unreachable/unused objects (travers tree from root)
+			- objects defined on root will live indefinitely
+		- young & old generations
+			- most of objects die young, so we need to store reference on them and often check are they reachable, BUT older objects are put deeper into memory and cleared less often
+			- first object is created as very young, then, after first check, it is treated as young and only then treated as old
+			- GC utilizes some memory layouting algorithm (from-space / to-space) to optimize generational marking and deletion
+			- too large objects immediately moved to old space
+			- objects are traversed as trees and traversal can have intermediate state (when object is checked, but it's children not)
+				- after traversal (marking) is done, we do deletion (sweep) and compaction (process of rearranging memory)
+		- GC can block main thread, so number of optimizations were added
+			- incremental marking to prevent long blocks
+			- concurrent marking (several markings are done, often off thread)
+			- parallel sweeping
+			- \---
+			- main threads coordinates start & finish of marking
+			- as synchronization, if V8 detects object mutation, it marks that it need to be marked again to prevent memory corruption by worker
+				- NOTE that it is how it works in Node, where we propagate marking to parents, BUT in browser we just mark child and unmarked parents just always checked on fact of marked childs
+
 ## Regex In JS
 To create a regex in JS we can use `new Regxp("pattern", "flags")` or with `/pattern/flags`. This will resolve in Regex object
 
