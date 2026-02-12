@@ -258,6 +258,11 @@ Other
 			- main threads coordinates start & finish of marking
 			- as synchronization, if V8 detects object mutation, it marks that it need to be marked again to prevent memory corruption by worker
 				- NOTE that it is how it works in Node, where we propagate marking to parents, BUT in browser we just mark child and unmarked parents just always checked on fact of marked childs
+- notes:
+	- remember that you need to delete object both from Array/Set/Map and it's reference, WHILE, by using `WeakMap`/`WeakSet`, you can just remove reference and GC will auto-clear map for your
+		- this is one common memory leak issue you can do in JS, other is DOM nodes, that no longer in DOM, but referenced by your code, uncleared intervals, unremoved listeners, closures, that never resolved
+		- also `consol.log(obj)` will result in logged object been stored in memory indefinitely
+		- while working with frameworks, some clean-up will be handled by framework, some you need to handle partially (ex: unsubscribe in return for React) and some is handled on your own
 
 ## Regex In JS
 To create a regex in JS we can use `new Regxp("pattern", "flags")` or with `/pattern/flags`. This will resolve in Regex object

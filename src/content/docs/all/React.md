@@ -414,3 +414,41 @@ all in all we are getting:
 React(and other frameworks) give possibility to work with minimum amount of state(network, API, user input, browser) and generate interface from it, so it is important to minimize state and do not create duplicate states(that will depend on each other)
 - reduces complexity
 - ups maintainability
+
+## Refresh
+*section to refresh existing knowledge* 
+
+#### Rendering in Depth
+- entry point - create root, call `root.render` and pass component to render
+- reconciliation - process of transforming v-tree into smth to render (DOM, native components, server-side etc) 
+	- it can mutate render tree OR override it
+	- react provides intermediate lib with reconciliation APIs, that then integrate with something like React DOM to provide bindings for browsers
+- fiber - single unit of work in react's engine, each component can have N fibers to execute some task
+	- some properties of fiber object:
+		- tag - type of entity
+		- key - component's key
+		- type - type of task, that acts as link to component/symbol etc
+		- stateNode - link to mapped object
+		- child, index & sibling - references, related fiber's position
+		- ref - component's ref
+		- pending & memoized props - snapshots for props
+			- used for comparison for re-draw
+		- memoizedState - current internal state of component
+		- flags - flags to determine state of fiber
+		- deletions - fibers to remove
+		- first, next, last Effect - links to related fibers with side effect
+		- lanes - number to prioritize fibers
+		- alternate - copy of fiber that changes first, before actual fiber is changed in commit faze
+	- root fiber is a bit different fiber
+		- among other things, it stores link to current fiber been executed and different lanes
+	- flow:
+		- create root
+		- hydrate root with render method
+		- parse JSX into JS and execute it, this will change flags and lanes and append tasks into queue (this can also be modified by via reconciliation APIs)
+		- fiber detected in queue and goes to processing, after processing is done, alternate is placed as current fiber
+			- one fiber at a time is processed
+			- processing is done in fazes:
+				- prepare
+				- render (build virtual tree)
+				- after everything is ready tree is committed, with additional execution of effects before, while and after commit
+				- layout - hand out v-tree to render it

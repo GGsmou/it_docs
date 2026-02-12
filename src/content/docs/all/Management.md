@@ -39,3 +39,8 @@ title: Management
 	- remember that it is ok to sometimes say "it is impossible", BUT not always
 - > If you refuse to estimate, you’re forcing someone less technical to estimate for you.
 - remember that you must meet baseline of productivity amoung your peers
+
+## Working with hireups
+- you often can choose working environment, BUT you can't choose your manager
+- don't try to change person, try to learn from them, their experience, find an approach to them
+	- often care about common goal, clear visibility and will to agree on smth you disagree will make your life easier, BUT it is ok to challenge person too
