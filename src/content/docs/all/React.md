@@ -452,3 +452,28 @@ React(and other frameworks) give possibility to work with minimum amount of stat
 				- render (build virtual tree)
 				- after everything is ready tree is committed, with additional execution of effects before, while and after commit
 				- layout - hand out v-tree to render it
+#### Memoization
+- memoization is critical optimization feature, that saves on redundant computations, by omitting doing calculation if params of FN didn't change
+	- it saves on re-renders in react too
+- react stores memoized state (related to props & context) in Fiber structure
+	- after calculations and comparisons, react engine can prevent any re-computations and updates from happening
+	- react can forcefully update components
+	- for comparison react uses shallow equality via `Object.is` 
+- to trigger updates in functional components react stores dispatchers for all hooks
+	- hooks also do params comparison
+- don't add additional (not used inside memoized CB OR some that will never change: consts, refs, non-reactive vars) dependencies to dependency arrays to avoid additional in-memory comparisons been made
+- > Developers should understand whether the effect of memoization will outweigh the overhead of maintaining it.
+
+#### Headless Components
+- pattern that implies separation of logic from UI in complex components
+	- it often emerges, because logic in component grows (accessibility, keyboard support, async operations etc) WITH demand for different variations of UI styling
+- often done via hook, that connects UI layer with Domain layer via some logic
+	- to avoid large number of props, hook output should be possible to just spread into component via `...` 
+- such components is easier to test, because we can check logic, without the need to deal with UI
+	- note that some user interactions may be problematic to test, because you need to fake events, THUS you can have testing component, that can serve as documentation AND testing instrument
+- ways to implement:
+	- create a hook with logic and allow user to pass it's output to any component
+	- create a hook with logic and pass it's output to context, create default variation of sub-component, that each accept override for customizability and use values from context
+- notes:
+	- if you want to integrate data fetching you can create additional hooks, that interact nicely with your component hook, BUT not actually a part of it for loose coupling
+	- remember to not overuse it, because it adds complexity and indirection to code
