@@ -2,6 +2,26 @@
 title: JS
 ---
 
+## Redux in Depth
+- main principles
+	- all state is represented as single immutable JS object (called state OR state tree), that changes explicitly
+	- state is changed by dispatching actions (also plain JS object that describes state change)
+		- have one requirement to have `type` property
+	- redux functions (reducers) must be pure and used to modify state, when action dispatched
+		- accept prev state and action
+		- redux has single main reducer, that can utilize other reducers to do actual changes
+			- reducers can be nicely composed with `combineReducers` fn, that accepts object, where keys are state object keys AND fns are reducers
+		- redux keeps references to inner objects inside state to prevent large duplications
+		- it is easy to test logic in reducer
+		- reducer must provide initial state
+- implementation
+	- create store (main state) & provide main reducer to it
+		- store exposes: `getState`, `dispatch`, `subscribe` methods
+	- you often should split UI been rendered (presentational components) and state logic (container components containing store logic and bindings)
+	- `react-redux` - one of many libs that bind redux to other frameworks
+		- provides `Provider` that acts as context to provide `store` 
+	- for maintainability actions are often created by corresponding creator fn to avoid duplicating object declaration
+
 ## Other
 By using flag `--require ./path/toFile.js` for `node` we can add some file to be called with main file we call
 - usage: add some global module that is not required in other files

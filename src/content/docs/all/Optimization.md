@@ -261,3 +261,29 @@ Cache is always introducing some tradeoffs, so it is important to measure and ch
 	- too high count can be evidence to improve parameters above
 	- be careful with caching by time with too big values(or even by time at all, because it is more stale-affected and not as efficient as other strategies)
 - monitor data consistency - check if cache serves inconsistent data, by comparing it with actual one
+
+## JS Optimization
+- network
+	- code splitting, lazy loading
+		- this also plays big role because parsing & compilation is costly, especially on mid-to-low end devices
+	- minification, tree-shaking
+	- compression
+	- caching
+- execution
+	- reduce execution time of your scripts AND split them to smaller once
+	- watch-out for memory leaks
+	- chunk-up and split data computation to free main thread
+- additionally to code splitting with lazy loading you can utilize hydration techniques, BUT be careful not to serve too large HTMLs AND avoid binding JS to late (this can keep user in broken state, when page seems loaded, but have pure interactions)
+
+## V8 Code Caching
+- browser OR engine can cache result of parse & compile operation
+	- often done by preserving result of V8 in some cache as metadata, which can be read by V8 to avoid computations
+- > ideally, the best thing you as a JS developer can do to improve code caching is “nothing”
+	- > Our best advice for getting code cached is like our advice for writing JS: write clean idiomatic code, and we’ll do our best to optimise how we cache it.
+	- > Any form of caching is inherently dependent on things not changing, thus doing nothing is the best way of allowing cached data to stay cached. There are a couple of ways you can actively do nothing.
+		- ex
+			- 304 will keep cache unchanged
+			- filenames & urls keep cache unchanged
+			- deferred releases can help
+			- split libraries from code
+		- note that V8 tries to cache inline scripts, but kinda bad at it

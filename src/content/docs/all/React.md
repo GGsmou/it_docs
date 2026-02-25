@@ -415,6 +415,20 @@ React(and other frameworks) give possibility to work with minimum amount of stat
 - reduces complexity
 - ups maintainability
 
+## V19
+- Actions (`useTransition` with async callback)
+	- provides automatic pending state
+	- supports `useOptimistic` 
+	- applicable to error boundaries
+	- can be integrate with forms
+	- for better integration `useActionState` introduced
+		- `useFormStatus` can be added on top to receive form state as from context, BUT without the need for context
+- `use` - hook to read context conditionally AND wait for Promises utilizing Suspense
+- `forwardRef` is deprecated and now we can access just `ref` from props
+- Context can be rendered without the need to call `.Provider` on it
+- `ref` can accept cb with clean-up callback
+- metadata now can be rendered and hoisted to `<head>` 
+
 ## Refresh
 *section to refresh existing knowledge* 
 
