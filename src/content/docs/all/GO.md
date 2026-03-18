@@ -114,3 +114,88 @@ fmt.Println(p.Street)
 			- supports markup
 			- can be parsed by Godoc package to form HTML view of docs
 			- you can write specific types of tests, that will act as example, by using specific file name `example_{FUNCTIONALITY_NAME}_test.go` AND fn name (starts with `Example`)
+	- functions
+		- first class citizens (can be assigned to var, passed as param)
+		- has multiple returns (`funct name () (Type1, Type2`, commonly used for error handling), named returns (`funct name () (res1 int, res1 int) { res1 = 1; res2 = 2; return; }`, allows for variadic parameters (of same type, `func name (args ...Type)`, treated as slice inside fn)
+		- can be anonymous (`func(){}`), which are common for lambdas OR as var
+		- functions create closures
+		- all variables accepted by value, except pointers, slices and maps (pointer itself is still copied, BUT memory, that it points to, isn't)
+	- pointers
+		- declared as `*Type`, pointer of value obtained via `&Var`, value is read or assigned via `*p`  OR `*p = smth` 
+			- for structs: `(*p).field` OR `p.field` shorthand
+		- can't do arithmetic
+		- memory is managed via GC, BUT it is still important to omit copying large amount of data, leaking memory with redundant allocations
+			- GC runs concurrently with program and tries to avoid large resource consumption
+	- methods
+		- similar to functions, BUT act as methods on defined types and can have pointer/value receiver
+			- pointer receiver is used for large structs OR when state modification needed `func (p *Type) name () {}` 
+			- value receivers can also be used, even if called on pointer (dereferencing will be done under the hood) `funt (v Type) name () {}` 
+	- interface
+		- used to define type without implementation
+			- `interface{}` accepts any type
+				- commonly used for generics before generics
+				- used to handle unknown data
+				- to use anything we can narrow type by:
+					- assertions
+						- `value.(Type)` with panic OR more safer `value, ok := value.(Type)` 
+					- type switches
+						- `switch v := i.(type) { ... }` 
+			- `type Name interface { fn1 () ReturnType}` 
+			- can be embedded for composition (same as structs)
+	- generics
+		- introduces reusability without sacrificing performance OR strong types
+		- `func name[T ConstrainType] (s T) T` 
+			- for any you can use `interface{}` OR `any` 
+			- can be called like `name[int] (...)` OR generic can be inferred
+		- structs can be generic too `type Struct[T any] struct {}` 
+		- you can build own constrains:
+			- `type Number interface { int | int8 | float32 }` 
+			- `type Number {int Calc () int}` 
+			- `type Number interface { ~int | ~int8}` to allow accepting types, who has `int` or `int8` underlying type
+			- (they can be inlined, using same syntax)
+		- there is `constraints` package that have expected `Float`, `Integer` ect constraints and more specific: `comparable`, `ordered` 
+	- errors
+		- errors are values that need to be explicitly handled
+		- created via `fmt.Errorf()` OR `errors.New()` 
+			- `errors.New` great for static error messages OR predefined constant errors (Sentinel Errors)
+			- `fmt.Errorf` great for formatted errors, with possibility to pass other error via `%w` to wrap it inside, while preserving context
+				- `errors.Is(wrapped, base)` OR `errors.As(wrapped, baseType)` can be used to work with wrapped errors
+				- except default `%s`, `%d`, `%f `you have:
+					- `%+v` for key:val structs
+					- `%T` for type
+					- `%q` for quoted string
+		- always returned as last value, defaults to `nil` and handled as `if err != nil` 
+		- built-in error interface has single `Error() string` method that returns text representation of error
+		- for exceptional cases you have `panic()` that will unwind the stack and kill app
+			- to prevent app death you have `recover()` in deferred functions
+- code organization
+	- module (app) in go is defined by `go.mod` file, which includes path (often repo URL) to module & dependencies
+		- `go mod init` creates basic module
+		- `go mod tidy` cleans-up, adds and optimizes deps
+			- `go.sum` checksum updated as result for reproducible builds
+		- `go mod vendor` creates minimal required local copy of all depth
+			- app will fail in case of mismatch between vendor and actual deps
+		- `go get` installs deps
+	- code is broken by packages
+		- defined by first line via `package name` 
+		- exports are defined by capital letter
+		- import is done as:
+			- `import "name"` 
+			- `import ( "name1", "name2" )` 
+			- `import localName "name"` 
+		- rules:
+			- no circular imports
+			- main package for executable
+			- lowercase naming
+			- import path must be uniq
+		- to publish you required to share module via version control system with semantic versioning
+		- notes:
+			- files in package can "see" each other
+			- all files are compiled as single package, that can be linked to other package
+			- dead code elimination is done in compilation step to omit any unreachable from main symbols
+- concurrency
+	- goroutines is way to execute concurrent, multi-threaded code
+		- lightweight and managed by runtime
+		- communication is done via channels
+		- syntax: `go fn()` to execute fn as goroutine
+	- note that `main` termination will kill goroutines, it won't await them by default, BUT we can block it via channels

@@ -215,4 +215,122 @@ fmt.Println(p.Street)
 - you can add comment before fn to act as inline doc AND at start of file to act as doc for whole file
 - supports markup
 - can be parsed by Godoc package to form HTML view of docs
-- you can write specific types of tests, that will act as example, by using specific file name <code dir="auto">example_{FUNCTIONALITY_NAME}_test.go</code> AND fn name (starts with <code dir="auto">Example</code>)</p> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/general/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">General</span> </span> </a> <a href="/it_docs/all/it/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">IT</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+- you can write specific types of tests, that will act as example, by using specific file name <code dir="auto">example_{FUNCTIONALITY_NAME}_test.go</code> AND fn name (starts with <code dir="auto">Example</code>)
+- functions
+- first class citizens (can be assigned to var, passed as param)
+- has multiple returns (<code dir="auto">funct name () (Type1, Type2</code>, commonly used for error handling), named returns (<code dir="auto">funct name () (res1 int, res1 int) { res1 = 1; res2 = 2; return; }</code>, allows for variadic parameters (of same type, <code dir="auto">func name (args ...Type)</code>, treated as slice inside fn)
+- can be anonymous (<code dir="auto">func(){}</code>), which are common for lambdas OR as var
+- functions create closures
+- all variables accepted by value, except pointers, slices and maps (pointer itself is still copied, BUT memory, that it points to, isn’t)
+- pointers
+- declared as <code dir="auto">*Type</code>, pointer of value obtained via <code dir="auto">&#x26;Var</code>, value is read or assigned via <code dir="auto">*p</code>  OR <code dir="auto">*p = smth</code>
+- for structs: <code dir="auto">(*p).field</code> OR <code dir="auto">p.field</code> shorthand
+- can’t do arithmetic
+- memory is managed via GC, BUT it is still important to omit copying large amount of data, leaking memory with redundant allocations
+- GC runs concurrently with program and tries to avoid large resource consumption
+- methods
+- similar to functions, BUT act as methods on defined types and can have pointer/value receiver
+- pointer receiver is used for large structs OR when state modification needed <code dir="auto">func (p *Type) name () {}</code>
+- value receivers can also be used, even if called on pointer (dereferencing will be done under the hood) <code dir="auto">funt (v Type) name () {}</code>
+- interface
+- used to define type without implementation
+- <code dir="auto">interface{}</code> accepts any type
+- commonly used for generics before generics
+- used to handle unknown data
+- to use anything we can narrow type by:
+- assertions
+- <code dir="auto">value.(Type)</code> with panic OR more safer <code dir="auto">value, ok := value.(Type)</code>
+- type switches
+- <code dir="auto">switch v := i.(type) { ... }</code>
+- <code dir="auto">type Name interface { fn1 () ReturnType}</code>
+- can be embedded for composition (same as structs)
+- generics
+- introduces reusability without sacrificing performance OR strong types
+- <code dir="auto">func name[T ConstrainType] (s T) T</code>
+- for any you can use <code dir="auto">interface{}</code> OR <code dir="auto">any</code>
+- can be called like <code dir="auto">name[int] (...)</code> OR generic can be inferred
+- structs can be generic too <code dir="auto">type Struct[T any] struct {}</code>
+- you can build own constrains:
+- <code dir="auto">type Number interface { int | int8 | float32 }</code>
+- <code dir="auto">type Number {int Calc () int}</code>
+- <code dir="auto">type Number interface { ~int | ~int8}</code> to allow accepting types, who has <code dir="auto">int</code> or <code dir="auto">int8</code> underlying type
+- (they can be inlined, using same syntax)
+- there is <code dir="auto">constraints</code> package that have expected <code dir="auto">Float</code>, <code dir="auto">Integer</code> ect constraints and more specific: <code dir="auto">comparable</code>, <code dir="auto">ordered</code>
+- errors
+- errors are values that need to be explicitly handled
+- created via <code dir="auto">fmt.Errorf()</code> OR <code dir="auto">errors.New()</code>
+- <code dir="auto">errors.New</code> great for static error messages OR predefined constant errors (Sentinel Errors)
+- <code dir="auto">fmt.Errorf</code> great for formatted errors, with possibility to pass other error via <code dir="auto">%w</code> to wrap it inside, while preserving context
+- <code dir="auto">errors.Is(wrapped, base)</code> OR <code dir="auto">errors.As(wrapped, baseType)</code> can be used to work with wrapped errors
+- except default <code dir="auto">%s</code>, <code dir="auto">%d</code>, <code dir="auto">%f </code>you have:
+- <code dir="auto">%+v</code> for key:val
+ structs
+- <code dir="auto">%T</code> for type
+- <code dir="auto">%q</code> for quoted string
+- always returned as last value, defaults to <code dir="auto">nil</code> and handled as <code dir="auto">if err != nil</code>
+- built-in error interface has single <code dir="auto">Error() string</code> method that returns text representation of error
+- for exceptional cases you have <code dir="auto">panic()</code> that will unwind the stack and kill app
+- to prevent app death you have <code dir="auto">recover()</code> in deferred functions</p>
+<ul>
+<li>code organization
+<ul>
+<li>module (app) in go is defined by <code dir="auto">go.mod</code> file, which includes path (often repo URL) to module &#x26; dependencies
+<ul>
+<li><code dir="auto">go mod init</code> creates basic module</li>
+<li><code dir="auto">go mod tidy</code> cleans-up, adds and optimizes deps
+<ul>
+<li><code dir="auto">go.sum</code> checksum updated as result for reproducible builds</li>
+</ul>
+</li>
+<li><code dir="auto">go mod vendor</code> creates minimal required local copy of all depth
+<ul>
+<li>app will fail in case of mismatch between vendor and actual deps</li>
+</ul>
+</li>
+<li><code dir="auto">go get</code> installs deps</li>
+</ul>
+</li>
+<li>code is broken by packages
+<ul>
+<li>defined by first line via <code dir="auto">package name</code></li>
+<li>exports are defined by capital letter</li>
+<li>import is done as:
+<ul>
+<li><code dir="auto">import "name"</code></li>
+<li><code dir="auto">import ( "name1", "name2" )</code></li>
+<li><code dir="auto">import localName "name"</code></li>
+</ul>
+</li>
+<li>rules:
+<ul>
+<li>no circular imports</li>
+<li>main package for executable</li>
+<li>lowercase naming</li>
+<li>import path must be uniq</li>
+</ul>
+</li>
+<li>to publish you required to share module via version control system with semantic versioning</li>
+<li>notes:
+<ul>
+<li>files in package can “see” each other</li>
+<li>all files are compiled as single package, that can be linked to other package</li>
+<li>dead code elimination is done in compilation step to omit any unreachable from main symbols</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>concurrency
+<ul>
+<li>goroutines is way to execute concurrent, multi-threaded code
+<ul>
+<li>lightweight and managed by runtime</li>
+<li>communication is done via channels</li>
+<li>syntax: <code dir="auto">go fn()</code> to execute fn as goroutine</li>
+</ul>
+</li>
+<li>note that <code dir="auto">main</code> termination will kill goroutines, it won’t await them by default, BUT we can block it via channels</li>
+</ul>
+</li>
+</ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/general/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">General</span> </span> </a> <a href="/it_docs/all/it/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">IT</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
