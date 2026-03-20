@@ -331,6 +331,98 @@ fmt.Println(p.Street)
 </ul>
 </li>
 <li>note that <code dir="auto">main</code> termination will kill goroutines, it won’t await them by default, BUT we can block it via channels</li>
+<li>data is shared via channels
+<ul>
+<li><code dir="auto">make(chan, Type)</code></li>
+<li>can be buffered (queue N entities in memory) OR unbuffered (block channel until entity in processing)</li>
+<li>you can multiplex several channels via <code dir="auto">select/case</code> statement
+<ul>
+<li>will block until any <code dir="auto">case</code> or <code dir="auto">default</code> is ready</li>
+<li>will execute <code dir="auto">case</code> of ready channel OR random if multiple ready</li>
+<li>will execute <code dir="auto">default</code> immediately if other are blocking</li>
+<li>use-case: channels with timeouts</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>while gorouting is lightweight it might be beneficial to limit it by some amount via workerpool (allocate some fixed amount of goroutines and buffer other requests)</li>
+<li>for better management you can use
+<ul>
+<li><code dir="auto">sync</code>, that provides: mutex, reader-writer mutex, waitgroup (wait until all goroutines finish), once (call fn once even if done from multiple routines)</li>
+<li><code dir="auto">context</code>, that provides:
+<ul>
+<li>value passing down the stack</li>
+<li>deadlines with cancelations
+<ul>
+<li>check <code dir="auto">ctx.Done()</code> and abort</li>
+</ul>
+</li>
+<li>---</li>
+<li>often passed as first request</li>
+<li>use-cases: HTTP timeouts, database deadlines, goroutine cancellation coordination</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>patterns:
+<ul>
+<li>fan-in - merge work (done by select)</li>
+<li>fan-out - distribute work for faster parallel execution</li>
+<li>pipeline - chain parallel working steps</li>
+</ul>
+</li>
+<li>you can use <code dir="auto">-race</code> flag to detect unsynchronized used of shared memory by different routines</li>
+</ul>
+</li>
+<li>go has reach standard lib:
+<ul>
+<li><code dir="auto">io</code> to handle files and streams
+<ul>
+<li>and it’s brother <code dir="auto">bufio</code> for buffered io operations (better performance due to reduced sys calls)</li>
+</ul>
+</li>
+<li><code dir="auto">os</code> for file, env, process, sys and network operations
+<ul>
+<li>cross-platform</li>
+</ul>
+</li>
+<li><code dir="auto">flag</code> simple util for parsing CLI flags</li>
+<li><code dir="auto">time</code> working with time
+<ul>
+<li>has rich timezones support and handles edge-cases</li>
+</ul>
+</li>
+<li><code dir="auto">json</code> marshaling &#x26; unmarshaling structs into JSON</li>
+<li><code dir="auto">log</code> for logging
+<ul>
+<li>and newer <code dir="auto">slog</code> for logs with built-in levels, cleaner key-val interface AND json formatting</li>
+</ul>
+</li>
+<li><code dir="auto">regexp</code> for RegExp
+<ul>
+<li>support compiled expressions to avoid recompiling</li>
+</ul>
+</li>
+<li><code dir="auto">go:embed</code> to create self-contained binaries</li>
+<li><code dir="auto">testing</code>
+<ul>
+<li>file must end with <code dir="auto">_test</code> &#x26; function must start with <code dir="auto">Test</code>
+<ul>
+<li>fn accepts <code dir="auto">t *testin.T</code> that is used to validate results</li>
+</ul>
+</li>
+<li>goes encourage pattern of simple loops in tests, where you accept slice of structs to run against same setup (table-driven tests)</li>
+<li>mocks &#x26; stubs for checking fn calls &#x26; stubbing response in combination with DI is used to test without dependencies</li>
+<li><code dir="auto">httptest</code> package can be used to record and emulate network requests without network</li>
+<li>if fn starts with <code dir="auto">Benchmark</code> you can run <code dir="auto">b *testin.B</code> to write performance tests and run them via <code dir="auto">go test -bench=.</code></li>
+<li><code dir="auto">go test -cover</code> exposes coverage</li>
+</ul>
+</li>
+<li><code dir="auto">net/http</code> for building RESTful web servers
+<ul>
+<li>provides TLS, HTTP/2, cookies &#x26; multipart form handling</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul> </div> <footer class="astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/it_docs/all/general/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">General</span> </span> </a> <a href="/it_docs/all/it/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">IT</span> </span> </a> </div>  </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

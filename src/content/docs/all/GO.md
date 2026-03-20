@@ -199,3 +199,50 @@ fmt.Println(p.Street)
 		- communication is done via channels
 		- syntax: `go fn()` to execute fn as goroutine
 	- note that `main` termination will kill goroutines, it won't await them by default, BUT we can block it via channels
+	- data is shared via channels
+		- `make(chan, Type)` 
+		- can be buffered (queue N entities in memory) OR unbuffered (block channel until entity in processing)
+		- you can multiplex several channels via `select/case` statement
+			- will block until any `case` or `default` is ready
+			- will execute `case` of ready channel OR random if multiple ready
+			- will execute `default` immediately if other are blocking
+			- use-case: channels with timeouts
+	- while gorouting is lightweight it might be beneficial to limit it by some amount via workerpool (allocate some fixed amount of goroutines and buffer other requests)
+	- for better management you can use 
+		- `sync`, that provides: mutex, reader-writer mutex, waitgroup (wait until all goroutines finish), once (call fn once even if done from multiple routines)
+		- `context`, that provides:
+			- value passing down the stack
+			- deadlines with cancelations
+				- check `ctx.Done()` and abort
+			- \---
+			- often passed as first request
+			- use-cases: HTTP timeouts, database deadlines, goroutine cancellation coordination
+	- patterns:
+		- fan-in - merge work (done by select)
+		- fan-out - distribute work for faster parallel execution
+		- pipeline - chain parallel working steps
+	- you can use `-race` flag to detect unsynchronized used of shared memory by different routines
+- go has reach standard lib:
+	- `io` to handle files and streams
+		- and it's brother `bufio` for buffered io operations (better performance due to reduced sys calls)
+	- `os` for file, env, process, sys and network operations
+		- cross-platform
+	- `flag` simple util for parsing CLI flags
+	- `time` working with time
+		- has rich timezones support and handles edge-cases
+	- `json` marshaling & unmarshaling structs into JSON
+	- `log` for logging
+		- and newer `slog` for logs with built-in levels, cleaner key-val interface AND json formatting
+	- `regexp` for RegExp
+		- support compiled expressions to avoid recompiling
+	- `go:embed` to create self-contained binaries
+	- `testing` 
+		- file must end with `_test` & function must start with `Test` 
+			- fn accepts `t *testin.T` that is used to validate results
+		- goes encourage pattern of simple loops in tests, where you accept slice of structs to run against same setup (table-driven tests)
+		- mocks & stubs for checking fn calls & stubbing response in combination with DI is used to test without dependencies
+		- `httptest` package can be used to record and emulate network requests without network
+		- if fn starts with `Benchmark` you can run `b *testin.B` to write performance tests and run them via `go test -bench=.` 
+		- `go test -cover` exposes coverage
+	- `net/http` for building RESTful web servers
+		- provides TLS, HTTP/2, cookies & multipart form handling
