@@ -246,3 +246,82 @@ fmt.Println(p.Street)
 		- `go test -cover` exposes coverage
 	- `net/http` for building RESTful web servers
 		- provides TLS, HTTP/2, cookies & multipart form handling
+	- `database/sql` for executing queries against DB
+		- go also supports extended libs like `pgx` for different DBs, ORMs & query builders
+		- consider using tooling for migrations & connection pools
+	- for ws and SSE you can use existing libs
+- tooling
+	- standard:
+		- `go run` execute file without building
+		- `go build` build program as binary
+			- cross OS, has custom flags, optimized by default AND creates single statically linked binary (by default)
+			- artifact is easy to deploy
+			- note that for conditional build (platform specific code, feature flags etc) you can utilize `//go:build` tagging
+			- `-gcflags="-m"` can be used to show what vars was heap allocated and utilized GC
+		- `go install package@version` to build and install programs system-wide
+			- commonly used for CLI tooling
+		- `go fmt` standard opinionated formatter
+		- `go mod init/tidy/download` for dependency management
+		- `go test` to find & run tests, examples & benchmarks
+			- has coverage & parallel running
+			- `t.Parallel()` marks test as possible to run concurrently
+			- `go test` will run `go vet` to check for potential bugs (incorrect printf, dead-code, problematic struct tags, nil pointer dereferencing)
+			- `GOOS` & `GOARCH` env vars control targeted OS & architecture version
+		- `go clean` to clean package & build caches
+		- `go doc` to extract docs of package/fn from go doc comments
+		- `go version` 
+		- `go generate` for executing commands in `//go:generate` comments
+			- use-cases: embedding data on build-time, meta-programing, code gen from templates
+			- can be used to avoid bash scripts and inlining & running needed commands in go file
+		- `go tool pprof` for profiling (CPU, RAM, goroutines, blocking opearions)
+		- `go tool trace` for analyzing traces (goroutines, sys-calls, GC, scheduling)
+			- can be added by `runtime/trace` 
+	- `goimports` - automatically remove & resolve missing imports
+	- linting
+		- `golangci-lint` - parallel runner for quality checkers
+		- `staticcheck`, `revive` - configurable third-party linters
+	- `govulncheck` - CVE finder for dependencies
+- memory management in depth
+	- `GOGC` can be used to increase/decrease heap-size (memory usage), while decreasing/increasing CPU load
+		- 100(%) is default value and state that heap can use additional 100% of currently used RAM by program itself
+	- `GOMEMLIMIT` can used to balance high `GOGC` by limiting max allowed memory for program
+		- soft limit to avoid program stolling itself
+		- keep it 10% below actual limit of container
+	- focus on actual physical memory, go holds to reserved vMemory
+- `reflection` std package can be used to examine & manipulate unknown data (ex: ORM, JSON Marshaling) with additional performance overhead'
+- `unsafe` allows for C-style memory management & pointer arithmetic
+- CGO can be used to link C and GO code via comments in both directions
+	- has performance cost and breaks cross-compilation & static linking
+	- non-preferred
+- GO supports dynamic imports called plugins
+	- plugin must follow `type interface` that defines interface and called `SomeNamePlugin` 
+	- plugin must export `Plugin` var
+	- must be built with `go build -buildmode=plugin` as `.so` file
+	- in app is read from path, extracted by symbol and casted to type
+	- problems: unix-only, complex, versioning problem
+
+## Effective GO
+- formatting
+	- tabs over space
+	- no line limit
+	- reduced number of parentheses (spacing to order math operations, no need for parentheses in control structs)
+- naming
+	- package is imported by name AND it's name is accessor
+		- should be short, consistent, understandable, lowercase and single word
+		- should match it's directory name
+	- `GetName` -> `Name` 
+	- `ToString` -> `String` 
+	- `Reader` for single method interfaces
+	- camelCase
+- semicolons
+	- auto-inserted
+	- required in control statements, as delimiter for single line expressions
+- control structs
+	- support internal var initialization `if err := fn(); err != nil { ... }` 
+	- `:=` can be used for reassignment and declaration
+	-  `case ' ', '?', '&', '=', '#', '+', '%':` is allowed
+	- empty `switch` will fire on `true` 
+	- `defer` will run clean-up fn before fn returns
+		- vars are evaluated when `defer` is inited
+		- multiple defers will be executed in LIFO order
+- data
