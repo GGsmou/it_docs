@@ -325,3 +325,59 @@ fmt.Println(p.Street)
 		- vars are evaluated when `defer` is inited
 		- multiple defers will be executed in LIFO order
 - data
+	- allocation
+		- `new(T)` allocs zeroed memory and returns pointer to that region
+			- `&Struct{}` == `new(Struct)` 
+		- `make(cn/slice/map)` initializes underlying data structure with given params, returning value itself
+	- array
+		- useful for memory layouting & to avoid additional RAM usage
+		- foundation for slices
+		- arrays are treated as values
+		- type of array is bound to size
+	- slices
+		- richer for of array
+		- treated as references
+	- maps
+		- treated as references
+		- similar to slices, BUT represent a key-val data struct
+		- key is any comparable type
+		- double `delete` is safe
+	- printing
+		- Printf, Fprintf, SprintF - format string and output to stdout, passed buffer, as string
+		- Print, Println - take any number of values, format by type, join by `""` or `"\n"` into output and print
+		- for maps output is sorted by key
+		- custom `String()` on interface can be defined to specific `%v` formatting
+- initialization
+	- constants
+		- compile time
+		- can have methods on them (as all other types, except pointer and interface)
+	- var
+		- expression can be runtime
+	- flow:
+		- evaluate dependency
+		- evaluate vars
+		- call `init` function defined by file
+- types
+	- type conversion may produce new value (int-> float) OR temporary change value type to allow accessing methods
+		- failed type conversion with `ok:=` will return zero value
+- blank identifier
+	- works similar-ish to `/dev/null` in Unix
+	- `import _ "path"` can be used to import smth to trigger side-effect
+	- `var _ T = (*Struct)(nil)` statically check if `Struct` satisfies `T`'s interface
+		- only used if you can't do it via actual live code
+- embedding
+	- interfaces can be embedded with interfaces
+	- struct can be embedded with ref to other struct
+	- notes:
+		- shadowing will work from top to bottom (`A.m` will shadow embedded `A.B.m`)
+		- having same name on same level will cause error
+- concurrency
+	- due to channels each piece of data is only present in one routine at a time
+	- channel is first-class citizen and can be passed via channels for two-way communication
+	- `runtime.NumCPU()` provides number of cores for parallel execution
+		- or `runtime.GOMAXPROCS(0)` if we wan't to honor user requested num of cores
+- errors
+	- prefix your errors for better understanding of them
+	- when running long-running processes (ex: web-server), always have top-level recover to kill failing routines and preserve server
+		- `panic` inside deferred fn will continue unwinding stack
+		- re-panic will preserve stack trace
