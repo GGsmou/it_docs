@@ -381,3 +381,90 @@ fmt.Println(p.Street)
 	- when running long-running processes (ex: web-server), always have top-level recover to kill failing routines and preserve server
 		- `panic` inside deferred fn will continue unwinding stack
 		- re-panic will preserve stack trace
+
+## 100 Mistakes
+- be aware with shadowing
+- don't nest too much
+	- early return if possible
+- don't overuse init fns
+	- problems:
+		- only possible to init state in global vars
+		- may introduce dependencies, that will complicate testing
+		- limited error handling
+	- use-cases:
+		- static config initialization
+- don't introduce redundant getter/setter
+- avoid redundant interfaces & over-abstraction
+- mostly clients should own abstractions, producer may expose minimalistic when needed
+	- same applies for return arguments
+- generally avoid `any` 
+- generics introduce complexity, so don't overuse
+- avoid redundant type embedding
+	- redundant when you want `Foo.Baz()` instead of `Foo.Bar.Baz()` 
+	- redundant when you leak internals this way
+- use builder OR options patter for complex structs
+	- options simplifies error handling & omits dealing with empty struct for state
+	- `type Option func(options *options) error[]` 
+- have proper project organization
+	- decide on folder grouping that solves your problem and stick with it
+	- best practices:
+		- granularity is key
+		- don't overuse packages prematurely
+		- choose proper name
+			- avoid generic names like `util` etc
+		- avoid exporting too much
+		- declare package with name of repo URL, if it will be hosted
+		- place internals into `internal` because it can't be imported by consumer
+		- recommended to place command packages under `cmd` dir
+- be aware of package & var name collisions
+- don't disregard docs
+	- comments for exported code & packages
+		- start with name
+		- comment must be a sentence with punctuation
+		- must describe behavior & intention, not implementation
+		- should be enough info to use code without examples
+	- docs for all code
+		- should provide internal info & how code does things
+- use linters, formatters & analyzers
+- use longer base identifier for number & `_` delimeter for better understanding of code (`0`->`0o`)
+- be aware of int overflow
+	- silent at run-time
+	- causes compilation errors for constants
+- remember that floating point arithmetics implies precision errors
+	- > When comparing two floating-point numbers, check that their difference is within an acceptable range.
+	- > When performing additions or subtractions, group operations with a similar order of magnitude for better accuracy.
+	- > To favor accuracy, if a sequence of operations requires addition, subtraction, multiplication, or division, perform the multiplication and division operations first.
+- account for slice capacity & proper initial length
+- nil slice vs empty slice
+	- `nil` slice - no underlying array, `len == 0`, `cap == 0`, and `slice == nil` is `true` 
+		- `var a []int` 
+		- doesn't have allocation
+	- empty slice - usually has `len == 0`, `cap == 0`, but `slice == nil` is `false` 
+		- `[]int{}` 
+	- behaves differently in APIs and JSON
+		- when designing API choose carefully the intended behavior
+- `copy` will copy elements partially if slice len is smaller
+- if two slices share array, append may modify both if capacity allows for it
+	- better to avoid shared arrays OR limit capacity of copy to trigger re-allocation
+	- note that if one slice with shared array exists second can't be freed
+		- this especially harmful with pointers to structs
+- don't create slices with redundant size
+- init map with number of elements if possible
+- map can't shrink in size
+	- store pointers that can be zeroed
+	- re-create smaller map
+- comparison edge-cases:
+	- channel -> check if both nil OR both created by same `make` call
+	- interfaces -> check if both nil OR have dynamic types & values
+	- pointers -> check if both nil OR point to same memory
+	- structs & arrays -> compare val by val (only when composed of similar types)
+	- `>` etc can also be used for lexical string comparison
+	- `reflect.DeepEqual` can be used with slices & maps
+		- critical for performance
+	- alway look for standard comparison methods like `bytes.Compare` for performant `[]byte` comparison
+	- comparing non-comparable will panic
+- control struct edge-cases
+	- `range` loop exposes copy of value
+	- `range` loop evaluates copy before loop itself
+	- adding element into map while doing iteration MIGHT still expose this element in current iteration
+	- defer won't execute in each loop cycle, only before fn returns
