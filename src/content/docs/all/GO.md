@@ -468,3 +468,69 @@ fmt.Println(p.Street)
 	- `range` loop evaluates copy before loop itself
 	- adding element into map while doing iteration MIGHT still expose this element in current iteration
 	- defer won't execute in each loop cycle, only before fn returns
+- strings edge-cases
+	- trim removes all runes from set, trimSuffix/trimPrefix remove substring
+	- use `strings.Builder` when appending to str in loop instead of `+=` which re-creates string over and over
+		- don't forget to pre-allocate proper buffer size via `.Grow`
+		- can't be used concurrently
+	- avoid `byte[]` to `string` conversion if possible
+	- creating sub-string from string can lead to memory leaks just like in slices
+		- not that numbers correspond to bytes not runes here
+- function edge-cases
+	- diff pointer & value param
+		- if param non-copiable, large or must be mutated - pointer
+		- map, channel & fn are always passed by val
+	- when returning `nil` assigned to var of interface type you actually returning interface value, SO better to return just `nil` 
+	- defer params evaluated immediately
+		- to reference dynamic var use pointer to it OR closure
+- error management
+	- wrapping
+		- wrap to add context
+			- %w to preserve error
+			- %v to transform error
+		- wrap to change type
+			- new error type is required
+		- wrapped errors can be compared via `errors.As` 
+	- known errors converted to sentinel once, unknown should be wrapped under custom error type
+	- log error on higher level to avoid double logging
+	- mark error as ignored via `_` to make action intentional (additional comment is preferable)
+- concurrency (enables parallelism, but not actually it)
+	- it won't always be faster then sequential
+	- channel vs mutex
+		- when we need synchronization prefer mutex, BUT when we need some form of communication prefer channel
+		- channel preferable for concurrent flows, WHILE mutex for parallel
+	- context:
+		- has deadline - when to stop activity under context
+		- has cancelation signal - stops activity on demand
+		- has values - key-value list of any data
+		- http context is canceled when request is cancelled OR we send back a response
+	- channels:
+		- sent value is consumed by single receiver
+		- cancelation is fanned-out to all receivers
+		- just to send some signal, use empty channel `chan struct{}` 
+		- sending & receiving from `nil` channel is forever blocking, BUT `nil` channel i auto-removed from `switch`, so it might be useful
+		- buffer size
+			- keep identical to pool size, keep similar to rate-limiting requirements, remember that > Queues are typically always close to full or close to empty due to the differences in pace between consumers and producers. They very rarely operate in a balanced middle ground where the rate of production and consumption is evenly matched. -- and you need to tweak your config
+	- any clammed resources and started goroutines must be freed & closed, BUT some close operations aren't sync, so we also need to do it in blocking manner
+	- string formatting can cause deadlocks, when implementing Stringer interface
+	- append on slice can cause data race due to shared backing array, thus create copy of it
+	- mutex can be used upon critical section only
+	- `wg.Add` can't be called inside goroutine itself
+	- `errgroup` package can be used to introduce shared cancellable context & error handling upon waitgroups
+	- `sync` can be used only via pointer, otherwise you risk internals duplication
+- std
+	- always use time duration for clearness
+	- JSON issues
+		- embedding structs with Marshaller interface will break default json marshalling
+		- `time.Time` is compared by both monotonic and wall clocks
+		- untyped conversions will result in `float64` numerics
+	- SQL issues
+		- `.Open` won't always try to establish connections, use `Ping` 
+		- configure proper pool size of connections
+		- prepared statement are more efficient and secure
+		- nullable columns are handled via pointer OR `sql.NullXXX` types
+		- when iterating over `.Rows` call `.Err` on each cycle
+	- don't forget to return after responding to http request
+	- default HTTP client is missing timeouts & other nifty things
+- testing
+- optimizations
