@@ -533,4 +533,27 @@ fmt.Println(p.Street)
 	- don't forget to return after responding to http request
 	- default HTTP client is missing timeouts & other nifty things
 - testing
+	- categorize tests with build flags AND differentiate short vs long running
+	- default to using `-race` flag
+		- `!race` in test file will exclude it from `-race` detection
+	- `-parallel` is useful to speed-up tests and `-shuffle` can be used to randomize testing order and avoid related bugs
+	- use table driven tests pattern
+	- deterministic tests > retries > sleep (avoid at all cost)
+	- treat `time` as DI or argument
+	- use `httptest` and `iotest` 
+	- benchmarks
+		- ideally run benchmarks on same machine as prod
+		- be careful with microbenchmarks
+		- increate benchtime for accuracy
+		- be aware of compiler optimizations
+	- use `-coverprofile` for coverage
+	- for blackbox testing place tests in outside package
 - optimizations
+	- utilize CPU cache as additional optimization method
+	- some data structs work better with CPU due to predictability
+	- sharing different parts of memory can lead to pure performance if memory layout is sub-optimal for CPU
+	- utilize Instruction-Level Parallelism if needed
+	- remember that type of var is bound to it's size
+	- stack is faster then heap
+	- if relevant, prefer pool to dynamic allocations
+	- utilize profiling tools
