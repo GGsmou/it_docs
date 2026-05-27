@@ -78,7 +78,7 @@ notes:
 - containers can be used for tests
 
 ## SQL
-### Syntax
+#### Syntax
 keywords:
 - SELECT - select data
 	- FROM - specify table(s)
@@ -112,14 +112,33 @@ keywords:
 - MAX()-  find the maximum value
 - \---
 - AS - alias some definition
-- WITH _ AS () - alias result of query
+- WITH _ AS () - alias result of query (Common Table Expression)
+- \---
+- GRANT/REVOKE - add/remove permission from user
+- \---
+- PIVOT - transform rows into columns
+- UNPIVOT - revers of PIVOT
+- \---
+- WITH RECURSIVE - makes query execute recursively until condition is met OR MAXRECURSION option hit
 
 operators:
 - arithmetic
 - comparison
-- logical (AND, OR, NOT)
-	- combine conditions in query
+- logical (combine conditions in query)
+	- AND
+	- OR
+	- NOT
+	- CASE+END with WHEN+THEN and ELSE
+	- NULLIF(expr1, expr2) // if val1 == val2 -> null otherwise val1
+	- COALESCE(...exprN) // returns first non null val in passed expressions
 - set (UNION, INTERSECT, EXCEPT)
+- math (FLOOR, ABS, MOD, ROUND, CEILING)
+- string (LENGTH, CHAR_LENGTH, REPLACE, LOWER, UPPER, SUBSTRING)
+- date (DATEPART (extract some part from date), DATEADD)
+- window fns
+	- ROW_NUMBER - assign incremental uniq integer for selected set with optional partitioning (use-case: add IDs, find Nth number)
+	- LEAD/LAG - show next/prev value relative to current one by N steps with fallback (default is NULL)
+	- RANK/DENSE_RANK - give each entry rank (with/without gap on same values) based on ordering
 
 notes:
 - keywords are uppercased for readability
@@ -128,9 +147,14 @@ notes:
 - COUNT(), SUM(), AVG(), MIN(), and MAX() are aggregate queries that reduce data to single row within a group of rows
 	- all can be combined with WHERE
 	- SUM, AVG, MIN, MAX ignore nulls
-	- MIN and MAX will work based on dictionary order for strings 
+	- MIN and MAX will work based on dictionary order for strings
+- query can be executed as part of other query (subquery)
+	- use-cases: dynamic criteria, comparing sets etc
+	- it can be nested (result used by outer query) OR correlated (subquery executed per each row of query)
+- be aware that functionality or syntax can vary between implementations
+- DB can store functions (do input->output computation) and procedures (ready-made queries) for reusability
 
-### Data
+#### Data
 types:
 - numeric: INTEGER, DECIMAL
 - strings: CHAR, VARCHAR
@@ -145,3 +169,38 @@ constraints:
 - UNIQUE - force uniqueness across the column
 - CHECK - custom rule to enforce on data
 - NOT NULL
+
+notes:
+- row == record == tuple
+- scalar: identifies single data item OR fn/query that returns single item
+- indexes
+	- for often queried or joined data index is a way to go
+	- speed-up reads and slow-down wrights
+	- types: single-column, composite (for multi-column WHEREs, ordering of columns matter), UNIQUE (guarantees uniqueness of a column)
+	- manual reorganization (light) and reindex (heavy) operations may be required from time to time to optimize: index layout, remove stale and dead references
+- transactions - way to group several operations as single ACID unit of work
+	- BEGIN - start transaction
+	- COMMIT - end successful transaction
+	- ROLLBACK - end failed transaction
+	- SAVEPOINT - way to label part of transaction and ROLLBACK to it later
+
+#### Other
+optimizations:
+- indexes
+- SELECT only needed data
+- reduce wildcard chars (especially at the start of string)
+- layout:
+	- denormalization + pre-computation + pre-normalization
+	- break large or less queried data separately
+	- partitioning
+- paginate by keyset (more efficient then LIMIT+OFFSET)
+- EXIST() > COUNT()
+- reduce subqueries
+	- can be replaced with JOIN or Common Table Expressions
+- EXPLAIN or EXPLAIN PLAN show how DB approaches query
+- filter before JOIN
+
+triggers (PostgreSQL) - execute procedure on INSERT / UPDATE / DELETE / TRUNCATE transaction
+- types: BEFORE (abort or modify result), AFTER (logs)
+- level: on each row OR on entire statement
+- can reference view via INSTEAD OF
