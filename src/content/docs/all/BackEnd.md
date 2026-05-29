@@ -204,3 +204,84 @@ triggers (PostgreSQL) - execute procedure on INSERT / UPDATE / DELETE / TRUNCATE
 - types: BEFORE (abort or modify result), AFTER (logs)
 - level: on each row OR on entire statement
 - can reference view via INSTEAD OF
+
+migrations (schema OR data) for PostgreSQL
+- problems:
+	- almost all ALTER operations (except some: SELECT, ADD COLUMN with DEFAULT) will require hard table locking
+	- active DB with large migration can freeze DB due to limit in transactions IDs
+- todos:
+	- always do SET lock_timeout to avoid locking whole poole due to single long-running migration
+	- batch large migrations
+	- prefer CREATE INDEX CONCURRENTLY over CREATE INDEX to avoid blocking writes 
+		- CREATE INDEX CONCURRENTLY can run in transactions, slower AND can fail if new data break index rules
+	- break adding new column to: add nullable, add constraint for new data, backfill in batches AND validate and fix remaining cases
+	- monitor
+	- migrate against copy first
+- tools to manage migration:
+	- flyway, golang-migrate etc
+- tools to enhance migrations:
+	- pgroll - maintains several views of data during rolling migration (app can use both versions if needed)
+	- pg_osc - similar to pgroll but builds whole shadow copy of table in bg and than do atomic hot-swap
+		- helps with locking behavior, BUT requires double of disk size temporarily
+	- pg_repack - tool to remove bloat from db in pg_osc manner (can't ALTER tables)
+
+## PromQL (Prometheus Query Language)
+- functional query language for time-series data
+- to gain some info you need to: choose data, filter via label, focus via window
+
+#### Syntax
+basics:
+- `metric_name {relevant_filter="value"} [5m]` 
+- can be wrapped with fns, like `rate(...)` 
+- selectors (for filtering)
+	- exact - lbl="value"
+	- negative exact - lbl!="value"
+	- regex - lb~="pattern"
+	- negative regex - lb!~="pattern"
+- time modifiers
+	- offset 5m - jump back 5 min from now
+	- @1678900000 - fix evaluation at 1678900000 unix timestamp
+
+data:
+- scalar - single numeric value (constants, result of calcs)
+- instant vector - set of time series with single data per timestamp
+- range vector - set of time series with many data points over timewindow
+- string - string literal
+
+metrics types:
+- counter - monotonically increasing number
+	- tracking accumulated totals 
+	- only increases or can be reset
+	- visualized via line charts
+- gauge - single metric values
+	- used for values (temperature) or two-way counters (concurrent requests)
+	- can go up or down
+	- can't calculate rates, increases, resets
+	- single number OR time series
+- histograms - samples observations with their counts into configurable bucket
+	- used for percentiles
+	- histogram is cumulative (each bucket includes prev buckets)
+	- heatmaps, percentile charts
+- summary - samples observations with their counts and sums values over sliding window
+	- used for quantile real-time calculations within single node/app (without aggregation over nodes)
+	- more accurate than histograms
+	- line charts per quantile
+
+standard fns:
+- rate - apply per-second rate calculations over data to see how fast/slow things change
+	- time based
+	- use `$__rate_interval]` or 4x of your scrape interval
+- irate - more reactive version of rate (produces spikes)
+	- time based
+	- should be used for short scrape intervals to detect spikes, debugging etc
+- increase - tell how counter that resets increased over time
+	- time based
+	- rate is per second, while increase is whole in time window
+- sum - sum-up data
+	- aggregation
+	- can be used to view summed data for labeled metric
+		- for granularity use `sum by (label)` to keep break-down by `label` (ex: sum all requests over all instances, but keep separation by `http_status`)
+
+notes:
+- main diff from SQL is layering and nesting
+- time based fn is fn that works over time window and used to track some metrics "motion"
