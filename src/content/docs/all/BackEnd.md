@@ -240,7 +240,8 @@ basics:
 	- negative regex - lb!~="pattern"
 - time modifiers
 	- offset 5m - jump back 5 min from now
-	- @1678900000 - fix evaluation at 1678900000 unix timestamp
+	- @ 1678900000 - fix evaluation at 1678900000 unix timestamp
+		- also `start()`, `end()` can be used to retrieve start and end of time range
 
 data:
 - scalar - single numeric value (constants, result of calcs)
@@ -274,14 +275,85 @@ standard fns:
 - irate - more reactive version of rate (produces spikes)
 	- time based
 	- should be used for short scrape intervals to detect spikes, debugging etc
+- deriv - apply per-second rate of change of gauge over data to see how fast/slow things change
+	- time based
+	- use `$__rate_interval]` or 4x of your scrape interval
 - increase - tell how counter that resets increased over time
 	- time based
 	- rate is per second, while increase is whole in time window
 - sum - sum-up data
 	- aggregation
 	- can be used to view summed data for labeled metric
-		- for granularity use `sum by (label)` to keep break-down by `label` (ex: sum all requests over all instances, but keep separation by `http_status`)
+		- for granularity use `sum by (label) (...)` to keep break-down by `label` (ex: sum all requests over all instances, but keep separation by `http_status`)
+- avg - avg-up data
+	- aggregation
+	- average data across instances, smooth out noise
+- count - count data that match expression
+	- aggregation
+	- count active nodes (ex: `count (up == 1)`)
+	- don't show "what", show "how many"
+- max/min - show max/min value
+	- aggregation
+	- spot outliers (hide overall trends)
+- \_over_time fns - aggregate data over time period (aggregation)
+	- count, max, min
+- histogram_quantile - calculate given quantile for buckets
+	- aggregation
+	- ex: `histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="frontend"}[$__rate_interval])))` 
+	- you can also extract count, sum OR build average (for native histograms only) via histogram_\*
+- histogram_fraction - calculate what percentage meets some expectation
+	- aggregation
+	- ex: is SLO 90% served under 100% met
+- by - group by label
+	- grouping
+- without - drop label from grouping
+	- grouping
+- on - match vectors on some label
+	- vector matching
+- ignoring - remove labels from matching when matching vectors
+	- vector matching
+- group_left - allow n left metrics to match against one right metric
+	- vector matching
+- group_right - opposite of group_left
+	- vector matching
+- scalar - convert to scalar
+	- type conversion
+	- only for vectors with one value (instant), otherwise NaN
+- vector - convert to vector
+	- type conversion
+	- produces instant vector
+- timestamp - return Unix timestamp of each data point
+	- utility
+- absent - return 1 value if metric is missing
+	- utility
+- abs - give absolute value
+	- math
+- clamp_min / clamp_max - clamp values to some value
+	- math
+- round - remove precision
+	- math
+- logarithmic fns: ln, log2, log10 etc
+	- math
+- prediction fns: predict_linear
+	- prediction
+	- accept time range to look into the past and future
+	- alert on bad patterns
 
 notes:
 - main diff from SQL is layering and nesting
 - time based fn is fn that works over time window and used to track some metrics "motion"
+- aggregation and grouping fns used to group, combine and summarize data
+	- aggregation may hide some details
+- vector matching is used in operations like `/`, when you have differently shaped metrics and you need to match them
+	- this implies that metrics could be combined via different arithmetic operations
+	- metrics can be compared
+		- to filter OR to be converted to bool (0 OR 1) with `bool` modifier
+	- metrics can be operated upon as sets via `and`, `or`, `unless` 
+- prediction fns rely on patterns continuing to work, which might be false assumption
+- distribution via quantiles matter more, because they show real cases, rather than smoothed out version
+- to gain knowledge break down percentiles to dimensions by labels to see what contributes the most
+	- by default add `le` label to break down when working with classic histograms
+- classic vs native histogram
+	- overall native is the direction ecosystem is moving, because they are more compact to store, have great resolution AND have cleaner syntax
+	- classic histograms allow for more control
+	- classic histograms postfixed with \_bucket
