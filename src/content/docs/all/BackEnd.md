@@ -357,3 +357,41 @@ notes:
 	- overall native is the direction ecosystem is moving, because they are more compact to store, have great resolution AND have cleaner syntax
 	- classic histograms allow for more control
 	- classic histograms postfixed with \_bucket
+
+## Message Brokers
+- technology for fast and reliable h2h message delivery
+- message broker is some service used for delivery of messages (Kafka, RabbitMQ, Redis)
+- message broker often requires message backend, system that stores messages for queuing etc and acts as infra (SQS, Redis)
+- patterns
+	- reliable storage of data with consistent events
+		- outbox solution:
+			- save data to DB, save event to DB (in scope of transaction)
+			- read event from DB and send as message
+		- inbox solution:
+			- on receiver side deduplicate messages by storing IDs of processed once
+
+#### Redis
+- fire and forget pub/sub without delivery guarantees
+- in-memory only
+- fast
+- problems with scalability
+
+#### RabbitMQ
+- queue based
+- have complex routing
+- reliable
+- backpressure can be mitigated with configs
+
+#### Kafka
+- near real time fast (still slower then Redis) streaming
+- reliable data pipelines
+- terminology:
+	- topic - place to where messages published
+	- broker - message handling (can be combined into clusters)
+	- poducer - pub
+	- consumer - sub (messages can be balanced to consumer OR fanned-out)
+	- partitions - parts of single topic that distributed
+- messages have retention
+- requires more storage
+- inbox pattern is required for some cases
+
