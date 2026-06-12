@@ -68,3 +68,45 @@ title: Notes of "SRE at Google" by O'Reilly
 - notes
 	- remember about other metrics except just availability that can be crucial
 	- by choosing proper infra based on trade-off you can reduce cost for non-critical parts WHILE keeping critical parts in good shape
+
+- error budgets
+	- SREs has tension with Product teams due to opposite-ish goals, so we need to have some means to come to agreement
+		- budget should be formed based on data
+		- SLO can be formed based on Product needs
+		- uptime is monitored by system
+		- it must be set that breaking the budget means no feature development
+	- if you have more error budget, you can take more risks
+	- SLO don't have to be constant
+
+#### SLO (Service Level Objective)
+- each service is uniq, so owner must define it's:
+	- SLI (service level indicators) - some critical (request latency, error rate etc (what do you and your user care)) metrics
+		- not all metrics are SLIs
+		- try to keep SLIs standardized
+		- keep it simple
+	- SLO (service level objectives) - values/ranges that metrics defined by SLI must fall into
+		- remember that improving one metric can degrade another one
+		- aggregation may hide important details
+		- ideally work from needs to indicators (backwards logic may result in poor choice of indicators for the task)
+		- SLO can be defined as percentiles OR as separate objectives for different use-cases
+		- track SLO trends
+		- don't pick target based on current performance
+		- keep number of SLOs small
+		- public SLOs can have some leeway in contrast of internal
+		- overachieving SLO can be harmful for infra, because users will rely more on actual result, SO deliberate throttles and downtimes may be necessary
+	- SLA (service level agreements) - statement of what is going to be done in case SLO is not met (often viewed from product perspective)
+		- SLA is often exposed through the contracts, BUT you may have internal only SLAs for something like public website
+
+#### Eliminating Manual Work (Toil)
+> If a human operator needs to touch your system during normal operations, you have a bug.
+
+- toil is redundant overhead in work
+	- often: manual, automatable, repetitive, reactive, doesn't improve service, grows linearly
+- toil is bad in big quantities, because it:
+	- lowers moral
+	- slows progress
+	- doesn't scale
+	- stagnates career
+
+#### Monitoring Distributed Systems
+
