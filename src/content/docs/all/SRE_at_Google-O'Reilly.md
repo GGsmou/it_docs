@@ -109,4 +109,75 @@ title: Notes of "SRE at Google" by O'Reilly
 	- stagnates career
 
 #### Monitoring Distributed Systems
+- reasons:
+	- analyzing long term trends
+	- A/B testing & over-time comparison
+	- alerting (alert only if something truly off)
+	- dashboards with SLOs and "golden signals"
+	- debugging
+- keep monitoring and alerting as simple as possible, THUS more understandable
+	- remove unused stuf
+- differentiate between symptoms of failure AND what exactly caused it
+- differentiate between parts of system (ex: slow FE can be caused by problems with JS, server, DB or just due to network)
+- golden signals of monitoring:
+	- latency (time to serve request, diff between failed and ok requests)
+	- traffic (number of requests in time window)
+	- errors (directly failed requests, requests that successfully served something wrong OR broken SLOs)
+	- saturation (resource consumption (often most constrained one) of your system)
+		- can be used for predictions, like DB will be full in N time
+- resolution
+	- higher resolution requires more resource consumption AND not always necessary
+	- higher resolution can be achieved by on-service sampling
+- alerting:
+	- alerts should fire:
+		- without duplicates (between people and same person shouldn't get multiple pings)
+		- when thing is actionable, non-ignorable, urgent AND (commonly) lead to user-side problems
+		- without inclusion of test traffic
+	- automation in alerting should be done without human intervention
 
+#### Automation
+- must be applied properly to proper things, OTHERWISE it is as harmful is it's non-presence
+- pros:
+	- scalability
+	- consistency
+	- faster repairs and early problem detection
+	- faster action
+	- time saving
+- not everything must be automated, especially on early stages
+	- also differ autonomous vs automated
+		- ideally system should be autonomous, BUT it might be not worse it OR even harmful, when you can't manually hop into the system, due to autonomous restrictions
+- ideally automation should be a part of an app, to prevent any divergeon in functionality between system and automation, BUT it might be problematic to keep them so (automations require testing, product team may not have resource to update automation)
+	- especially infrequently running automations suffer from divergeion
+	- hierarchy:
+		- no automation
+		- external automation:
+			- system specific
+			- generic
+		- internal automation
+		- system without the need of automations
+- auto-tests are also important part of automation (especially good once, with understandable output etc)
+- automations very in next aspects
+	- accuracy
+	- latency of execution
+	- relevance to real problem
+- strive for decoupling and clear API contracts
+
+#### Release Engineering
+- process of making releases automatic, reliable, consistent and fast
+	- wraps source code & config storage, compilation, testing, packaging and deployment
+- principles
+	- serve-served (practices and tooling must be self-used by product teams)
+	- high velocity (allow for TBD)
+	- hermetic builds (self-contained, env independent)
+	- proper policies and procedures (enforced quality gates, review requirements)
+- build and deployment
+	- build
+		- tag your builds to identify them
+		- keep build hermetic for reproducibility
+	- branching
+		- you can release from the main OR from the separate version-release branch, that can cherry-pick commits from main
+	- testing
+		- test changes (before and after merge)
+		- run tests only on relevant version of main (avoid v2 tests testing v3 that was merged right after)
+	- packaging
+		- when storing packages associate uniq id, hash and labels (version and generic like `canary`) with package
