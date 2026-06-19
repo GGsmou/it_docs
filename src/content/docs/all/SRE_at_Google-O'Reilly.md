@@ -181,3 +181,38 @@ title: Notes of "SRE at Google" by O'Reilly
 		- run tests only on relevant version of main (avoid v2 tests testing v3 that was merged right after)
 	- packaging
 		- when storing packages associate uniq id, hash and labels (version and generic like `canary`) with package
+- config management
+	- common problem cause for incidents
+	- patterns
+		- store as code (enforces review and standard process, BUT requires redeploys AND has version skew)
+		- merge configs with binaries for simple apps
+		- store as packages (allows versioning, app's package can depend on config package with specific version)
+		- configurable OR frequently changed configs can be stored in DB separately
+
+#### Simplicity
+- balance of speed and stability is key to good software
+	- stability can enable speed (proper deploys enable TBD)
+- fight accidental complexity
+- remove redundant code
+- APIs: keep minimal, versioned, modular, without breaking changes
+- TBD
+- > Every time we say “no” to a feature, we are not restricting innovation; we are keeping the environment uncluttered of distractions
+
+## Practices
+- health system, like health human, has pyramid of needs (from most important to least)
+	- monitoring
+	- incident response
+	- postmortems and root-cause analysis
+	- testing
+	- capacity planning
+	- development
+	- product
+
+#### Practical Alerting from Time-Series Data
+- complex system must avoid outliers in alerts, BUT allow their inspection for debugging
+- you can monitor on different levels of your system  (ex: cluster, region), and aggregate metrics of lower level in higher one
+- monitoring should also store wether connection to service was successful, health check response, what time did it took to collect metrics
+- threshold your alerts to avoid false alerts
+- you can collect internal detailed metrics for white-box monitoring AND do black-box monitoring via probs to verify proper behavior of system
+	- ideally probs should allow to scrape metrics out of them (ex: see final latency)
+	- probs can be pointed to different levels of the system (fe, be), than results can be compared for fine-grained alerts
