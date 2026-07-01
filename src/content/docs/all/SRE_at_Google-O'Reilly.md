@@ -216,3 +216,73 @@ title: Notes of "SRE at Google" by O'Reilly
 - you can collect internal detailed metrics for white-box monitoring AND do black-box monitoring via probs to verify proper behavior of system
 	- ideally probs should allow to scrape metrics out of them (ex: see final latency)
 	- probs can be pointed to different levels of the system (fe, be), than results can be compared for fine-grained alerts
+- configs:
+	- reuse between targets
+	- test config changes via tests against mocked/real data
+	- standard metric vars and labels are great way to reduce complexity
+
+#### On-Call
+- engineer, ops OR SRE is a candidate for on-call of service he owns
+- on-call involves both working and non-working (for less critical systems/actions) hours
+	- international teams should back each others during night times to reduce load
+- duty should react to incident in some SLO defined frame
+- escalate to team and search for solutions
+- several people can be on-call, considering requirements and load
+- rotation should be often enough to avoid getting off touch
+- load for single person must be manageable to avoid poor resolutions and ensure proper postmortems
+- ideally should be compensated
+- be careful with immediate automatic reactions when been on-call
+	- still good escalation paths, automatization (ex: auto status page updates) and handbook are important to make actions quicker
+- ideally 1 incident should have single alert (1 aggregated alert of multiple)
+
+#### Troubleshooting
+- troubleshooting must be learned and taught
+- focus on how in general and on system internals
+- idealistic flow: get alert with problem, understand state of system (via logs/metrics), understand what went wrong, test, fix
+	- refine and repeat steps
+	- pitfalls:
+		- miss-reading state
+		- looking for wrong state
+		- not knowing how to test hypothesis
+		- going with improbable OR already happened theories
+			- prefer simpler explanations
+		- working with correlated problems
+- details:
+	- alert:
+		- should be detailed
+		- ER+AR
+		- consistent form, searchable and created via automation
+	- triage:
+		- stay calm
+		- escalate when needed
+		- focus on making system work ASAP, not finding root cause and moving to ideal state
+	- examine:
+		- good logs should have traces
+		- ideal logging should be queried easily AND have possibility to be tweaked live on fly (verbosity, sampling etc)
+	- diagnose:
+		- use predictable tests that can be done against each component involved in system (you can investigate from start to finish or via bi-search)
+		- ask what, where and why
+		- understand when system was working and what resulted in degradation
+	- test:
+		- ideally test should be able to rule out several theories
+		- remember that improper test might mislead from root cause
+		- perform from most likely to least
+		- test may have side-effects
+		- it might be hard to reproduce issue so it is ok to have less evidential test in place
+		- note what you do to then revert and trace
+		- negative tests will rule out false theories
+			- negative results should be noted too
+			- in general publishing failed experiments will prevent people from doing same mistake twice
+	- cure:
+		- fix
+		- if possible, verify that problem isn't repeating
+		- write postmortem
+
+#### Emergency Response
+- don't panic
+- escalate if needed
+- be quick
+- don't forget to clean-up
+- keep postmortems and action on them
+	- always ask challenging "what if" questions
+	- do deliberate testing
