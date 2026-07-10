@@ -286,3 +286,58 @@ title: Notes of "SRE at Google" by O'Reilly
 - keep postmortems and action on them
 	- always ask challenging "what if" questions
 	- do deliberate testing
+
+#### Managing Incidents
+- process should be properly designed to avoid miss-communication, improper actions and keep incidents resolution fast and efficient
+	- everyone involved must know their role and responsibilities
+		- common roles:
+			- command - main role that delegates to others
+			- OPS - person OR team of people that have exclusive access to modify failed system (they must be coordinated within each other)
+			- communication - person responsible for internal and external incident communication
+			- planning - supportive team that helps OPS with less technical activities
+	- incident should have a:
+		- chat (ideally preserved for history)
+		- live document that contains incident info
+		- handoff process (it is important to clearly switch staff for long incidents)
+	- "it depends" when you declare an incident on your company rules, but better early then late (generally customer impact OR the complexity OR the problematicity is key sign)
+- notes:
+	- consider different paths to incident resolution
+	- routinely practice incident management
+
+#### Postmortems
+- allow to learn from failure
+- commonly includes: incident, impact, actions taken, root cause, actions to be taken to prevent such incidents with proper priority
+- it takes time, so should be written for serious staff only (ex: user impact, data loss, mitigation was quite problematic OR long, incident was discovered manually not via monitoring)
+- postmortem can't shame people/teams
+- must be reviewed by peers & management
+- to introduce postmortems:
+	- create a workflows
+	- reward proper postmortem & highlight result
+	- enforce
+
+#### Tracking Outages
+- postmortems highlight large problems, but smaller fade away
+- analytics over alerts, outages and similar events allow to see trends, problems and evaluate impacts better
+- for better future usage alerts could:
+	- be tagged
+	- aggregated with each other under single incident
+
+#### Testing for Reliability
+- testing reduces uncertainty in changes
+- tests are great way to automatically "repair" broken system by not allowing it to be delivered at all
+- e2e tests can be quite complicated and unreliable, because they are ran on not hermetic env (source code change should produce green suit, but it fails due to improper config changes)
+- tests configs
+	- fail in config tests is clear blocker to app deploy with this config
+- canary tests are great way to safely rollout changes, BUT consider that failed canaries might produce broken data OR inconsistent system state
+- how to cover existing system with tests
+	- prioritize important parts of the system AND parts that are dependencies for other teams
+	- add primitive smoke tests
+	- add tests for each new bug
+	- CI/CD with tests
+		- notify engineers if tests are red
+		- ideally tests against affected by changes code
+	- set explicit coverage goals
+- it might be challenging to test eventually consistent systems, so additional method should be introduced
+- chaos monkey testing can be helpful
+	- failed cases should be reproducible via logs
+	- failed cases should be converted to proper tests
