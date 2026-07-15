@@ -341,3 +341,47 @@ title: Notes of "SRE at Google" by O'Reilly
 - chaos monkey testing can be helpful
 	- failed cases should be reproducible via logs
 	- failed cases should be converted to proper tests
+- rerunning tests and seen statistical output of failures and passes can signify test flackiness and change of it's level due to changes
+- some tests failures are more critical then others
+- SRE tools should be tested too
+- force deployment is critical for fast releases
+- test bad & good scenarios (note that not everything can be tested against prod)
+
+#### SE in SRE
+- SE is important part of SRE, because it allows to put in-depth SRE knowledge into tooling creation, that adds automatization and similar benefits to whole system
+	- this result in great in-house tooling
+- service capacity planning
+	- focus on intents from service, not on instructions when counting needed resources
+	- account for your dependents
+	- set priorities on what intents are more important
+	- account for: performance, budgets, resource availability & forecast data
+- SRE teams might need to learn details of project development
+	- communicate benefits from SE
+	- hire people that can fill gaps of PM/PO for SRE team
+	- launch fast and iterate
+	- keep-up same standards (review, testing etc) as for normal development
+- note:
+	- when building fuzzy things focus on clear interfaces, modularity and generality
+	- adoption of new tooling
+		- raise awareness of problem and efficiency of your solution
+		- listen to your audience
+		- have strategy
+		- have upper-management support
+		- give proper promises (good enough to consider your solution, BUT not too much) AND set clear roadmap
+		- find your audience
+		- give support to adopters
+		- success != 100% adoption
+	- don't design too generalized OR too focused software
+
+#### Load Balancing at the FE
+- DNS
+	- receive user request, calculate set of closest not very loaded machines, send back a set of IPs (Virtual IPs) back to user
+		- remember about:
+			- caching at different layers
+			- size of DNS response is limited
+			- client might not load balance received IPs
+			- different DNS resolvers are used by different amount of people, based on location
+- V(irtual)IP
+	- VIP allows user to connect to some machine, that will reroute request to different machine, while preserving the IP
+	- prefer stateless protocols and use consistent hashing for stateful
+	- ideally machine should response directly to request maker, not via load balancer to avoid network consumption by large responses
