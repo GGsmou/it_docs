@@ -385,3 +385,36 @@ title: Notes of "SRE at Google" by O'Reilly
 	- VIP allows user to connect to some machine, that will reroute request to different machine, while preserving the IP
 	- prefer stateless protocols and use consistent hashing for stateful
 	- ideally machine should response directly to request maker, not via load balancer to avoid network consumption by large responses
+
+#### Load Balancing at the Datacenter
+- we must keep a bit of leeway of CPU capacity per app, BUT not too much to avoid waist
+- protecting against overload:
+	- if throughput of service falls, stop sending requests
+	- if service asks to reduce traffic - reduce
+		- also great for graceful shutdown
+	- don't connect to too much instances at once (both instance and balancer will be overwhelmed)
+		- monitor instance load and correct this number
+		- to load balance connections don't shuffle randomly, you need proper shuffling algorithm to even distribution, WHILE keeping things shuffled (thus fault tolerant)
+- load balancing algorithms
+	- round robin
+		- simple, but not as effective, due to
+			- different query costs, different states of instances, different machines capabilities
+			- load balancers may have different request rates on them thus causing more load to instances too
+			- other problems like: neighboring tasks increasing load on machine, task restarts consuming more resources to boot
+	- least-loaded round robin
+		- do round robin on subset of least loaded tasks (account that if task has high error rate it must be ignored due to been unhealthy)
+		- limitations:
+			- we aren't accounting load, only number of requests
+			- we aren't account requests from other load balancers
+	- weighted round robin
+		- do round robin on subset of highest scoring tasks (account for: requests, error rate, resource utilization)
+
+#### Handling Overload
+- server degraded responses
+- rely on cache
+- handle overload errors properly
+- model capacity non by queries per sec, BUT via give resources to service
+- restrict and limit traffic for high volume clients
+- throttle on service AND on load balancer
+	- avoid throttles on spikes
+- serve more critical requests and drop less
