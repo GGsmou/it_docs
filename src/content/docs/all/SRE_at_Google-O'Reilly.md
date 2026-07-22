@@ -418,3 +418,51 @@ title: Notes of "SRE at Google" by O'Reilly
 - throttle on service AND on load balancer
 	- avoid throttles on spikes
 - serve more critical requests and drop less
+- retry requests downstream as new separate request
+	- be careful to not self DOS your system with retries (limit retry count per request & per client, retry only one level deep in request chain)
+- live connections can cause performance issues
+	- killing and spawning connection may be more efficient
+	- use single proxy that will handle all connections and single be that will keep one connection
+
+#### Handling Cascading Failures
+- failure of one/set of machines will cause increased load onto other machines, causing cascading overload
+	- even if you can spawn processes to compensate, you need to have in-between time to spawn instance and wait for app to load and stabilize, before serving at proper speed
+- to prevent
+	- test & configure load balancing such it prevents cascading issues
+	- serve degraded or declined results (decline can be done by service OR balancer)
+		- requests can be dropped by priority AND/OR filtered by suspicious activity
+		- remember to fine tune and test degraded mode from time to time
+	- do capacity planning
+	- keep request queue size small to prevent queue overflow, timeouts and constant resource drowning
+	- drop long waiting requests (there is great chance that user deadlined OR refreshed the page, which resulted in new requests ready to be handled)
+	- use randomized exponential backoff on retries
+	- limit shared resources usage by client
+- deadlines
+	- to small will result in retries of heavy requests, to high will drain resources and create bad UX
+	- decline should propagate across request chain (decrease deadline by some fraction to account for network)
+- cache
+	- cache can be used to reduce latency OR as a way to add capacity to service (prefer first type, be very cautious with second one)
+	- if cache need to be warm, limit incoming requests to instance
+- be careful with instance to instance communication due to: locks, additional load, more complex startup
+- testing
+	- look at system under breaking load
+		- ideally breaking should equal serving errors, not dying
+	- test cold and hot instances
+	- test how system recovers
+	- test different part of system in isolation too
+	- test on real traffic (prepare spare capacity in case of failure)
+	- test non-critical parts too
+- addressing failure: increase resources, temporary reduce health checks & tests, restart instances, drop traffic (drop, fix root cause, renew traffic), remove additional optional load, block "DDOS" traffic
+- notes:
+	- rollout of new binary might cause short performance degradation
+	- if possible, communicate with clients on usage patterns of service to be prepared
+
+#### Managing Critical State
+- critical state is often best managed by using distributed systems
+- distributed consensus is basic primitive distributed systems are built upon
+- distributed consensus allows for next patterns (hire-order building blocks of DSs):
+	- Reliable Replicated Datastores (base on Reliable Replicated State Machine)
+	- Leader Election (must be dialed-in properly with some randomness involved to avoid several Prosers dueling for leadership thus system been non-alive for that period)
+	- Distributed Locks & Barriers
+	- Distributed Queues, Atomic Broadcast
+- DS are hard to implement and might have performance penalties if done wrong
