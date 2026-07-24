@@ -466,3 +466,40 @@ title: Notes of "SRE at Google" by O'Reilly
 	- Distributed Locks & Barriers
 	- Distributed Queues, Atomic Broadcast
 - DS are hard to implement and might have performance penalties if done wrong
+- reads can be scaled through replication, which can be consistent via:
+	- consensus
+	- read from leader
+	- quorum leases (gives guarantee that local reads are up to date)
+		- have write penalty
+		- give lease to read for some up-to-date replicas for short time, write must be acknowledge by quorum, if some quorum member dies writes are disabled until lease is active
+- fast paxos may no be faster then regular paxos if connection between nodes is slower then with leader AND it is harder to do batching this way
+- stable leader is great but clients far away from leader may suffer, so doing leader rotation from time to time can be beneficial
+- paxos requires disk writes (multi-paxos even more), so we can optimize it by batching with application disk writes and co-locating writes in optimal manner
+- deployment
+	- for Byzantine system use 3n+1 instances and for non-Byzantine 2n+1 instances to tolerate n failures
+		- note that more node == more cost, bigger overhead
+		- less nodes == higher risk, lower maintenance abilities
+	- in critical failure, you either have to recover state of failed machine OR risk data loss
+	- location is a tradeoff between failure zones AND latency
+		- consider criticality of failing part
+	- account for required capacity
+		- adding replicas increase capacity, BUT it may increase load on leader, add latency, decrease availability
+	- remember that in leader systems leader can be a network bottleneck
+	- in case of leader failure other nodes must have enough network bandwidth too
+	- leader election mechanisms should prefer: longer-running processes, leaders near the bulk of clients, better performing nodes (remember not to overload single node and do proper load balancing)
+	- spread quorum members evenly
+- monitoring
+	- are all members alive
+	- how many members lag behind
+	- is leader exists
+	- how often leader changes
+	- are consensuses reached
+	- seen vs agreed proposals
+	- latency (proposals, between parts of system)
+	- time spent on durable logging
+
+#### Distributed Scheduling
+- simple cron
+	- if machine fails, no job starts
+	- cron config must be persistent
+	- cron doesn't retry jobs, it doesn't handle idempotency (in general there is no single solution for system with side-effects, base line is to prefer skipping task, monitoring skips and resolve separately)
