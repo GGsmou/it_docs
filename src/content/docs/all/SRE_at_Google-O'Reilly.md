@@ -503,3 +503,43 @@ title: Notes of "SRE at Google" by O'Reilly
 	- if machine fails, no job starts
 	- cron config must be persistent
 	- cron doesn't retry jobs, it doesn't handle idempotency (in general there is no single solution for system with side-effects, base line is to prefer skipping task, monitoring skips and resolve separately)
+- cron at scale
+	- must be reliable and deployed on multiple machines
+		- state must be shared (either via shared storage OR each machine should have replicated synced state (can be achieved via single mutually exclusive leader)), and machines must be hot-swappable to fastly execute task without time delay
+			- can be achieved via Paxos or similar algorithm (which requires storage of logs (can be done on each machine with replication WITH snapshotting to external machines))
+	- task must be isolated via container
+	- cron must have recovery mechanisms set in case of partial failures
+		- each operation of a job must be idempotent AND tracked in some external storage to understand whether it was performed
+	- each job must be launched as sync transaction (state that launched, do actions, state that finished with timestamp)
+	- distributed crone will have spikes because people tend to run it at midnight hours
+
+#### Data Processing Pipelines
+- single computation in pipeline is phase, multi-phased pipeline will have N depth (N - number of phases)
+- problems
+	- periodically run pipelines have issue with organic grows and spikes, causing deadlines and resource exhaustion
+		- deadlines will lead to restarts and waisted resources
+		- too many jobs will lead to cascading degradation
+	- uneven chunking of data will throttle the whole pipeline
+	- it might be problematic to allocate resources just in time
+	- monitoring of failed jobs is harder, because process is not continuous
+- Google way
+	- store data in external storage, store pointers to data in in-memory storage with durability, keep actual workers stateless issuing commands to manipulate storage, keep additional shared logic as plug-in solutions
+	- pipeline is broken in stages, that processed by different workers
+		- work is executed exactly once by some exact worker holding the lease
+			- for additional safety worker writes are isolated from each other AND versioning is applied AND validation by token between data store and worker is applied
+		- logs are stored in distributed storage to ensure work can be continued after "death" of a system
+
+#### Data Integrity
+- users should have access to data, and it must be accurate
+	- any failure must be short lived and thus fastly detected, otherwise users will loose trust
+- backups
+	- backups must act as restores (always available and easily loaded to system data), not archives
+	- must be frequently made
+	- must work as continuous point-in-time recovery points
+	- each layer must have redundancy (db is backed up into storage, storage is replicated (ideally between several cloud providers))
+		- note that adding layers increase backup time, so it is a tradeoff
+	- problems: infrequently backups will cause stale data, application versioning might cause data corruption, replication is not backups (malformed data will just propagate through the system)
+	- notes:
+		- some data losses may be unnoticed over weeks, so backups must be kept for a while
+		- data should travel next flow: user moves data to trash, trash is emptied via soft delete, data is purged from system
+			- alternative to soft deletion is lazy deletion (deleted data is unavailable to app, but kept in system by default and purged automatically)
