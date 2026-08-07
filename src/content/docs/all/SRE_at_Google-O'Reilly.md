@@ -539,7 +539,24 @@ title: Notes of "SRE at Google" by O'Reilly
 	- each layer must have redundancy (db is backed up into storage, storage is replicated (ideally between several cloud providers))
 		- note that adding layers increase backup time, so it is a tradeoff
 	- problems: infrequently backups will cause stale data, application versioning might cause data corruption, replication is not backups (malformed data will just propagate through the system)
+	- early detection (bad data will be replicated, backed up and decrease overall quality)
+		- always validate data, don't trust algorithms
+		- validation can be done via product specific rules as batch jobs (potentially with auto-fixes AND with tooling to verify validation results and do actions)
+		- always test backups and recovery mechanisms
+	- principles:
+		- every system has potential bugs in it
+		- trust but verify
+		- hope is not a strategy
+		- have multiple stages of defense
 	- notes:
 		- some data losses may be unnoticed over weeks, so backups must be kept for a while
 		- data should travel next flow: user moves data to trash, trash is emptied via soft delete, data is purged from system
 			- alternative to soft deletion is lazy deletion (deleted data is unavailable to app, but kept in system by default and purged automatically)
+		- to ease service load you can do full backups at off-peak hors with incremental backups
+		- it is ok to use "colder" storage of older backups
+			- still storing too old data is hard task, because of migrations and schema changes, SO prefer investing in early detection
+		- replicate backups & date (you can safe time and resources using redundancy saving mechanisms by layering consecutive changes with algorithms)
+			- additional time savings can come from:
+				- sharding data to backup in parallel (be careful with siblings)
+		- urgent backups should be available 247
+		- recovery process must be possible to monitor
