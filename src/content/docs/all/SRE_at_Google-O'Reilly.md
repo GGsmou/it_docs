@@ -560,3 +560,59 @@ title: Notes of "SRE at Google" by O'Reilly
 				- sharding data to backup in parallel (be careful with siblings)
 		- urgent backups should be available 247
 		- recovery process must be possible to monitor
+
+#### Reliable Product Launches
+- SRE enables fast & reliable launches and iterations
+- practices
+	- write checklist (must come from shared template that maintained over time)
+	- create coordination group (audit, coordinate, gatekeep, educate)
+	- anticipate failure scenarios
+- process must be:
+	- lightweight
+	- robust
+	- consistent
+	- scalable & adaptable
+	- \---
+	- focus in basics, adapt to your case, provide simplified processes for similar launches
+- use & develop common infra
+- checklist:
+	- architecture
+	- stakeholders
+	- integrations (including external once) & infra
+	- capacity planning (account for initial spike, do regional launches)
+	- working with failures (network, datacenters, DoS, dependency failures, partial failures, deadlines)
+	- client behavior & rate-limiting (jitter automatic requests)
+	- processes (including any non-standard processes in dev, rollout & configuration process) & automations
+		- also plan for not meeting launch deadline
+- techniques:
+	- use gradual rollouts (with urgent rollbacks)
+	- use feature-flags (critical change testing, A/B testing, theory verification)
+		- keep them consistent for single user
+	- use hot configs that clients can fetch and update their behaviors
+	- categorize launches and simplify processes for non-risky once
+
+## Management
+- SRE is always about working in team and within teams
+
+#### Accelerating SREs
+- proper onboarding, training & docs is key to fast team grows without too much interruption for senior staff
+- remember to listen new hires and convert their entusiasm into aciton
+- training
+	- patterns
+		- learning program, reverse engineering, postmortem culture (both to read & write them), controlled outages & role-playing (can be based on postmortems), shadow duty (first newcomer is shadow, that he shadowed by senior), mentorship, project work, build learning path with a goal from some starting point
+	- anti-patterns
+		- "do work to study", train only by playbook, don't sharing expertise, solo duty without prep, not changing study program, give only chore tasks
+	- after couple successful solo on-calls learning is self-directed, onboarding is done
+	- verify proper understanding of the system by student
+	- skill to focus on:
+		- reverse engineering
+		- statistical thinking
+		- improvisation & zooming out
+	- notes:
+		- controlled outages must be performed under real OR synthetic load
+			- exercise can be done from good to bad state (collect predictions first) OR from bad to good state
+		- you can ask newcomers to contribute to docs as part of studying
+		- update docs and do knowledge sharing
+
+#### Interrupts
+
