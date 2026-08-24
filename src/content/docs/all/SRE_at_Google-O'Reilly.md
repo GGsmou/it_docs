@@ -615,4 +615,47 @@ title: Notes of "SRE at Google" by O'Reilly
 		- update docs and do knowledge sharing
 
 #### Interrupts
+- types:
+	- pages (always has short response SLO)
+		- managed by primary and secondary duty
+	- tickets (some has response SLO)
+		- can be done via duty OR by team members
+		- might be planned OR ad-hoc
+	- operational responsibilities (toil)
+		- can be done via duty OR by team members
+		- might be planned OR ad-hoc
+- prioritize interrupts based on:
+	- SLO response time, severity, frequency, number of available people, possibility to backlog
+- techniques:
+	- maximize flow state time and minimize interrupts (note that for duty project work is more of an interrupt from duty)
+	- avoid context switches AND try to block time either for interrupts OR for project work
+	- bring more people
+	- always have duty and prioritize interrupts for them
+	- handle interrupts by priority
+	- pass tickets to duty OR to separate ticket person
+	- toil must be standardized, so it is easy to pass between duties
+	- duty and ticket roles should be passed to next person with hand-off (meetings to review tickets are also great, because they allow to see broader picture)
+	- you can mute alerts if you have task to fix it waiting in queue
+	- your team sets the effort and provided service (it is ok to push something to customer, it is ok to have policies in place)
+- notes:
+	- distraction is part of work, BUT overall team should not feel distracted
 
+#### Embedding an SRE to Recover from Operational Overload
+- SRE can be temporary embedded to another team to fix processes and practices to reduce tickets and operational load in future (avoid just helping doing toil)
+- TODO as embedded SRE
+	- learn team & context
+		- identify largest problems and focus on fixing them (push team to learn from it and do the same, unreliable service is often first problem to tackle)
+		- identify future problems (knowledge gaps, unmaintained OR unowned systems, dependence on "we will improve it with next big thing", common alerts aren't fixed, missing SLI/SLO/SLA, no capacity planning, actionless postmortems)
+	- share context with a team
+		- lead by example (write good postmortems for future problems)
+		- don't blame people, help them grow
+		- sort problems (to fix, to build tooling/process to reduce problem)
+	- teach peers and drive change
+		- small, understandable processes will move team to better state
+		- start with SLO/SLI/SLA
+		- assign people to do long-term task AND review the process
+		- write docs and encourage to do the same
+		- alway explain actions & reasoning (even if nobody asked)
+		- ask question (try to embed metrics ANS SLOs in them, ex: how this impacts SLOs of service?)
+	- write post-embed document, telling: perspective, examples, explanations, action items
+		- keep an eye on team for several month, BUT don't engage too closely (reviews are ok)
