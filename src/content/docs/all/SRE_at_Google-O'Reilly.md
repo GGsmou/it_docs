@@ -659,3 +659,54 @@ title: Notes of "SRE at Google" by O'Reilly
 		- ask question (try to embed metrics ANS SLOs in them, ex: how this impacts SLOs of service?)
 	- write post-embed document, telling: perspective, examples, explanations, action items
 		- keep an eye on team for several month, BUT don't engage too closely (reviews are ok)
+
+#### Communication & Collaboration
+- common values and approaches create more homogenized env
+- for proper communication:
+	- establish data flow through you
+	- provide "API" to communicate with you
+- production meetings - meeting to share common status & agree on smth related to service between SRE and other invitees
+	- keep it weekly, not to long/short
+	- common agenda: upcoming changes, metrics, outages, micro view on some pages, micro view on events that didn't page (or didn't required to page), existing action items
+		- prepare agenda in advance
+	- attendance
+		- ideally all SRE from team, potentially SREs from neighboring teams, representative(s) from product team, stakeholders
+		- if it is problematic to invite someone:
+			- invite another member that can substitute, collect info and share meeting results in async manner
+- collaboration (especially cross-team) is critical for any large and substantial project
+	- the more local collaboration the faster it gets, BUT throughput reduces
+		- good processes, work splitting and defined ownership enables scale
+	- contributors must be involved and interested in the project
+	- contributors must be designed properly and agreed upon
+- diverse team with somewhat structured scope tend to perform better
+- SRE must be involved in product team as early as possible
+
+#### The Evolving SRE Engagement Model
+- it might be not enough SREs to cover all projects, so projects need to be tackled somehow
+	- in queue by priority (number of users, dependees, severity of problems)
+	- engage as early as possible to shift left
+	- build platform of infra, that covers common problems and requires little to no SRE involvement to use
+- SRE engages to improve project's
+	- architecture and dependencies
+	- instruments, monitoring, metrics
+	- emergency handling, change management, capacity planning
+	- performance
+- not all services need close SRE engagement
+	- still SRE can consult (note: SRE won't have deep enough understanding of system), share docs etc
+- models
+	- simple production readiness review
+		- team asks to review
+		- SRE(s) chosen
+		- SRE study requirements with a team, plans trainings and syncs
+		- SRE study system (checklist and best practices are verified)
+		- SRE finds what isn't in compliance AND what can be improved (sorts by severity, agrees with team, participate in refactoring)
+		- SRE team is trained to manage the service by PRR lead and product team
+		- SRE acquires permissions etc for management of project
+		- SRE iterates upon service with dev team involvement
+	- simple production readiness review with early engagement
+		- problems with simple PRR: communicational overhead, high involvement of SRE person, lack of shit-left
+		- services that potentially will require SRE engagement are great candidates to do early engagement
+		- it is ok if team engaged, but never fully took on the service
+	- SRE platform
+		- more variety consumes time and increases PRR effort (which already quite big)
+			- also mistakes get repeated
