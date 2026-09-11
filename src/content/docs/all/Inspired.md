@@ -186,5 +186,82 @@ title: Notes of "Inspired" by Marty Cagan
 	- you need to have some product principles that you can rely on in some cases
 		- ex: > “In cases where the needs of the buyers and the sellers conflict, we will prioritize the needs of the buyer, because that's actually the most important thing we can do for sellers.”
 
-#### Product Objectives
+#### Product Objectives (OKRs)
+- > Never tell people how to do things. Tell them what to do, and they will surprise you with their ingenuity.
+- > When performance is measured by results.
+	- The idea here is that you can release all the features you want, but if it doesn't solve the underlying business problem, you haven't really solved anything.
+- OKR (Objectives & Key Results) Techniques:
+	- objectives qualitative, results quantitative
+	- results should be relevant to business results
+	- IC OKRs should contribute to team OKRs which contributes to higher team OKRs etc up to company's OKRs
+	- state & check OKRs periodically (quarterly, annualy etc)
+	- keep number of O and KRs small
+	- track progress
+	- OKRs must be focused on keys things and don't have to cover all team work
+	- failed OKRs must be re-visited in retro (team must have ownership and responsibility over OKRs)
+		- OKRs must have someone responsible
+	- have OKRs scoring
+	- be strict with OKRs with deadlines
+	- be transparent with OKRs
+- main OKRs are assigned by business and related to product, BUT OKRs from other teams to resolve dependencies OR OKRs from functional departments (aka AQA OKRs for AQA Engineer) are also applicable, BUT they aren't more important then business/product OKRs and must be properly managed
 
+#### Product at Scale
+- large order == more process AND requirement for PV & PO
+- OKRs
+	- it is ok to distribute company's OKRs among the teams not equally
+	- platform team OKRs must be focused on enabling product teams
+	- use tooling to handle OKRs from all the teams
+	- use delivery managers to work with deadlined OKRs
+- how to sell a product:
+	- use prototype
+	- share the pain
+	- share how your product contributes to overall PV
+	- share what you learned from product research
+	- share credit
+	- give great demo
+	- gather info and data, be prepared
+	- be excited and enthusiastic
+	- spend time with team
+
+## The Right Process
+- > Combination of techniques, mindset, and culture.
+- Discovery
+	- we need to find single solution to fit many customers
+		- > To do this, we need to be able to test out many ideas, and we need to do this quickly and inexpensively.
+	- > Second, we need to ensure we deliver a robust and scalable implementation that our customers can depend on for consistently reliable value.
+		- keep right balance between delivery speed and reliability
+		- > I always try hard to reserve the term product to describe the state at which we can run a business on it. Specifically, it is scalable and performant to the degree necessary. It has a strong suite of automated regression tests. It is instrumented to collect the necessary analytics. It has been internationalized and localized where appropriate. It is maintainable. It is consistent with the brand promise. And, most important, it is something the team can release with confidence.
+	- building something product grade is hard and slow, SO we need to do discovery first to avoid wasted effort
+	- focus on gaining knowledge from customers with minimal engineering involvement AND minimal pushes to prod
+	- principles:
+		- > We know we can't count on our customers (or our executives or stakeholders) to tell us what to build.
+			- we responsible for final solution (still it can't be found without evidence and validation)
+				- evidence and validation must be found fast and cheaply
+		- establish value
+			- most critical thing
+		- focus on UI/UX
+		- > Functionality, design, and technology are inherently intertwined.
+		- > We expect that many of our ideas won't work out, and the ones that do will require several iterations.
+		- understand your business and how it makes money
+	- discovery might need to think about ethics too
+	- techniques:
+		- framing (big project require alignment and complex - proper risk (tech/product/business) evaluation)
+			- agree on OKRs and DoD
+			- focus on disagreements
+			- focus on problems to be solved, not solutions
+			- opportunity assessment: define OKRs, what customer problem will be fixed, what are target customers (don't target all of them)
+			- customer letter: write product release card of imaginary product as a way of framing
+			- startup canvas (more suitable for new product development):
+				- aka lightweight version of business plan
+				- evaluate > A much broader set of risks, including validating your value proposition, figuring out how you intend to make money, how you plan to get this product out to your customers and sell to them, how much it will cost to produce and sell this product, and what you will measure to track your progress—not to mention determining whether the market is large enough to sustain a business.
+				- also can be used by new PMs to study existing product
+				- focus on large risks first (often it is value risk, other comes next)
+		- planning (scope and plan discovery)
+			- story map (useful for: planning, framing, communication, design etc)
+				- map of -> user activities and v user tasks (top left is most common activity with critical task)
+				- enables > Holistic view and consider where to draw the line in terms of different releases and their associated objectives
+				- can be converted to backlog
+			- customer discovery
+	- notes: 
+		- it is ok to be wrong in discovery, don't be over conservative too
+		- sometimes political factors can be more important then validity
