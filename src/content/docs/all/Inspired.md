@@ -261,7 +261,68 @@ title: Notes of "Inspired" by Marty Cagan
 				- map of -> user activities and v user tasks (top left is most common activity with critical task)
 				- enables > Holistic view and consider where to draw the line in terms of different releases and their associated objectives
 				- can be converted to backlog
-			- customer discovery
-	- notes: 
+			- customer discovery (for large effort things)
+				- discover reference customers AND products for them
+					- ideally discover 6 customers (for b2b, for b2c it can be 10-50) in single market
+						- no more then 8
+						- > if you find you are having real trouble recruiting even four or five prospective customers for this effort, then it's very possible you're chasing a problem that isn't that important, and you will almost certainly have a very hard time selling this product.
+					- > We don't want to turn on the sales or marketing machine until we have evidence that we can help them be successful, and the reference customers are our best evidence.
+					- look for existing customers OR potential that are in need (have some pain)
+						- avoid someone interested only in technology side of things
+						- ideally: customer will spend time with you, customer is well-recognized
+				- your aren't building custom solution OR several solutions, BUT a generic product
+				- customer must agree to participate publicly
+				- this customers could become your future early adopters of other features
+		- ideation (generate right ideas to solve business problems, remember to validate ideas)
+			- customer interviews (most powerful technique)
+				- focus on: finding right customers
+				- figure out: do they have problems you think they have, how they solve them, how force them to switch products
+					- rules:
+						- keep frequent, not prove anything to customer, focus on your market, ideally offline, include PM+designer(driver of meeting)+dev, focus on current state AND then wishes, sync with colleagues, keep promises to customers
+				- interview can be converted to customer tests if time allows
+			- concierge test
+				- do customers work to study them AND understand process they are going through
+					- easier alternative is just to spend time with customers
+			- allow customers to mis-use product, observe, adapt product for new needs
+			- organize themed hackathons
+		- prototyping (developing throw away product to test)
+			- prototype can test different things:
+				- feasibility (done by devs to test possibility of doing something)
+					- note that it might be better to just use another approach that avoid feasibility problem
+				- user (test simulated product on users)
+					- can be low fidelity wireframe just for exploring OR high fidelity near real UIs built by devs OR designers
+					- be careful with user validation (user like prototype != converted user)
+				- live (send live traffic over prototype and collect needed data)
+					- live prototype != final & ready solution
+			- > Remember that product discovery is all about coming up with the fastest, cheapest way to test out our ideas.
+			- principles:
+				- learn something fast (must be much faster then developing something)
+				- dive deep
+				- potential collaboration space to share knowledge
+				- choose right level of fidelity
+				- focus on some product related risks (value, usability, feasibility, or viability)
+			- notes:
+				- prototype can become spec
+		- testing (test core questions to be true)
+			- value
+			- usability
+				- recruit users from proper market (email, call on website, public lists, events)
+				- ideally live (compensate user for their time) with high fidelity prototype
+				- PM, designer & dev are included
+				- test common use-cases
+				- learn from tests
+				- if you tests on customer's device, pay attention to device properties
+				- flow: briefly discuss current customer problem, tell to give radical feedback AND remember that it is prototype, keep user using UI not criticizing it first, avoid helping user BUT encourage them (look for success, success with struggle, not finished flows), discuss with user what he is doing
+				- find friction points and learn from them, share learnings with the team (prototype can be adapted to new learnings)
+			- feasibility
+			- business validity
+	- notes:
 		- it is ok to be wrong in discovery, don't be over conservative too
 		- sometimes political factors can be more important then validity
+		- good product must drive sales, not sales that force changes in product
+		- try to convert customer into reference customer (the one that will recommend your product)
+		- PMF
+			- > Product/market fit shows up in terms of happier customers, lower churn rates, shortened sales cycles, and rapid organic growth.
+			- access PMF:
+				- survey core customers with question: "how they'd feel if they could no longer use this product"
+			- PMF enables development of product AND doesn't mean that product is done and ideal
