@@ -304,7 +304,50 @@ title: Notes of "Inspired" by Marty Cagan
 			- notes:
 				- prototype can become spec
 		- testing (test core questions to be true)
-			- value
+			- value (you must bring more to the table then just feature parity with other products)
+				- demand (for new product OR demand to find something better then existing solutions) testing
+					- add "go to feature" button and redirect user to info page (tell that you are testing possibility of this feature AND want to know more by speaking with them)
+						- collect clicks data
+						- for larger scale you can develop fake landing pages
+				- qualitatively (is it good, will customer pay for it etc AND why not; gain insights)
+					- you need to do multiple tests to gain whole picture
+					- flow:
+						- interview
+						- usability test (if it is not done, user will not be familiar with your product and rather will hypothesize what he want AND not what really is your product)
+						- value test
+							- users often will be nice to you, so push for feedback
+							- ask:
+								- are you willing to by it?
+								- will you recommend it?
+									- even more you can ask to submit email to verify sincerity
+								- can user give you more time to work on product?
+							- notes:
+								- always identify why customers can give you substantially different answers
+								- don't offload this activity as PM, it is important to do it by yourself
+				- quantitatively (how well product solves problem; collect evidence)
+					- you can focus on collecting evidence OR shooting for statistically significant result
+					- A/B testing
+						- > Keep in mind that this is a slightly different type of A/B test than optimization A/B testing. Optimization testing is where we experiment with different calls to action, different color treatments on a button, and so forth. Conceptually they are the same, but in practice there are some differences. Optimization testing is normally surface‐level, low‐risk changes, which we often test in a split test (50:50). In discovery A/B testing, we usually have the current product showing to 99 percent of our users, and the live‐data prototype showing to only 1 percent of our users or less. We monitor the A/B test more closely.
+					- invite only testing
+						- note that your are generally testing against early adopter user type
+					- customer discovery testing
+					- notes:
+						- balance time, risk and amount of traffic you have WITH test you do to make it suitable for your company and to gain proper knowledge
+						- usages of analytics
+							- understanding customer behavior (how & what people use, what is not used)
+							- measure product progress (set numbered goals AND track their execution)
+							- prove that ideas work (A/B tests)
+							- inform decisions (make data-driven decisions, instead of opinionated)
+							- inspire (gain insights for new products from data)
+						- types of analytics:
+							- user behavior analytics (click paths, engagement)
+							- business analytics (active users, conversion rate, lifetime value, retention)
+							- financial analytics (ASP, billings, time to close)
+							- performance (load time, uptime)
+							- operational costs (storage, hosting)
+							- go‐to‐market costs (acquisition costs, cost of sales, programs)
+							- sentiment (NPS, customer satisfaction, surveys)
+						- anonymize and aggregate analytics, avoid raw and sensitive data collection
 			- usability
 				- recruit users from proper market (email, call on website, public lists, events)
 				- ideally live (compensate user for their time) with high fidelity prototype
@@ -315,7 +358,38 @@ title: Notes of "Inspired" by Marty Cagan
 				- flow: briefly discuss current customer problem, tell to give radical feedback AND remember that it is prototype, keep user using UI not criticizing it first, avoid helping user BUT encourage them (look for success, success with struggle, not finished flows), discuss with user what he is doing
 				- find friction points and learn from them, share learnings with the team (prototype can be adapted to new learnings)
 			- feasibility
+				- give engineer time & resource to validate feasibility of an idea
+					- validate amount of time and effort required, not only the possibility
+					- don't invest in not worthy things
 			- business validity
+				- for product to be have business validity it must be valid to stakeholders and operate within their constraints
+				- marketing (cares: enabling sales, brand, been competitive)
+					- > If what you are proposing to build could impact the sales channel, the major marketing programs, or is potentially outside of the brand promise (the range of things your customers expect from your company), then you'll want to discuss this with marketing and show them prototypes of what you are proposing before you consider building anything.
+				- sales
+					- design products around strength and weakness of sales channels
+					- > If what you are proposing would represent a departure from what the sales channel has proven their ability to sell, sit down with the sales leadership and show them what you are proposing
+				- customer success (companies can have model of helping customers OR almost not helping)
+					- gain insights from customer service if you have high-help model
+				- finance
+					- > If there are cost issues involved, sitting down with someone in finance and modeling the costs will be critical to demonstrating to leadership that you have worked out a viable approach.
+				- legal
+					- > Privacy concerns, compliance concerns, intellectual property, and competitive issues are all common constraints related to legal.
+				- business development
+					- you need to respect existing obligations and contracts your company has
+				- security
+				- c-level
+					- will first of all validate everything mentioned prior to this
+			- notes:
+				- it may be hard to test on large scale even with 1% of customer, SO you can be more conservative: NDA sign-off by customers, invite-only list of clients
+				- be careful with too may dramatic changes, they will scare your customers
+				- showing a product has different variants:
+					- usability testing
+					- demo (show customer polished "scripted" demo to sale)
+					- walkthrough (show product to stakeholders with depth and details to get feedback)
+	- transformation (transform company to product driven)
+		- discovery sprint (spend week on finding & validating solutions to some problem, end week with customer validation)
+			- basically you do all techniques above in a week
+			- useful to: speed up things, learn product discovery, unblock team
 	- notes:
 		- it is ok to be wrong in discovery, don't be over conservative too
 		- sometimes political factors can be more important then validity
