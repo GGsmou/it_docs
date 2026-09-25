@@ -390,6 +390,10 @@ title: Notes of "Inspired" by Marty Cagan
 		- discovery sprint (spend week on finding & validating solutions to some problem, end week with customer validation)
 			- basically you do all techniques above in a week
 			- useful to: speed up things, learn product discovery, unblock team
+		- pilot team (assign team to try new workflow for 1-2 Qs and measure results)
+			- people should be open to change
+		- deprecating roadmaps
+			- continue with roadmap for 1 year, BUT assign OKRs for each roadmap item and measure impact of feature (highlight negative impact too)
 	- notes:
 		- it is ok to be wrong in discovery, don't be over conservative too
 		- sometimes political factors can be more important then validity
@@ -400,3 +404,72 @@ title: Notes of "Inspired" by Marty Cagan
 			- access PMF:
 				- survey core customers with question: "how they'd feel if they could no longer use this product"
 			- PMF enables development of product AND doesn't mean that product is done and ideal
+
+#### Processes at Scale
+- processes is inevitable at scale, BUT bad processes kill innovation and companies
+- processes:
+	- managing stakeholders (stakeholder is not all your peers, BUT a person who has veto over product, ex: CEO, finance, legal, partners, compliance, business development)
+		- understand & follow constraints before building anything
+			- have trust to avoid control over you
+			- inform your stakeholders in critical moments
+		- be open and transparent
+		- have 1-1s with critical stakeholders
+		- share plans before building
+			- ideally in form of high fidelity prototypes
+		- be data-driven
+	- communicating product learning
+		- sharing learnings and context is critical, especially with grows (despite it becoming harder to do)
+			- ex: key discovery findings can be briefly shared in all-hands meeting
+				- especially it is great to share negative findings
+- notes
+	- be intentional with hiring (culture fit matters)
+	- have strong product culture
+
+## The Right Culture
+#### Good VS Bad Team
+- have product vision
+- get inspiration from OKRs, customer struggles and data
+- understand stakeholder constraints
+- do rapid discovery & brainstorming
+- keep teams cross-functional AND make members work closely
+- innovate (safely)
+- have strong teams
+- give engineers time to learn/develop prototype and investigate
+- engage with end users
+- drop non-working ideas
+- iterate
+- be data-driven
+- have good CI/CD
+- nurture reference customers
+- achieve OKRs NOT do tasks
+
+#### Loss of Innovation
+- if you stop innovating - you die
+- causes:
+	- no focus on customers
+	- missing product vision and future vision
+	- pleasing every customer
+	- weak team
+	- non-stable teams
+	- engineers non-engaged in discovery
+	- going full risk-free mode
+	- non-empowered teams
+	- non-product mindset
+	- no time to innovate
+
+#### Loss of Velocity
+- if you slow to deliver - you die
+- causes:
+	- unmanaged tech debt
+	- weak team
+	- infrequent releases
+	- lack of strategy
+	- lack of co-location OR outsourced teams
+	- late involvement of engineering in discovery
+	- lack of stable priorities
+	- strive for consensus
+
+#### Creating Strong Product Culture
+- product culture enables rapid innovation and fast delivery
+- innovative teams are: open minded, experimental, empowered, tech driven, understand customer & business needs, diverse
+- fast in delivery teams are: fast, deadline-driven, have strong ownership, collaborative, result driven, recognize failures and achievements
